@@ -28,23 +28,8 @@ jobs:
 
       - name: Build app bundle
         run: |
-          npx -y esbuild@0.24.0 _dist/js/app/main.tsx \
-            --bundle --format=iife --target=es2020 --minify \
-            --outfile=_dist/js/app.bundle.js \
-            --external:react --external:react-dom --external:react-dom/client \
-            --external:react/jsx-runtime \
-            --external:@emotion/react --external:@emotion/styled \
-            --external:@mui/material --external:@mui/material/* \
-            --loader:.ts=ts --loader:.tsx=tsx \
-            --alias:~william=./vendor/william-shared
-          npx -y esbuild@0.24.0 vendor/william-shared/william-front.js \
-            --bundle --format=iife --target=es2020 --minify \
-            --outfile=_dist/js/william-front.bundle.js \
-            --external:react --external:@mui/material
-          npx -y esbuild@0.24.0 vendor/william-shared/app-shell.jsx \
-            --bundle --format=iife --target=es2020 --minify \
-            --outfile=_dist/js/app-shell.bundle.js \
-            --alias:~william=./vendor/william-shared
+          npm install --no-save esbuild@0.24.0
+          node scripts/build.mjs
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
