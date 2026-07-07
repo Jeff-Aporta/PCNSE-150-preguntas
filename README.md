@@ -67,7 +67,7 @@ Genera tres bundles IIFE en `_dist/js/` que se cargan en orden desde `loader.mjs
 
 ## Publicar en GitHub Pages
 
-1. Crea el repo en GitHub: `jagudeloe/william-quest`.
+1. Crea el repo en GitHub: `Jeff-Aporta/william-quest` (o tu fork personal).
 2. Push a `main` — el workflow `.github/workflows/deploy-ghpages.yml` ejecuta `node scripts/build.mjs` y publica el artefacto en `gh-pages` automáticamente.
 3. Configura GitHub Pages: **Settings → Pages → Source: `gh-pages` branch / root**.
 
@@ -104,4 +104,4 @@ MIT — Úsalo libremente, modifícalo, compártelo.
 
 ---
 
-Hecho con neon-glass por **jagudeloe** — InSoft / Jeff-Aporta / Personal Apps ecosystem.
+Hecho con neon-glass por **Jeff-Aporta** — InSoft / Personal Apps ecosystem.
