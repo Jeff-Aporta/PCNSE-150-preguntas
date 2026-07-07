@@ -1,7 +1,7 @@
 {
   "name": "william-quest",
-  "version": "1.0.0",
-  "description": "Simulador gratuito de opción múltiple para el examen PCNSE (Palo Alto Networks Certified Security Engineer). 50 preguntas con audio TTS en español, tips y explicaciones.",
+  "version": "2.0.0",
+  "description": "Simulador gratuito de opción múltiple para el examen PCNSE (Palo Alto Networks Certified Security Engineer). 150 preguntas con audio TTS en español, tips y explicaciones.",
   "private": true,
   "type": "module",
   "scripts": {
