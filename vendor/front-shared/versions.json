@@ -1,0 +1,10 @@
+{
+  "react": "18.3.1",
+  "mui": "9.1.0",
+  "emotionReact": "11.14.0",
+  "emotionStyled": "11.14.1",
+  "babelStandalone": "7.26.9",
+  "cdn": "esm.sh",
+  "frontSharedRef": "a13fc29",
+  "note": "MUI v6+ no publica bundle UMD; usar import map + esm.sh. frontSharedRef acepta SHA (git short) o tag inmutable release-YYYY-MM-DD — preferir tag para releases."
+}

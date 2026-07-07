@@ -1,0 +1,30 @@
+* text=auto eol=lf
+
+# JS / TS
+*.js   text eol=lf
+*.jsx  text eol=lf
+*.ts   text eol=lf
+*.tsx  text eol=lf
+*.mjs  text eol=lf
+*.json text eol=lf
+*.css  text eol=lf
+*.html text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.ps1  text eol=lf
+*.py   text eol=lf
+
+# Binaries
+*.mp3  binary
+*.png  binary
+*.jpg  binary
+*.svg  binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
+
+# Packages (no subir)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

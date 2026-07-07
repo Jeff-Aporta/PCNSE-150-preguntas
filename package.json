@@ -1,0 +1,25 @@
+{
+  "name": "william-quest",
+  "version": "1.0.0",
+  "description": "Simulador gratuito de opción múltiple para el examen PCNSE (Palo Alto Networks Certified Security Engineer). 50 preguntas con audio TTS en español, tips y explicaciones.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "powershell -ExecutionPolicy Bypass -File scripts/dev-server.ps1",
+    "build": "node scripts/build.mjs",
+    "build:tscheck": "tsc --noEmit -p tsconfig.json",
+    "validate:audio": "powershell -ExecutionPolicy Bypass -File scripts/validate-audio.ps1"
+  },
+  "keywords": [
+    "PCNSE",
+    "Palo Alto Networks",
+    "simulador",
+    "firewall",
+    "neon-glass",
+    "typescript",
+    "react",
+    "mui"
+  ],
+  "author": "jagudeloe",
+  "license": "MIT"
+}

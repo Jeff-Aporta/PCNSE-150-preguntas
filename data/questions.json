@@ -1,0 +1,1623 @@
+{
+  "metadata": {
+    "exam": "PCNSE — Palo Alto Networks Certified Security Engineer",
+    "version": "1.0",
+    "language": "es-CO",
+    "totalQuestions": 50,
+    "topics": [
+      "App-ID",
+      "User-ID",
+      "Content-ID",
+      "Security Policies",
+      "NAT",
+      "VPN",
+      "Panorama",
+      "HA",
+      "Decryption",
+      "WildFire",
+      "Troubleshooting"
+    ]
+  },
+  "questions": [
+    {
+      "id": "q001",
+      "topic": "App-ID",
+      "difficulty": "intermedio",
+      "question": "Un usuario reporta que Slack funciona en la oficina pero el firewall está bloqueando la aplicación en una nueva subred. Usted revisa la política de seguridad y ve una regla que permite 'ssl' desde la zona Trust hacia la zona DMZ. ¿Cuál es la causa más probable del bloqueo?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Falta una licencia de App-ID para identificar Slack en el firewall."
+        },
+        {
+          "id": "B",
+          "text": "La política solo permite el servicio 'ssl' (puerto) y no la aplicación 'slack-base', por lo que App-ID no puede distinguirla ni autorizarla explícitamente."
+        },
+        {
+          "id": "C",
+          "text": "Slack requiere que el perfil de Decryption esté activado, de lo contrario el firewall no lo identifica."
+        },
+        {
+          "id": "D",
+          "text": "El firewall no incluye la firma de Slack en la base de datos de App-ID por defecto."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "Cuando la regla usa el servicio 'ssl' (basado en puerto 443), App-ID no puede ver el tráfico cifrado y, por tanto, no identifica Slack. Aunque la conexión pase, la política podría no aplicar controles App-ID. Lo correcto es permitir la aplicación 'slack-base' o 'slack' en la regla para que App-ID la inspeccione.",
+      "explanations": {
+        "A": "Incorrecto: App-ID viene con todas las firmas preinstaladas; no requiere licencia por aplicación individual.",
+        "B": "Correcto: 'ssl' como servicio es solo puerto 443. Para que App-ID identifique y controle Slack, la regla debe permitir la aplicación 'slack' o 'slack-base'.",
+        "C": "Incorrecto: Decryption ayuda a ver más apps, pero no es un requisito para identificar Slack en tráfico ya encriptado — la firma funciona sobre TLS visible tras el handshake inicial.",
+        "D": "Incorrecto: La firma de Slack viene incluida en las actualizaciones periódicas de App-ID."
+      }
+    },
+    {
+      "id": "q002",
+      "topic": "App-ID",
+      "difficulty": "avanzado",
+      "question": "Su organización necesita que el firewall identifique una aplicación interna personalizada que se conecta al puerto TCP 8443 con un header HTTP-X-Custom: APPWILL. ¿Qué mecanismo de App-ID debería usar?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Crear un objeto de aplicación personalizada basado en firma (Application Override) con el header específico."
+        },
+        {
+          "id": "B",
+          "text": "Definir una aplicación personalizada con patrones (pattern matching) en el encabezado HTTP y, opcionalmente, el puerto 8443."
+        },
+        {
+          "id": "C",
+          "text": "Habilitar la categoría 'custom-apps' en el perfil de URL Filtering."
+        },
+        {
+          "id": "D",
+          "text": "El firewall no puede identificar aplicaciones personalizadas; debe comprar el módulo Advanced App-ID."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "Las aplicaciones personalizadas (Custom Applications) en Palo Alto se definen con condiciones (signatures) que combinan patrones de capa 7 (como un header HTTP específico), puertos o incluso SSL. La firma resultante queda en la base local y App-ID la evalúa junto con las firmas de fábrica.",
+      "explanations": {
+        "A": "Incorrecto: Application Override ignora App-ID y fuerza la identificación a nivel 3/4. No es el camino para que App-ID reconozca tu app.",
+        "B": "Correcto: Custom Applications con pattern matching (por ejemplo, una signature basada en el header 'HTTP-X-Custom: APPWILL') es exactamente el mecanismo para enseñar al firewall una app interna.",
+        "C": "Incorrecto: URL Filtering clasifica URLs, no aplicaciones ni headers.",
+        "D": "Incorrecto: App-ID permite crear firmas personalizadas sin coste adicional."
+      }
+    },
+    {
+      "id": "q003",
+      "topic": "App-ID",
+      "difficulty": "intermedio",
+      "question": "¿Cuál de las siguientes describe correctamente la diferencia entre 'Application' y 'Application Group' en una política de seguridad?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Application Group es un contenedor que agrupa varias aplicaciones individuales y sub-grupos bajo un mismo nombre lógico para reutilizarlas en políticas."
+        },
+        {
+          "id": "B",
+          "text": "Application Group es un alias de Application: ambos se comportan idéntico en las reglas."
+        },
+        {
+          "id": "C",
+          "text": "Application Group solo sirve para agrupar aplicaciones de la misma categoría, no sirve para技术服务 como 'web-browsing'."
+        },
+        {
+          "id": "D",
+          "text": "Application Group es una licencia premium; con la licencia base solo se pueden usar Applications individuales."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "Un Application Group es un objeto lógico que contiene varias aplicaciones (y otros grupos) para simplificar reglas. Por ejemplo, un grupo 'colab-tools' puede contener 'slack-base', 'microsoft-teams', 'zoom' y así solo lo agregas una vez a la regla.",
+      "explanations": {
+        "A": "Correcto: Es la definición exacta. Permite jerarquías y reutilización limpia en múltiples reglas.",
+        "B": "Incorrecto: Los grupos no son alias; permiten combinar y reutilizar, lo cual cambia cómo escalas políticas.",
+        "C": "Incorrecto: Los grupos pueden mezclar cualquier aplicación, sin importar categoría o tecnología.",
+        "D": "Incorrecto: No requiere licencia adicional."
+      }
+    },
+    {
+      "id": "q004",
+      "topic": "App-ID",
+      "difficulty": "básico",
+      "question": "¿En qué capa del modelo OSI trabaja principalmente App-ID para identificar aplicaciones?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Capa 2 (enlace)"
+        },
+        {
+          "id": "B",
+          "text": "Capa 4 (transporte)"
+        },
+        {
+          "id": "C",
+          "text": "Capa 7 (aplicación), apoyándose en información de capa 3/4 cuando es necesario."
+        },
+        {
+          "id": "D",
+          "text": "Capa 1 (física)"
+        }
+      ],
+      "correctAnswer": "C",
+      "tip": "App-ID inspecciona firmas en capa 7 (patrones de protocolo, headers, payloads), pero también usa información de capa 3/4 (puertos, IPs) como primer filtro y, sobre todo, para acelerar la identificación cuando el patrón único es claro.",
+      "explanations": {
+        "A": "Incorrecto: La capa 2 no tiene sentido de aplicación.",
+        "B": "Incorrecto: La capa 4 solo identifica puerto/protocolo, no la aplicación específica.",
+        "C": "Correcto: App-ID clasifica firmas de capa 7 con apoyo de capa 3/4.",
+        "D": "Incorrecto: La capa 1 es medio físico."
+      }
+    },
+    {
+      "id": "q005",
+      "topic": "App-ID",
+      "difficulty": "avanzado",
+      "question": "Una aplicación desconocida llega por HTTPS al puerto 443 sin descifrar. ¿Cómo la trata App-ID por defecto?",
+      "options": [
+        {
+          "id": "A",
+          "text": "La bloquea inmediatamente."
+        },
+        {
+          "id": "B",
+          "text": "La clasifica como 'ssl' o 'unknown-tcp' según el contexto y le aplica las políticas correspondientes."
+        },
+        {
+          "id": "C",
+          "text": "La clasifica como 'web-browsing' por defecto."
+        },
+        {
+          "id": "D",
+          "text": "Reinicia la conexión para forzar un handshake nuevo."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "Sin descifrado, App-ID solo ve el handshake TLS y el SNI (si está). Si la firma no es concluyente, identifica la sesión como 'ssl' o, en casos más oscuros, como 'unknown-tcp'. Por eso PCNSE insiste en la importancia de Decryption para granularidad real.",
+      "explanations": {
+        "A": "Incorrecto: App-ID no bloquea por defecto; solo clasifica para que la política decida.",
+        "B": "Correcto: Es el comportamiento esperado. La granularidad real exige Decryption.",
+        "C": "Incorrecto: 'web-browsing' requiere ver la capa HTTP, lo cual no es posible sin descifrar.",
+        "D": "Incorrecto: App-ID no manipula la conexión; solo observa."
+      }
+    },
+    {
+      "id": "q006",
+      "topic": "User-ID",
+      "difficulty": "intermedio",
+      "question": "¿Cuál de los siguientes NO es un método válido para poblar el mapeo Usuario-IP en Palo Alto Networks?",
+      "options": [
+        {
+          "id": "A",
+          "text": "User-ID Agent conectado al Active Directory."
+        },
+        {
+          "id": "B",
+          "text": "Terminal Server Agent (TSA) para entornos Citrix/RDP."
+        },
+        {
+          "id": "C",
+          "text": "XML API para integraciones con sistemas externos (como NAC o portales cautivos)."
+        },
+        {
+          "id": "D",
+          "text": "SNMP Trap desde el switch core para mapear MAC a usuario."
+        }
+      ],
+      "correctAnswer": "D",
+      "tip": "SNMP Traps no es un método nativo de User-ID. Los métodos soportados son: User-ID Agent, Terminal Server Agent (TSA), XML API, GlobalProtect, Captive Portal y la integración con syslog de algunos vendors (parsers específicos, no genéricos).",
+      "explanations": {
+        "A": "Incorrecto (es válido): El User-ID Agent es el método principal en AD.",
+        "B": "Incorrecto (es válido): TSA es la solución para Citrix y RDP.",
+        "C": "Incorrecto (es válido): XML API es la salida/entrada programática estándar.",
+        "D": "Correcto: No existe soporte nativo de SNMP Trap para User-ID."
+      }
+    },
+    {
+      "id": "q007",
+      "topic": "User-ID",
+      "difficulty": "intermedio",
+      "question": "El firewall está reportando usuarios 'unknown' en los logs aunque todos están en el dominio. ¿Cuál es la primera causa que debería validar?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Que el User-ID Agent no esté configurado o no esté conectado al firewall."
+        },
+        {
+          "id": "B",
+          "text": "Que los usuarios tengan contraseñas expiradas."
+        },
+        {
+          "id": "C",
+          "text": "Que el firewall no tenga licencia de User-ID."
+        },
+        {
+          "id": "D",
+          "text": "Que el switch no soporte VLANs."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "Si el User-ID Agent no está conectado (o no tiene permisos para leer eventos de login en los DCs), el firewall nunca recibe los mapeos Usuario-IP y todo aparece como 'unknown'. La primera validación es la conectividad del agente con los Domain Controllers.",
+      "explanations": {
+        "A": "Correcto: Es la causa más común y el primer lugar a revisar.",
+        "B": "Incorrecto: El estado de la contraseña no afecta la lectura de eventos.",
+        "C": "Incorrecto: User-ID viene habilitado con la licencia base; no requiere extra.",
+        "D": "Incorrecto: Las VLANs no afectan User-ID."
+      }
+    },
+    {
+      "id": "q008",
+      "topic": "User-ID",
+      "difficulty": "avanzado",
+      "question": "En una implementación de Terminal Server Agent, ¿cuál es el papel principal del TSA y por qué es crítico?",
+      "options": [
+        {
+          "id": "A",
+          "text": "TSA cifra el tráfico entre el servidor de terminales y el firewall."
+        },
+        {
+          "id": "B",
+          "text": "TSA identifica qué usuario está usando cada sesión RDP/Citrix y reporta el mapeo Usuario-IP al firewall."
+        },
+        {
+          "id": "C",
+          "text": "TSA solo sirve para distribuir licencias de Remote Desktop."
+        },
+        {
+          "id": "D",
+          "text": "TSA reemplaza al User-ID Agent cuando hay Citrix."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "En entornos Citrix/RDP todos los usuarios salen al firewall con la IP del servidor de terminales. TSA corre dentro de la sesión y lee el nombre de usuario para que el firewall sepa quién está detrás de cada conexión.",
+      "explanations": {
+        "A": "Incorrecto: TSA no cifra; solo lee la sesión para extraer el usuario.",
+        "B": "Correcto: TSA es el puente entre el servidor de terminales y el firewall.",
+        "C": "Incorrecto: TSA no gestiona licencias.",
+        "D": "Incorrecto: TSA complementa al User-ID Agent, no lo reemplaza (sigue leyendo eventos de login en DCs)."
+      }
+    },
+    {
+      "id": "q009",
+      "topic": "User-ID",
+      "difficulty": "básico",
+      "question": "¿Qué beneficio principal tiene usar 'user' en lugar de una IP en una política de seguridad?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Permite ver logs más bonitos."
+        },
+        {
+          "id": "B",
+          "text": "Permite que la regla siga al usuario aunque cambie de IP (DHCP, roaming, VPN), reduciendo administración y evitando huecos de seguridad."
+        },
+        {
+          "id": "C",
+          "text": "Es la única forma de usar App-ID."
+        },
+        {
+          "id": "D",
+          "text": "Reduce el consumo de CPU del firewall."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "El modelo 'user-based' desacopla la política de la dirección IP. El firewall consulta el mapeo Usuario-IP (vía User-ID Agent/GP/TSA) en tiempo real, así la regla aplica al usuario esté donde esté.",
+      "explanations": {
+        "A": "Incorrecto: El beneficio es funcional, no estético.",
+        "B": "Correcto: Reduce reglas y mejora la postura de seguridad frente a movilidad.",
+        "C": "Incorrecto: App-ID funciona con o sin User-ID.",
+        "D": "Incorrecto: No es el objetivo principal."
+      }
+    },
+    {
+      "id": "q010",
+      "topic": "User-ID",
+      "difficulty": "intermedio",
+      "question": "Necesita que un usuario específico (jperez) NO pueda acceder a Dropbox aunque esté dentro de un grupo 'marketing' que sí tiene permitido Dropbox. ¿Cómo lo logra?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No es posible; las reglas de Palo Alto no permiten excepciones por usuario."
+        },
+        {
+          "id": "B",
+          "text": "Crear una regla más específica ARRIBA que deniegue a 'jperez' el acceso a 'dropbox', antes de la regla que permite 'marketing' a 'dropbox'."
+        },
+        {
+          "id": "C",
+          "text": "Editar el grupo 'marketing' y quitar al usuario."
+        },
+        {
+          "id": "D",
+          "text": "Cambiar la contraseña de jperez."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "Las reglas se evalúan de arriba a abajo y la primera coincidencia gana. Cree una regla Deny con el usuario específico y la app específica, ubicada antes que la regla Allow del grupo.",
+      "explanations": {
+        "A": "Incorrecto: Sí se puede, vía orden y especificidad.",
+        "B": "Correcto: Regla más específica y ubicada antes.",
+        "C": "Incorrecto: Esa acción borra al usuario del grupo, no es una 'excepción'.",
+        "D": "Incorrecto: No tiene relación con la política."
+      }
+    },
+    {
+      "id": "q011",
+      "topic": "Content-ID",
+      "difficulty": "intermedio",
+      "question": "¿Qué perfil de seguridad inspecciona archivos en busca de malware conocido mediante firmas actualizadas diariamente?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Antivirus"
+        },
+        {
+          "id": "B",
+          "text": "Anti-Spyware"
+        },
+        {
+          "id": "C",
+          "text": "URL Filtering"
+        },
+        {
+          "id": "D",
+          "text": "WildFire"
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "El perfil Antivirus compara archivos contra firmas conocidas y patrones de malware. WildFire es complementario: detecta amenazas nuevas enviando muestras al sandbox en la nube.",
+      "explanations": {
+        "A": "Correcto: Antivirus = firmas conocidas.",
+        "B": "Incorrecto: Anti-Spyware detecta tráfico de comando y control (C2) y spyware basado en firmas DNS/HTTP.",
+        "C": "Incorrecto: URL Filtering clasifica URLs.",
+        "D": "Incorrecto: WildFire es sandbox para amenazas desconocidas."
+      }
+    },
+    {
+      "id": "q012",
+      "topic": "Content-ID",
+      "difficulty": "intermedio",
+      "question": "Recibe una alerta: un host interno está contactando un dominio sospechoso cada 5 minutos, pero el antivirus no detecta nada. ¿Qué perfil debería revisar primero?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Antivirus con firmas actualizadas."
+        },
+        {
+          "id": "B",
+          "text": "Anti-Spyware con firmas de DNS sinkhole y categorías C2."
+        },
+        {
+          "id": "C",
+          "text": "File Blocking solo."
+        },
+        {
+          "id": "D",
+          "text": "Vulnerability Protection."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "El patrón de beacon cada 5 minutos hacia un dominio sospechoso es típico de malware que hace callback a su C2. Anti-Spyware incluye firmas de C2 y DNS sinkhole para cortar ese canal.",
+      "explanations": {
+        "A": "Incorrecto: Si el antivirus no detecta, el binario podría no estar en disco o no tener firma.",
+        "B": "Correcto: Anti-Spyware + sinkhole es la primera línea contra C2.",
+        "C": "Incorrecto: File Blocking previene tipos de archivo, no conexiones.",
+        "D": "Incorrecto: Vulnerability Protection protege contra exploits, no contra callbacks."
+      }
+    },
+    {
+      "id": "q013",
+      "topic": "Content-ID",
+      "difficulty": "básico",
+      "question": "¿Cuál es el orden lógico recomendado al aplicar Content-ID en una política?",
+      "options": [
+        {
+          "id": "A",
+          "text": "URL Filtering → File Blocking → Antivirus/Vulnerability/Anti-Spyware → WildFire."
+        },
+        {
+          "id": "B",
+          "text": "WildFire primero, luego los demás."
+        },
+        {
+          "id": "C",
+          "text": "El orden dentro de la regla no importa; el firewall los aplica en paralelo."
+        },
+        {
+          "id": "D",
+          "text": "File Blocking primero, luego todo lo demás."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "URL Filtering corta temprano lo obvio (categorías maliciosas). Después File Blocking bloquea extensiones riesgosas. Por último los perfiles pesados (Antivirus, Anti-Spyware, Vulnerability Protection y WildFire) para análisis profundo.",
+      "explanations": {
+        "A": "Correcto: De menor a mayor costo computacional.",
+        "B": "Incorrecto: WildFire requiere subir el archivo a la nube; aplicarlo primero es ineficiente.",
+        "C": "Incorrecto: Sí hay un orden de evaluación por perfil.",
+        "D": "Incorrecto: El orden sí afecta rendimiento."
+      }
+    },
+    {
+      "id": "q014",
+      "topic": "Content-ID",
+      "difficulty": "avanzado",
+      "question": "Su organización debe impedir la salida de archivos con datos personales (PII) en PDF. ¿Qué perfil usaría como primera línea?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Data Filtering con un patrón que detecte números de identificación o correos electrónicos."
+        },
+        {
+          "id": "B",
+          "text": "Antivirus."
+        },
+        {
+          "id": "C",
+          "text": "URL Filtering."
+        },
+        {
+          "id": "D",
+          "text": "Anti-Spyware."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "Data Filtering permite definir patrones (regex) para detectar contenido sensible (cédulas, tarjetas, correos) en archivos y tomar acciones como alerta, bloquear o cuarentena.",
+      "explanations": {
+        "A": "Correcto: Data Filtering es la herramienta para DLP básico basado en patrones.",
+        "B": "Incorrecto: Antivirus no inspecciona contenido semántico.",
+        "C": "Incorrecto: URL Filtering no ve el contenido del archivo.",
+        "D": "Incorrecto: Anti-Spyware apunta a C2."
+      }
+    },
+    {
+      "id": "q015",
+      "topic": "Content-ID",
+      "difficulty": "intermedio",
+      "question": "Un usuario intenta descargar un PDF pero el firewall lo bloquea porque la política tiene 'File Blocking' para la extensión 'pdf'. ¿Cuál es el problema de diseño?",
+      "options": [
+        {
+          "id": "A",
+          "text": "PDF nunca debe bloquearse."
+        },
+        {
+          "id": "B",
+          "text": "File Blocking aplica a la subida/descarga de extensiones riesgosas; bloquear PDF de forma genérica rompe la operación. Use File Blocking solo para extensiones peligrosas (exe, bat, js) y use WildFire/Antivirus para análisis de contenido."
+        },
+        {
+          "id": "C",
+          "text": "File Blocking no soporta PDF; el log está mal."
+        },
+        {
+          "id": "D",
+          "text": "El firewall tiene un bug."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "File Blocking está pensado para extensiones de alto riesgo (.exe, .bat, .js, .vbs, etc.). Bloquear PDF por extensión es un anti-patrón: rompe el negocio y deja huecos porque un atacante puede renombrar el archivo.",
+      "explanations": {
+        "A": "Incorrecto: No es sobre la extensión en sí sino sobre usarla mal.",
+        "B": "Correcto: Es la guía de diseño correcta.",
+        "C": "Incorrecto: File Blocking sí soporta PDF en la lista de tipos; el problema es la política, no la herramienta.",
+        "D": "Incorrecto: No es bug."
+      }
+    },
+    {
+      "id": "q016",
+      "topic": "Security Policies",
+      "difficulty": "básico",
+      "question": "¿Cuál es el orden correcto para crear una política de seguridad desde cero en el firewall?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Definir zonas de origen y destino, agregar la regla en orden de mayor a menor especificidad, definir aplicaciones, servicios, perfiles de seguridad y por último la acción (allow/deny)."
+        },
+        {
+          "id": "B",
+          "text": "Definir primero la acción (allow) y luego lo demás."
+        },
+        {
+          "id": "C",
+          "text": "Solo se necesita la acción; el resto es opcional."
+        },
+        {
+          "id": "D",
+          "text": "Las políticas se crean automáticamente."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "Una política de seguridad tiene: zonas src/dst, direcciones src/dst, aplicaciones, servicios, perfiles, acción y opciones (log, schedule). El diseño correcto pone primero lo más específico para evitar sombras.",
+      "explanations": {
+        "A": "Correcto: Este es el flujo de diseño recomendado.",
+        "B": "Incorrecto: La acción va al final tras definir el contexto.",
+        "C": "Incorrecto: Una política sin componentes puede ser ambigua y dejar pasar todo.",
+        "D": "Incorrecto: Las reglas las diseña el administrador."
+      }
+    },
+    {
+      "id": "q017",
+      "topic": "Security Policies",
+      "difficulty": "intermedio",
+      "question": "Después de un commit, nota que una regla que esperaba denegar tráfico HTTPS está siendo 'sombreada' por una regla superior que permite 'web-browsing'. ¿Qué debe hacer?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Mover la regla de denegación ARRIBA de la regla permisiva para que se evalúe primero y gane."
+        },
+        {
+          "id": "B",
+          "text": "Cambiar la regla superior a deny."
+        },
+        {
+          "id": "C",
+          "text": "Eliminar la regla permisiva."
+        },
+        {
+          "id": "D",
+          "text": "Nada; el firewall siempre evalúa la regla más restrictiva."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "Las reglas se evalúan en orden descendente; la primera coincidencia es la que aplica. El 'shadowing' ocurre cuando una regla inferior nunca se evalúa por culpa de una regla superior más general. La solución es reordenarlas: lo específico y restrictivo va primero.",
+      "explanations": {
+        "A": "Correcto: Es la forma correcta de romper el shadowing.",
+        "B": "Incorrecto: Cambiar la acción superior probablemente rompe el negocio.",
+        "C": "Incorrecto: Puede no ser una opción.",
+        "D": "Incorrecto: El firewall aplica la primera coincidencia, no la más restrictiva."
+      }
+    },
+    {
+      "id": "q018",
+      "topic": "Security Policies",
+      "difficulty": "avanzado",
+      "question": "Una regla tiene 'application: any' y 'service: any'. ¿Por qué es una mala práctica?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Es ilegal en Palo Alto."
+        },
+        {
+          "id": "B",
+          "text": "El firewall rechazará la regla al hacer commit."
+        },
+        {
+          "id": "C",
+          "text": "Permite literalmente todo en capa 7, anulando el beneficio de App-ID y Content-ID. Debe especificar al menos las aplicaciones y servicios esperados."
+        },
+        {
+          "id": "D",
+          "text": "No funciona con User-ID."
+        }
+      ],
+      "correctAnswer": "C",
+      "tip": "El valor 'any' en App-ID significa que el firewall no discrimina aplicaciones: deja pasar todo lo que llegue al puerto permitido. Eso destruye la ventaja principal de Palo Alto: control granular por aplicación. La regla debe permitir solo las aplicaciones esperadas.",
+      "explanations": {
+        "A": "Incorrecto: No es ilegal, pero sí es mala práctica.",
+        "B": "Incorrecto: El commit funciona; el problema es semántico.",
+        "C": "Correcto: Pierde la granularidad de Palo Alto.",
+        "D": "Incorrecto: Funciona, pero todo el tráfico será 'unknown' o la app detectada sin control fino."
+      }
+    },
+    {
+      "id": "q019",
+      "topic": "Security Policies",
+      "difficulty": "intermedio",
+      "question": "¿Qué política actúa como 'catch-all' cuando ninguna otra regla coincide?",
+      "options": [
+        {
+          "id": "A",
+          "text": "La regla por defecto (interzone-default) configurada al final."
+        },
+        {
+          "id": "B",
+          "text": "La regla 'any-any-any-allow' por defecto."
+        },
+        {
+          "id": "C",
+          "text": "Una regla personalizada llamada default."
+        },
+        {
+          "id": "D",
+          "text": "No existe tal regla."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "Palo Alto incluye dos reglas predefinidas: intrazone-default (permite tráfico dentro de la misma zona) e interzone-default (deniega tráfico entre zonas distintas). Ambas son editables; el modelo recomendado es mantener interzone-default en deny.",
+      "explanations": {
+        "A": "Correcto: La regla interzone-default es la 'catch-all' entre zonas.",
+        "B": "Incorrecto: 'any-any-any-allow' no es una regla por defecto.",
+        "C": "Incorrecto: Las reglas predefinidas tienen nombres específicos.",
+        "D": "Incorrecto: Sí existe y es importante entenderla."
+      }
+    },
+    {
+      "id": "q020",
+      "topic": "Security Policies",
+      "difficulty": "básico",
+      "question": "¿Para qué sirve la opción 'Schedule' en una política de seguridad?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Para que la regla aplique solo en ciertos horarios o días definidos por el administrador."
+        },
+        {
+          "id": "B",
+          "text": "Para acelerar el rendimiento del firewall."
+        },
+        {
+          "id": "C",
+          "text": "Para configurar backup automático."
+        },
+        {
+          "id": "D",
+          "text": "No tiene utilidad práctica."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "Schedule permite activar o desactivar reglas según fecha y hora (por ejemplo, bloquear redes sociales solo en horario laboral). Es útil para aplicar políticas contextuales sin necesidad de tocar reglas manualmente.",
+      "explanations": {
+        "A": "Correcto: Es la función exacta de Schedule.",
+        "B": "Incorrecto: No es un knob de rendimiento.",
+        "C": "Incorrecto: No tiene relación con backup.",
+        "D": "Incorrecto: Es muy útil."
+      }
+    },
+    {
+      "id": "q021",
+      "topic": "NAT",
+      "difficulty": "intermedio",
+      "question": "Su servidor interno (10.0.1.50) debe ser accesible desde Internet como 200.50.50.50 en el puerto 80. ¿Qué tipo de NAT debe configurar?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Source NAT estático (SNAT)."
+        },
+        {
+          "id": "B",
+          "text": "Destination NAT estático (DNAT), también llamado 'Static IP NAT' con service translation si cambia el puerto."
+        },
+        {
+          "id": "C",
+          "text": "Dynamic IP and Port NAT (DIPP)."
+        },
+        {
+          "id": "D",
+          "text": "No se puede hacer NAT en Palo Alto."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "Cuando un host de Internet quiere llegar a un servidor interno traduciendo la IP destino (y opcionalmente el puerto), se usa Destination NAT. Palo Alto lo implementa con una regla de tipo 'Static' donde se especifica el destination address de salida (la IP pública) y el translated address (la IP privada).",
+      "explanations": {
+        "A": "Incorrecto: SNAT traduce la IP de origen del cliente que sale, no el destino.",
+        "B": "Correcto: DNAT estático es el patrón correcto para publicar un servidor interno.",
+        "C": "Incorrecto: DIPP se usa cuando muchos clientes internos salen por pocas IPs públicas, no para inbound.",
+        "D": "Incorrecto: Palo Alto tiene NAT completo y muy flexible."
+      }
+    },
+    {
+      "id": "q022",
+      "topic": "NAT",
+      "difficulty": "avanzado",
+      "question": "Sus usuarios internos deben acceder al servidor 200.50.50.50 que, después del DNAT, vive en 10.0.1.50. ¿Qué tipo de NAT adicional es típico cuando el tráfico viene desde la misma zona?",
+      "options": [
+        {
+          "id": "A",
+          "text": "No se requiere NAT adicional."
+        },
+        {
+          "id": "B",
+          "text": "U-Turn NAT (hairpin NAT), que permite que un cliente interno use la IP pública para llegar al servidor interno."
+        },
+        {
+          "id": "C",
+          "text": "Source NAT al servidor."
+        },
+        {
+          "id": "D",
+          "text": "WildFire NAT."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "Sin U-Turn, un cliente interno que escribe la IP pública del servidor no puede llegar porque el router no sabe devolver la respuesta a la subred interna. U-Turn NAT traduce el destino (público -> privado) y la fuente (privada -> pública) en una sola regla para que el flujo sea coherente.",
+      "explanations": {
+        "A": "Incorrecto: Sin U-Turn el flujo se rompe por enrutamiento asimétrico.",
+        "B": "Correcto: U-Turn (hairpin) es el patrón canónico para este escenario.",
+        "C": "Incorrecto: SNAT al servidor no resuelve el problema.",
+        "D": "Incorrecto: WildFire es sandbox, no NAT."
+      }
+    },
+    {
+      "id": "q023",
+      "topic": "NAT",
+      "difficulty": "básico",
+      "question": "¿Cuál es la diferencia práctica entre un NAT estático y un NAT dinámico (DIPP)?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Estático traduce 1:1 entre dos IPs; DIPP traduce N:Muchas IPs (o N:Puertos) usando una pool de direcciones."
+        },
+        {
+          "id": "B",
+          "text": "Son lo mismo, solo cambia el nombre según la versión del PAN-OS."
+        },
+        {
+          "id": "C",
+          "text": "Estático solo se usa para IPv6."
+        },
+        {
+          "id": "D",
+          "text": "Dinámico solo funciona con UDP."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "NAT estático = traducción 1:1 persistente. DIPP (Dynamic IP and Port) = N:muchas, ideal para que muchos hosts internos salgan por pocas IPs públicas usando diferentes puertos.",
+      "explanations": {
+        "A": "Correcto: Distinción fundamental.",
+        "B": "Incorrecto: Son funciones distintas.",
+        "C": "Incorrecto: Estático aplica a IPv4 e IPv6.",
+        "D": "Incorrecto: DIPP funciona con cualquier protocolo IP."
+      }
+    },
+    {
+      "id": "q024",
+      "topic": "NAT",
+      "difficulty": "intermedio",
+      "question": "Una regla NAT en Palo Alto tiene la opción 'Bi-directional' habilada. ¿Qué significa?",
+      "options": [
+        {
+          "id": "A",
+          "text": "El firewall automáticamente genera una regla NAT en sentido inverso para que el tráfico de retorno use la misma traducción sin configuración manual."
+        },
+        {
+          "id": "B",
+          "text": "Que la regla aplica para tráfico IPv4 e IPv6."
+        },
+        {
+          "id": "C",
+          "text": "Que el firewall duplica la sesión para auditoría."
+        },
+        {
+          "id": "D",
+          "text": "Que la regla es redundante."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "Bi-directional genera automáticamente la regla inversa en el NAT inverso. Muy útil cuando ambas direcciones comparten la misma lógica (ej: U-Turn). Si no la activas, debes crear la regla inversa manualmente.",
+      "explanations": {
+        "A": "Correcto: Es el atajo que evita duplicar la lógica.",
+        "B": "Incorrecto: No tiene relación con la versión de IP.",
+        "C": "Incorrecto: No duplica sesiones.",
+        "D": "Incorrecto: Es una opción útil, no redundante."
+      }
+    },
+    {
+      "id": "q025",
+      "topic": "VPN",
+      "difficulty": "intermedio",
+      "question": "¿Cuál es la diferencia principal entre IKEv1 e IKEv2 en una VPN IPSec de Palo Alto?",
+      "options": [
+        {
+          "id": "A",
+          "text": "IKEv2 usa menos mensajes (4 vs hasta 9 en IKEv1), soporta MOBIKE, es más resiliente a cambios de red y obligatorio para algunas features como IKEv2 con EAP."
+        },
+        {
+          "id": "B",
+          "text": "IKEv2 solo funciona con IPv6."
+        },
+        {
+          "id": "C",
+          "text": "IKEv1 es más seguro y nunca debe migrarse a IKEv2."
+        },
+        {
+          "id": "D",
+          "text": "No hay diferencia; son intercambiables."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "IKEv2 moderniza IKEv1: menos mensajes, mejor manejo de NAT-T, MOBIKE (movilidad sin renegociar) y autenticación más flexible (certificados, EAP). Palo Alto recomienda IKEv2 cuando ambos extremos lo soportan.",
+      "explanations": {
+        "A": "Correcto: Describe las ventajas técnicas de IKEv2.",
+        "B": "Incorrecto: Funciona con IPv4 e IPv6.",
+        "C": "Incorrecto: IKEv2 puede ser igual o más seguro con cifrados modernos.",
+        "D": "Incorrecto: Hay diferencias operativas reales."
+      }
+    },
+    {
+      "id": "q026",
+      "topic": "VPN",
+      "difficulty": "intermedio",
+      "question": "GlobalProtect es la solución de Palo Alto para acceso remoto. ¿Cuáles son los dos 'portales' que normalmente se configuran?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Portal y Gateway."
+        },
+        {
+          "id": "B",
+          "text": "Login y Logout."
+        },
+        {
+          "id": "C",
+          "text": "IPv4 e IPv6."
+        },
+        {
+          "id": "D",
+          "text": "TLS y SSL."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "El Portal GlobalProtect es la página web donde el usuario descarga el cliente y configura la conexión. El Gateway es el componente que termina el túnel y aplica las políticas de seguridad para el tráfico remoto.",
+      "explanations": {
+        "A": "Correcto: Portal + Gateway son los dos componentes clave.",
+        "B": "Incorrecto: No existen como objetos.",
+        "C": "Incorrecto: No son componentes GP.",
+        "D": "Incorrecto: TLS es el protocolo subyacente, no un portal."
+      }
+    },
+    {
+      "id": "q027",
+      "topic": "VPN",
+      "difficulty": "avanzado",
+      "question": "El túnel IPSec entre dos sitios se cae cada 7 horas exactamente. ¿Cuál es la causa más probable?",
+      "options": [
+        {
+          "id": "A",
+          "text": "El firewall del otro lado se reinicia cada 7 horas."
+        },
+        {
+          "id": "B",
+          "text": "El 'lifetime' del IKE o del IPSec-SA está configurado a 7 horas, así que se renegocia (y si hay mismatch de parámetros, falla)."
+        },
+        {
+          "id": "C",
+          "text": "Es un problema de DNS."
+        },
+        {
+          "id": "D",
+          "text": "Es un bug de hardware."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "Los SA (Security Associations) tienen un tiempo de vida. Cuando expiran, se renegocian. Si las propuestas (DH group, encryption, hashing) no son idénticas en ambos extremos, la renegociación falla. La pista 'cada 7 horas' es la firma típica.",
+      "explanations": {
+        "A": "Incorrecto: Sería aleatorio o vinculado a logs de reboot.",
+        "B": "Correcto: Es el patrón clásico.",
+        "C": "Incorrecto: El DNS no rompe túneles en periodos fijos.",
+        "D": "Incorrecto: Sería esporádico o aleatorio."
+      }
+    },
+    {
+      "id": "q028",
+      "topic": "VPN",
+      "difficulty": "básico",
+      "question": "¿Qué propone el 'IKE Crypto Profile' en una configuración de VPN Palo Alto?",
+      "options": [
+        {
+          "id": "A",
+          "text": "El conjunto de algoritmos de cifrado, hash, grupo DH y lifetime para la fase 1 (IKE SA)."
+        },
+        {
+          "id": "B",
+          "text": "La dirección IP del peer remoto."
+        },
+        {
+          "id": "C",
+          "text": "El método de autenticación del cliente GlobalProtect."
+        },
+        {
+          "id": "D",
+          "text": "La marca del hardware del peer."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "El IKE Crypto Profile define los algoritmos aceptados en la fase 1 (cifrado, integridad, grupo DH) y el lifetime. El IPSec Crypto Profile hace lo mismo para la fase 2 (los SA que cifran tráfico).",
+      "explanations": {
+        "A": "Correcto: Es la definición de algoritmos de fase 1.",
+        "B": "Incorrecto: Eso va en el IKE Gateway.",
+        "C": "Incorrecto: Pertenece al portal GP.",
+        "D": "Incorrecto: No tiene relación."
+      }
+    },
+    {
+      "id": "q029",
+      "topic": "VPN",
+      "difficulty": "intermedio",
+      "question": "Necesita crear una VPN site-to-site entre dos firewalls Palo Alto que NO tienen IPs públicas fijas. ¿Qué solución recomendaría?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Es imposible; las VPN site-to-site requieren IPs públicas fijas en ambos extremos."
+        },
+        {
+          "id": "B",
+          "text": "Usar un proveedor de DDNS combinado con IKEv2 y certificados para identificar el peer; o migrar a GlobalProtect para acceso remoto."
+        },
+        {
+          "id": "C",
+          "text": "Usar L2TP."
+        },
+        {
+          "id": "D",
+          "text": "Configurar GRE tunneling."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "Para site-to-site entre sucursales con IP dinámica, lo más común hoy es: DDNS para resolver el peer + IKEv2 con autenticación por certificado (más flexible que PSK), o migrar a SD-WAN con GlobalProtect. L2TP no es una opción nativa en Palo Alto.",
+      "explanations": {
+        "A": "Incorrecto: Hay soluciones, solo requieren más ingenio.",
+        "B": "Correcto: DDNS + cert + IKEv2 es el patrón real.",
+        "C": "Incorrecto: L2TP no es soportado.",
+        "D": "Incorrecto: GRE por sí solo no cifra."
+      }
+    },
+    {
+      "id": "q030",
+      "topic": "Panorama",
+      "difficulty": "básico",
+      "question": "¿Cuál es el rol principal de Panorama en una implementación de Palo Alto Networks?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Administrar centralizadamente múltiples firewalls: políticas, objetos, logs y reportes desde un único punto."
+        },
+        {
+          "id": "B",
+          "text": "Reemplazar al firewall físico."
+        },
+        {
+          "id": "C",
+          "text": "Hacer backups de Office."
+        },
+        {
+          "id": "D",
+          "text": "Servir como portal cautivo para usuarios."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "Panorama es el NMS de Palo Alto. Centraliza configuración (templates + device groups), recibe logs (con Log Collectors) y permite aplicar cambios a muchos firewalls a la vez.",
+      "explanations": {
+        "A": "Correcto: Es la descripción canónica.",
+        "B": "Incorrecto: Panorama NO procesa tráfico; solo orquesta.",
+        "C": "Incorrecto: No es la herramienta correcta para eso.",
+        "D": "Incorrecto: El portal cautivo es del firewall o de GlobalProtect."
+      }
+    },
+    {
+      "id": "q031",
+      "topic": "Panorama",
+      "difficulty": "intermedio",
+      "question": "¿Qué diferencia hay entre un 'Template' y un 'Device Group' en Panorama?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Template contiene configuración de red/plataforma (interfaces, virtual routers, zonas); Device Group contiene objetos y políticas (address, service, rules)."
+        },
+        {
+          "id": "B",
+          "text": "Son sinónimos."
+        },
+        {
+          "id": "C",
+          "text": "Device Group contiene configuración de red; Template contiene políticas."
+        },
+        {
+          "id": "D",
+          "text": "Ambos contienen lo mismo, solo cambia el nombre."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "Template = network/device settings (interfaces, routing, zonas, IKE gateways). Device Group = shared objects + security/ NAT/ QoS/ policy rules. Esta separación permite aplicar cambios de red sin tocar políticas y viceversa.",
+      "explanations": {
+        "A": "Correcto: Distinción clave del examen.",
+        "B": "Incorrecto: Son objetos con propósitos distintos.",
+        "C": "Incorrecto: Es al revés.",
+        "D": "Incorrecto: Contienen cosas distintas."
+      }
+    },
+    {
+      "id": "q032",
+      "topic": "Panorama",
+      "difficulty": "avanzado",
+      "question": "Quiere hacer commit de un cambio de política en Panorama pero que solo aplique a un firewall específico sin tocar el resto. ¿Qué tipo de commit debe usar?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Commit All para asegurar consistencia."
+        },
+        {
+          "id": "B",
+          "text": "Validate Commit y luego un Commit Push selectivo al firewall deseado."
+        },
+        {
+          "id": "C",
+          "text": "No es posible; Panorama siempre empuja a todos."
+        },
+        {
+          "id": "D",
+          "text": "Commit parcial no soportado."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "Panorama permite Commit Push parcial: seleccionas uno o varios firewalls destino. Primero se valida el cambio (Validate Commit) y luego se hace el push selectivo. Esto es crítico para cambios progresivos sin impactar a todos los dispositivos a la vez.",
+      "explanations": {
+        "A": "Incorrecto: Commit All empuja a todos, no selectivo.",
+        "B": "Correcto: Validate + Push selectivo es la práctica profesional.",
+        "C": "Incorrecto: Sí es posible.",
+        "D": "Incorrecto: Sí está soportado."
+      }
+    },
+    {
+      "id": "q033",
+      "topic": "Panorama",
+      "difficulty": "intermedio",
+      "question": "¿Qué es un Log Collector en Panorama y por qué se recomienda?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Es un componente dedicado que almacena logs de tráfico, threat y configuración, liberando al servidor de Panorama y permitiendo retención a largo plazo y consultas rápidas."
+        },
+        {
+          "id": "B",
+          "text": "Es un recolector de logs del sistema operativo Linux."
+        },
+        {
+          "id": "C",
+          "text": "Es un dispositivo físico inútil en despliegues modernos."
+        },
+        {
+          "id": "D",
+          "text": "Es un script para borrar logs antiguos."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "Separar Log Collector del Panorama Management Server es buena práctica: evita que las consultas de logs impacten el rendimiento del orquestador y permite escalar retención horizontalmente.",
+      "explanations": {
+        "A": "Correcto: Es la justificación del diseño dedicado.",
+        "B": "Incorrecto: Es parte de Panorama, no de Linux.",
+        "C": "Incorrecto: Sigue siendo útil.",
+        "D": "Incorrecto: Es para almacenar y consultar, no para borrar."
+      }
+    },
+    {
+      "id": "q034",
+      "topic": "Panorama",
+      "difficulty": "intermedio",
+      "question": "Tiene un device group 'Sucursales' con 20 firewalls y necesita que una regla solo aplique a 3 de ellos. ¿Qué mecanismo usa?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Eliminar los otros 17 firewalls del device group."
+        },
+        {
+          "id": "B",
+          "text": "Usar 'Target' o crear un device group hijo con sub-set de firewalls para aplicar reglas heredadas con override."
+        },
+        {
+          "id": "C",
+          "text": "Duplicar la regla en cada firewall."
+        },
+        {
+          "id": "D",
+          "text": "No es posible aplicar reglas selectivas."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "Panorama permite jerarquías de device groups (padre/hijo) y 'targets' para limitar reglas a ciertos firewalls. Cree un sub-device group que herede de 'Sucursales' pero contenga solo los 3 firewalls; ahí agrega la regla con override.",
+      "explanations": {
+        "A": "Incorrecto: Cambiaría la membresía de muchos firewalls.",
+        "B": "Correcto: Es el patrón jerárquico de Panorama.",
+        "C": "Incorrecto: Rompe la administración centralizada.",
+        "D": "Incorrecto: Sí es posible con device groups y targets."
+      }
+    },
+    {
+      "id": "q035",
+      "topic": "HA",
+      "difficulty": "intermedio",
+      "question": "En una pareja Active/Passive, ¿qué sucede cuando el peer activo falla?",
+      "options": [
+        {
+          "id": "A",
+          "text": "El peer pasivo se convierte en activo y asume la IP flotante (controla el tráfico); cuando el original vuelve, queda como pasivo por defecto."
+        },
+        {
+          "id": "B",
+          "text": "Ambos quedan activos."
+        },
+        {
+          "id": "C",
+          "text": "El firewall cae."
+        },
+        {
+          "id": "D",
+          "text": "El tráfico se redirige al firewall principal de Palo Alto en la nube."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "En HA Active/Passive, solo uno de los dos está activo; el otro está sincronizado (config + sesiones si HA2 está activo). Al detectar falla, el pasivo toma el rol activo y la IP flotante. Cuando el original regresa, la política por defecto es 'preempt off' para evitar flapping.",
+      "explanations": {
+        "A": "Correcto: Describe el failover A/P.",
+        "B": "Incorrecto: Solo uno activo a la vez.",
+        "C": "Incorrecto: El objetivo del HA es justo evitar la caída.",
+        "D": "Incorrecto: No existe ese concepto en HA local."
+      }
+    },
+    {
+      "id": "q036",
+      "topic": "HA",
+      "difficulty": "avanzado",
+      "question": "¿Qué condición puede causar un failover no deseado en una pareja HA?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Una falla en uno de los HA links (HA1 o HA2)."
+        },
+        {
+          "id": "B",
+          "text": "Una 'path monitor' que falla, o un 'link monitor' que pierde el gateway upstream, dispara failover según configuración."
+        },
+        {
+          "id": "C",
+          "text": "Un daemon crítico del dataplane se cae (dpdk, mgmt)."
+        },
+        {
+          "id": "D",
+          "text": "Todas las anteriores."
+        }
+      ],
+      "correctAnswer": "D",
+      "tip": "Los triggers de failover incluyen: falla de HA link, path monitor (ping a un destino crítico), link monitor (estado de una interfaz), falla de un proceso vital. Configure los monitores con cuidado porque un flap de upstream puede causar failover innecesario.",
+      "explanations": {
+        "A": "Parcialmente correcto, pero incompleto.",
+        "B": "Parcialmente correcto, pero incompleto.",
+        "C": "Parcialmente correcto, pero incompleto.",
+        "D": "Correcto: Todas son disparadores reales."
+      }
+    },
+    {
+      "id": "q037",
+      "topic": "HA",
+      "difficulty": "intermedio",
+      "question": "¿Para qué sirve el enlace HA2 en una pareja HA de Palo Alto?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Solo para HA keepalive (igual que HA1)."
+        },
+        {
+          "id": "B",
+          "text": "Transporta datos del dataplane: sincronización de sesión, ARP, tablas de routing entre los peers. Sin HA2, las sesiones existentes se pierden en el failover."
+        },
+        {
+          "id": "C",
+          "text": "Solo para llevar logs."
+        },
+        {
+          "id": "D",
+          "text": "Es un cable de poder redundante."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "HA1 = heartbeat y sincronización de configuración (mensajes de control). HA2 = sincronización de estado (sesiones, ARP, routing, IPsec SA). Sin HA2 funcional, el failover funciona pero interrumpe las conexiones establecidas.",
+      "explanations": {
+        "A": "Incorrecto: HA2 no es duplicado de HA1; cumple un rol distinto y crítico.",
+        "B": "Correcto: Es la respuesta técnica.",
+        "C": "Incorrecto: Los logs van por la interfaz de management o por HA1.",
+        "D": "Incorrecto: Palo Alto no usa cables de poder para HA."
+      }
+    },
+    {
+      "id": "q038",
+      "topic": "HA",
+      "difficulty": "básico",
+      "question": "¿Qué significa Active/Active en Palo Alto?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Ambos firewalls procesan tráfico simultáneamente, cada uno con un set de interfaces activas, balanceando carga y proporcionando redundancia."
+        },
+        {
+          "id": "B",
+          "text": "Es la forma antigua de HA."
+        },
+        {
+          "id": "C",
+          "text": "Es un modo solo disponible en appliances grandes."
+        },
+        {
+          "id": "D",
+          "text": "Significa que uno siempre está apagado."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "Active/Active (A/A) reparte las interfaces activas entre los dos peers y los dos procesan tráfico en paralelo. A diferencia de A/P, A/A requiere planeación de qué interfaces viven en qué peer y cómo se balancea.",
+      "explanations": {
+        "A": "Correcto: Describe el modo A/A.",
+        "B": "Incorrecto: A/P es la forma clásica; A/A sigue siendo vigente.",
+        "C": "Incorrecto: A/A está disponible en varios modelos.",
+        "D": "Incorrecto: Ambos están prendidos."
+      }
+    },
+    {
+      "id": "q039",
+      "topic": "Decryption",
+      "difficulty": "intermedio",
+      "question": "¿Cuál es la diferencia entre SSL Forward Proxy y SSL Inbound Inspection?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Forward Proxy intercepta tráfico TLS initiated por usuarios internos hacia Internet; Inbound Inspection descifra tráfico hacia un servidor interno conocido cuyo certificado es controlado por la organización."
+        },
+        {
+          "id": "B",
+          "text": "Forward Proxy se usa para servidores; Inbound para usuarios."
+        },
+        {
+          "id": "C",
+          "text": "Inbound no requiere CA; Forward Proxy sí."
+        },
+        {
+          "id": "D",
+          "text": "Son lo mismo con nombres distintos."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "Forward Proxy = cliente inicia la conexión hacia afuera (caso típico). Inbound Inspection = el firewall descifra TLS que llega a un servidor interno (ej: un servidor web interno). Ambos usan decryption profiles distintos.",
+      "explanations": {
+        "A": "Correcto: Diferencia funcional clara.",
+        "B": "Incorrecto: Es al revés conceptualmente.",
+        "C": "Incorrecto: Ambos usan CA (en Forward se usa una sub-CA; en Inbound se usa el cert del servidor).",
+        "D": "Incorrecto: Son funciones distintas."
+      }
+    },
+    {
+      "id": "q040",
+      "topic": "Decryption",
+      "difficulty": "avanzado",
+      "question": "Quiere descifrar tráfico TLS 1.3 en Palo Alto. ¿Qué consideración importante debe tener?",
+      "options": [
+        {
+          "id": "A",
+          "text": "TLS 1.3 no se puede descifrar; Palo Alto debe rechazar estas conexiones."
+        },
+        {
+          "id": "B",
+          "text": "TLS 1.3 sí se puede descifrar con Forward Proxy siempre que el firewall tenga la sub-CA instalada en los clientes. Sin embargo, ESNI (Encrypted SNI) y otras técnicas pueden afectar la visibilidad del SNI/hostname."
+        },
+        {
+          "id": "C",
+          "text": "TLS 1.3 ya no existe."
+        },
+        {
+          "id": "D",
+          "text": "Solo los firewalls modelo PA-7000 pueden descifrar TLS 1.3."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "TLS 1.3 introduce cambios: cipher suites obligatorios, 0-RTT, y soporte de ESNI (encriptación del SNI). Palo Alto descifra TLS 1.3 con Forward Proxy, pero ESNI puede ocultar el hostname incluso después de descifrar, lo cual reduce la efectividad del control por URL.",
+      "explanations": {
+        "A": "Incorrecto: Sí se puede descifrar.",
+        "B": "Correcto: Captura las matices reales de TLS 1.3.",
+        "C": "Incorrecto: TLS 1.3 es el estándar actual.",
+        "D": "Incorrecto: No hay restricción de hardware específica."
+      }
+    },
+    {
+      "id": "q041",
+      "topic": "Decryption",
+      "difficulty": "básico",
+      "question": "¿Por qué NO debería descifrar absolutamente TODO el tráfico?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Porque consume CPU del firewall, afecta rendimiento y puede romper categorías como banca, salud o sitios con HSTS que requieren pinning."
+        },
+        {
+          "id": "B",
+          "text": "Porque la ley lo prohíbe en todos los países."
+        },
+        {
+          "id": "C",
+          "text": "Porque Palo Alto no soporta descifrado masivo."
+        },
+        {
+          "id": "D",
+          "text": "Porque descifrar todo es gratis."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "El descifrado tiene costo (CPU, latencia, complejidad de troubleshooting). Excluya explícitamente: sitios de salud/banca/legales, sitios con HSTS/cert pinning problemáticos, y destinos con restricciones legales. Use decryption exclusion list.",
+      "explanations": {
+        "A": "Correcto: Realismo operacional.",
+        "B": "Incorrecto: Depende del país; no es prohibición universal.",
+        "C": "Incorrecto: Palo Alto soporta descifrado masivo en hardware moderno.",
+        "D": "Incorrecto: Tiene costo real."
+      }
+    },
+    {
+      "id": "q042",
+      "topic": "Decryption",
+      "difficulty": "intermedio",
+      "question": "Un usuario reporta error de certificado al acceder a google.com con decryption activa. ¿Cuál es la causa más probable?",
+      "options": [
+        {
+          "id": "A",
+          "text": "El firewall está caído."
+        },
+        {
+          "id": "B",
+          "text": "El cliente no confía en la sub-CA del firewall, o google usa HSTS/pinning, o el firewall no está re-firmando correctamente."
+        },
+        {
+          "id": "C",
+          "text": "El usuario olvidó su contraseña."
+        },
+        {
+          "id": "D",
+          "text": "Google está caído globalmente."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "Cuando el firewall re-firma los certificados con su sub-CA, el cliente debe confiar en esa sub-CA para no mostrar error. Si no está desplegada en el cliente, aparece un warning. Algunos sitios (HSTS preloaded) no se pueden re-firmar sin romper la conexión.",
+      "explanations": {
+        "A": "Incorrecto: Si el firewall estuviera caído, no habría tráfico.",
+        "B": "Correcto: Es la diagnosis típica.",
+        "C": "Incorrecto: No relacionado.",
+        "D": "Incorrecto: Si Google estuviera caído, no llegaría ni al firewall."
+      }
+    },
+    {
+      "id": "q043",
+      "topic": "WildFire",
+      "difficulty": "básico",
+      "question": "¿Qué es WildFire en el ecosistema Palo Alto?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Un servicio de sandbox en la nube (y on-prem opcional) que ejecuta archivos sospechosos en entornos aislados y devuelve un veredicto de malicious/benign."
+        },
+        {
+          "id": "B",
+          "text": "Un antivirus gratuito para Windows."
+        },
+        {
+          "id": "C",
+          "text": "Una herramienta de backup."
+        },
+        {
+          "id": "D",
+          "text": "Un módulo de VPN."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "WildFire analiza archivos desconocidos (PE, PDF, Office, APK, etc.) ejecutándolos en sandboxes múltiples y observando comportamiento. Si es malicioso, la firma se distribuye a todos los firewalls en minutos.",
+      "explanations": {
+        "A": "Correcto: Definición canónica.",
+        "B": "Incorrecto: No es un antivirus de endpoint.",
+        "C": "Incorrecto: No es backup.",
+        "D": "Incorrecto: No es VPN."
+      }
+    },
+    {
+      "id": "q044",
+      "topic": "WildFire",
+      "difficulty": "intermedio",
+      "question": "El firewall envía un archivo PE a WildFire y 10 minutos después recibe verdict 'malicious'. ¿Qué pasa automáticamente si WildFire está integrado en el perfil de Antivirus?",
+      "options": [
+        {
+          "id": "A",
+          "text": "El firewall registra el hash como malicioso y bloquea futuros intentos con ese hash en el perfil antivirus configurado, además de compartir la firma globalmente en la red de Palo Alto."
+        },
+        {
+          "id": "B",
+          "text": "El firewall se reinicia."
+        },
+        {
+          "id": "C",
+          "text": "No pasa nada; WildFire es solo informativo."
+        },
+        {
+          "id": "D",
+          "text": "El usuario recibe un email."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "Cuando WildFire tiene verdict malicioso, el hash se añade a la base de firmas y el antivirus local empieza a bloquearlo inmediatamente. Si WildFire está en 'public cloud', la firma también beneficia a otros usuarios de Palo Alto en el mundo.",
+      "explanations": {
+        "A": "Correcto: Es el ciclo virtuoso de WildFire.",
+        "B": "Incorrecto: WildFire no causa reboots.",
+        "C": "Incorrecto: Si está integrado, sí bloquea.",
+        "D": "Incorrecto: No genera notificaciones por email."
+      }
+    },
+    {
+      "id": "q045",
+      "topic": "WildFire",
+      "difficulty": "avanzado",
+      "question": "¿Qué tipos de archivo puede analizar WildFire por defecto?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Solo archivos .exe de Windows."
+        },
+        {
+          "id": "B",
+          "text": "PE (Windows executables), Office (Word, Excel, PowerPoint), PDF, Java, APK Android, scripts (JS, VBS, PS1), archives (ZIP, RAR) y más, según la configuración."
+        },
+        {
+          "id": "C",
+          "text": "Solo PDFs."
+        },
+        {
+          "id": "D",
+          "text": "Solo archivos cifrados."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "WildFire soporta una gran variedad: PE32/64, DLL, Office (todos los formatos), PDF, Java, APK, varios scripts y archivos comprimidos. El alcance exacto depende de la versión de PAN-OS y del appliance WildFire.",
+      "explanations": {
+        "A": "Incorrecto: Es mucho más amplio.",
+        "B": "Correcto: Cubre la mayoría de tipos comunes.",
+        "C": "Incorrecto: PDFs sí, pero no solo eso.",
+        "D": "Incorrecto: Los cifrados con password no se pueden analizar sin la clave."
+      }
+    },
+    {
+      "id": "q046",
+      "topic": "WildFire",
+      "difficulty": "intermedio",
+      "question": "¿Cuál es la diferencia entre WildFire Cloud y WildFire Appliance (on-prem)?",
+      "options": [
+        {
+          "id": "A",
+          "text": "Cloud es operado por Palo Alto y aporta inteligencia colectiva; Appliance es local para cumplir requisitos de privacidad/datos sensibles y operar sin envío a la nube pública."
+        },
+        {
+          "id": "B",
+          "text": "No hay diferencia; son lo mismo."
+        },
+        {
+          "id": "C",
+          "text": "On-prem es gratis; Cloud requiere licencia premium."
+        },
+        {
+          "id": "D",
+          "text": "Cloud solo funciona para Windows."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "WildFire Cloud: análisis en infraestructura de Palo Alto, rápido, con inteligencia global. WildFire Appliance: hardware local (WF-500) para empresas con restricciones regulatorias que prohíben enviar muestras a la nube.",
+      "explanations": {
+        "A": "Correcto: Es la justificación de cada opción.",
+        "B": "Incorrecto: Tienen diferencias operativas y regulatorias.",
+        "C": "Incorrecto: Ambos requieren licenciamiento.",
+        "D": "Incorrecto: Ambos analizan múltiples tipos."
+      }
+    },
+    {
+      "id": "q047",
+      "topic": "Troubleshooting",
+      "difficulty": "intermedio",
+      "question": "Un usuario reporta que no puede acceder a un servidor interno específico. ¿Cuál es la primera herramienta para confirmar si el tráfico LLEGA al firewall?",
+      "options": [
+        {
+          "id": "A",
+          "text": "El log de tráfico (Monitor > Logs > Traffic), filtrando por IP de origen/destino."
+        },
+        {
+          "id": "B",
+          "text": "El log de configuración."
+        },
+        {
+          "id": "C",
+          "text": "El log de threat."
+        },
+        {
+          "id": "D",
+          "text": "El log de WildFire."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "El log de tráfico es la primera parada. Si no ves el flujo, el problema es de enrutamiento/L2 antes del firewall. Si lo ves con deny, es política. Si lo ves con allow pero no funciona, es ruta o NAT después del firewall.",
+      "explanations": {
+        "A": "Correcto: Es el orden correcto de diagnóstico.",
+        "B": "Incorrecto: El log de config muestra cambios, no tráfico.",
+        "C": "Incorrecto: Threat log es para amenazas detectadas.",
+        "D": "Incorrecto: WildFire log es para archivos analizados."
+      }
+    },
+    {
+      "id": "q048",
+      "topic": "Troubleshooting",
+      "difficulty": "intermedio",
+      "question": "Para diagnosticar un problema de sesión con NAT, ¿qué comando CLI es el más útil?",
+      "options": [
+        {
+          "id": "A",
+          "text": "show session all filter source <IP>"
+        },
+        {
+          "id": "B",
+          "text": "ping"
+        },
+        {
+          "id": "C",
+          "text": "show arp"
+        },
+        {
+          "id": "D",
+          "text": "reboot"
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "'show session all' (con filtro por IP) muestra sesiones activas con sus traducciones NAT, políticas aplicadas y bytes transferidos. Es el equivalente en vivo del traffic log, pero más detallado.",
+      "explanations": {
+        "A": "Correcto: Es el comando canónico para sesiones/NAT.",
+        "B": "Incorrecto: ping verifica ICMP, no sesiones TCP/UDP.",
+        "C": "Incorrecto: ARP es para capa 2.",
+        "D": "Incorrecto: No se debe rebootear para diagnosticar."
+      }
+    },
+    {
+      "id": "q049",
+      "topic": "Troubleshooting",
+      "difficulty": "avanzado",
+      "question": "Una VPN IKEv1 queda atascada en 'Phase 1' sin completar. ¿Cuál de estos logs debería revisar primero?",
+      "options": [
+        {
+          "id": "A",
+          "text": "El log de threat."
+        },
+        {
+          "id": "B",
+          "text": "El log de VPN (ikemgr.log o system log con filtro subtype 'vpn'). Revisar propuestas rechazadas: cifrado, hash, grupo DH, o mismatch de PSK/certificado."
+        },
+        {
+          "id": "C",
+          "text": "El log de configuración."
+        },
+        {
+          "id": "D",
+          "text": "El log de WildFire."
+        }
+      ],
+      "correctAnswer": "B",
+      "tip": "Si Phase 1 no completa, el problema es IKE mismatches (algoritmos, lifetime, PSK, certs). Revise ikemgr.log con debug-level alto para ver los payloads intercambiados y la razón del rechazo.",
+      "explanations": {
+        "A": "Incorrecto: Threat log es para contenido malicioso.",
+        "B": "Correcto: Es la fuente correcta para diagnosticar VPN.",
+        "C": "Incorrecto: El config log no muestra negociación.",
+        "D": "Incorrecto: No relacionado."
+      }
+    },
+    {
+      "id": "q050",
+      "topic": "Troubleshooting",
+      "difficulty": "básico",
+      "question": "¿Cuál es la diferencia entre 'show routing route' y 'show routing fib'?",
+      "options": [
+        {
+          "id": "A",
+          "text": "route muestra la tabla RIB (routing information base) recibida de protocolos; fib muestra la tabla FIB (forwarding information base) que el dataplane usa realmente para enviar paquetes."
+        },
+        {
+          "id": "B",
+          "text": "No hay diferencia; son alias."
+        },
+        {
+          "id": "C",
+          "text": "fib es solo para BGP."
+        },
+        {
+          "id": "D",
+          "text": "route es solo para IPv4; fib para IPv6."
+        }
+      ],
+      "correctAnswer": "A",
+      "tip": "RIB contiene todas las rutas aprendidas y calculadas; FIB es el subconjunto óptimo que el chip de forwarding está usando en este momento. Diferencias entre ambos suelen indicar problemas de instalación o convergencia.",
+      "explanations": {
+        "A": "Correcto: RIB vs FIB es la distinción técnica precisa.",
+        "B": "Incorrecto: Son tablas distintas.",
+        "C": "Incorrecto: fib aplica a cualquier protocolo.",
+        "D": "Incorrecto: Ambos son para IPv4/IPv6."
+      }
+    }
+  ]
+}

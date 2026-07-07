@@ -1,0 +1,458 @@
+/* Kit neon-glass — look & feel unificado (theme + glass + page). */
+
+/* Jeff-Aporta ISA — superficie neon compartida (todos los fronts). */
+
+@keyframes isa-neon-pulse {
+  0%, 100% { opacity: 0.55; filter: blur(40px); }
+  50% { opacity: 0.85; filter: blur(48px); }
+}
+
+:root {
+  --neon-blue: #1e90ff;
+  --neon-cyan: #00e5ff;
+  --neon-purple: #6366f1;
+  --glow-blue: rgba(30, 144, 255, 0.45);
+  --mesh-dark:
+    radial-gradient(ellipse 90% 55% at 15% -8%, rgba(99, 102, 241, 0.22), transparent 52%),
+    radial-gradient(ellipse 70% 45% at 92% 5%, rgba(0, 229, 255, 0.1), transparent 48%),
+    radial-gradient(ellipse 50% 30% at 50% 100%, rgba(30, 144, 255, 0.08), transparent 55%);
+  --mesh-light:
+    radial-gradient(ellipse 90% 55% at 15% -8%, rgba(30, 144, 255, 0.14), transparent 52%),
+    radial-gradient(ellipse 70% 45% at 92% 5%, rgba(99, 102, 241, 0.08), transparent 48%);
+  --isa-glass-bg-dark: rgba(15, 23, 42, 0.72);
+  --isa-glass-bg-light: rgba(255, 255, 255, 0.82);
+  --isa-glass-border-dark: rgba(99, 102, 241, 0.35);
+  --isa-glass-border-light: rgba(30, 144, 255, 0.22);
+  --isa-glass-shadow-dark:
+    0 0 0 1px rgba(99, 102, 241, 0.15),
+    0 8px 32px rgba(0, 0, 0, 0.45),
+    0 0 48px rgba(30, 144, 255, 0.12);
+  --isa-glass-shadow-light:
+    0 8px 32px rgba(15, 23, 42, 0.07),
+    0 0 24px rgba(30, 144, 255, 0.08);
+  --isa-scrollbar-size: 7px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(30, 144, 255, 0.55) transparent;
+  &::-webkit-scrollbar {
+    width: var(--isa-scrollbar-size);
+    height: var(--isa-scrollbar-size);
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(30, 144, 255, 0.55), rgba(99, 102, 241, 0.45));
+    border-radius: 999px;
+    box-shadow: 0 0 8px var(--glow-blue);
+  }
+}
+
+/* Tarjeta glass neon — degradados internos (login, paneles, Paper MUI). */
+.isa-glass-card,
+.panel,
+.MuiPaper-root.isa-glass-card,
+.MuiPaper-root.panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--isa-glass-border-dark);
+  background-color: var(--isa-glass-bg-dark);
+  background-image: var(--mesh-dark);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow: var(--isa-glass-shadow-dark);
+  html[data-mui-color-scheme="light"] & {
+    border-color: var(--isa-glass-border-light);
+    background-color: var(--isa-glass-bg-light);
+    background-image: var(--mesh-light);
+    box-shadow: var(--isa-glass-shadow-light);
+  }
+}
+
+.MuiPaper-root.isa-glass-card,
+.MuiPaper-root.panel {
+  background-color: var(--isa-glass-bg-dark) !important;
+  background-image: var(--mesh-dark) !important;
+  html[data-mui-color-scheme="light"] & {
+    background-color: var(--isa-glass-bg-light) !important;
+    background-image: var(--mesh-light) !important;
+  }
+}
+
+/* Paneles legacy — alias .panel (padding); superficie vía regla glass arriba. */
+.panel,
+.MuiPaper-root.panel {
+  padding: 16px 20px;
+}
+
+.isa-layout-body {
+  position: relative;
+  z-index: 1;
+  html[data-mui-color-scheme="dark"] & {
+    background: var(--mesh-dark);
+  }
+  html[data-mui-color-scheme="light"] & {
+    background: var(--mesh-light);
+  }
+}
+
+.isa-layout-root {
+  position: relative;
+  isolation: isolate;
+  &::after {
+    content: "";
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    animation: isa-neon-pulse 8s ease-in-out infinite;
+    width: min(420px, 60vw);
+    height: min(420px, 60vw);
+    bottom: -100px;
+    left: -60px;
+    background: radial-gradient(circle, rgba(30, 144, 255, 0.28), transparent 68%);
+    animation-delay: -4s;
+  }
+  &::before {
+    content: "";
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    animation: isa-neon-pulse 8s ease-in-out infinite;
+    width: min(520px, 70vw);
+    height: min(520px, 70vw);
+    top: -120px;
+    right: -80px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.35), transparent 68%);
+  }
+  html[data-mui-color-scheme="dark"] & {
+    & > header.MuiAppBar-root .MuiTab-root.Mui-selected {
+      color: #63b3ff;
+    }
+  }
+}
+
+.isa-scroll-panel {
+  position: relative;
+  z-index: 1;
+}
+
+.isa-view-frame {
+  position: relative;
+  z-index: 1;
+  & > .MuiTabs-root .MuiTab-root.Mui-selected {
+    text-shadow: 0 0 12px rgba(30, 144, 255, 0.5);
+  }
+  html[data-mui-color-scheme="dark"] & {
+    & > .MuiTabs-root {
+      background: linear-gradient(180deg, rgba(11, 18, 32, 0.6), rgba(15, 28, 48, 0.35));
+      border-bottom: 1px solid rgba(30, 144, 255, 0.15);
+    }
+  }
+  html[data-mui-color-scheme="light"] & {
+    & > .MuiTabs-root {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 255, 0.92));
+      border-bottom: 1px solid rgba(30, 144, 255, 0.12);
+    }
+  }
+}
+
+body {
+  background: #060d18;
+  background: #eef4ff;
+}
+
+/* nest-css-max:processed */
+
+/**
+ * Kit neon-glass (ISAFront.Glass) — tokens + utilidades CSS.
+ * Complementa sx de MUI; dark = neon glow, light = glass limpio.
+ */
+
+:root {
+  --isa-glass-neon-blue: #1e90ff;
+  --isa-glass-neon-cyan: #00e5ff;
+  --isa-glass-neon-purple: #6366f1;
+  --isa-glass-glow-blue: rgba(30, 144, 255, 0.45);
+  --isa-glass-mesh-dark:
+    radial-gradient(ellipse 90% 55% at 15% -8%, rgba(99, 102, 241, 0.22), transparent 52%),
+    radial-gradient(ellipse 70% 45% at 92% 5%, rgba(0, 229, 255, 0.1), transparent 48%),
+    radial-gradient(ellipse 50% 30% at 50% 100%, rgba(30, 144, 255, 0.08), transparent 55%);
+  --isa-glass-mesh-light:
+    radial-gradient(ellipse 90% 55% at 15% -8%, rgba(30, 144, 255, 0.14), transparent 52%),
+    radial-gradient(ellipse 70% 45% at 92% 5%, rgba(99, 102, 241, 0.08), transparent 48%);
+  --isa-glass-body-dark:
+    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(99, 102, 241, 0.18), transparent 55%),
+    linear-gradient(180deg, #0b1220 0%, #0f172a 100%);
+  --isa-glass-body-light:
+    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(30, 144, 255, 0.12), transparent 55%),
+    linear-gradient(180deg, #f0f6ff 0%, #f8fafc 100%);
+  --isa-glass-radius: 0.75rem;
+}
+
+@keyframes isa-glass-neon-pulse {
+  0%, 100% { opacity: 0.55; filter: blur(40px); }
+  50% { opacity: 0.85; filter: blur(48px); }
+}
+
+/* Mesh layout */
+.isa-glass-mesh-root {
+  position: relative;
+  isolation: isolate;
+  min-height: 100%;
+}
+
+.isa-glass-mesh-root--orbs::before,
+.isa-glass-mesh-root--orbs::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  animation: isa-glass-neon-pulse 8s ease-in-out infinite;
+}
+
+.isa-glass-mesh-root--orbs::before {
+  width: min(520px, 70vw);
+  height: min(520px, 70vw);
+  top: -120px;
+  right: -80px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.35), transparent 68%);
+}
+
+.isa-glass-mesh-root--orbs::after {
+  width: min(420px, 60vw);
+  height: min(420px, 60vw);
+  bottom: -100px;
+  left: -60px;
+  background: radial-gradient(circle, rgba(30, 144, 255, 0.28), transparent 68%);
+  animation-delay: -4s;
+}
+
+html[data-mui-color-scheme="light"] .isa-glass-mesh-root--orbs::before,
+html[data-mui-color-scheme="light"] .isa-glass-mesh-root--orbs::after {
+  display: none;
+}
+
+.isa-glass-mesh-body {
+  position: relative;
+  z-index: 1;
+  min-height: 100%;
+}
+
+/* Fondo de página: ver neon-glass-page.css (.isa-glass-page-surface) */
+
+/* Alias utilitario — compatible con swagger .isa-sw-glass */
+.isa-glass-surface,
+.isa-glass-card,
+.isa-glass-panel,
+.isa-glass-section,
+.isa-glass-toolbar,
+.isa-glass-table-wrap,
+.isa-sw-glass {
+  border-radius: var(--isa-glass-radius);
+}
+
+html[data-mui-color-scheme="dark"] .isa-glass-surface,
+html.dark-mode .isa-glass-surface,
+html[data-mui-color-scheme="dark"] .isa-glass-card,
+html.dark-mode .isa-glass-card,
+html[data-mui-color-scheme="dark"] .isa-glass-panel,
+html.dark-mode .isa-glass-panel,
+html[data-mui-color-scheme="dark"] .isa-glass-section,
+html.dark-mode .isa-glass-section,
+html[data-mui-color-scheme="dark"] .isa-glass-toolbar,
+html.dark-mode .isa-glass-toolbar,
+html[data-mui-color-scheme="dark"] .isa-glass-table-wrap,
+html.dark-mode .isa-glass-table-wrap,
+html[data-mui-color-scheme="dark"] .isa-sw-glass,
+html.dark-mode .isa-sw-glass {
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+}
+
+html[data-mui-color-scheme="light"] .isa-glass-surface,
+html[data-mui-color-scheme="light"] .isa-glass-card,
+html[data-mui-color-scheme="light"] .isa-glass-panel,
+html[data-mui-color-scheme="light"] .isa-glass-section,
+html[data-mui-color-scheme="light"] .isa-glass-toolbar,
+html[data-mui-color-scheme="light"] .isa-glass-table-wrap,
+html[data-mui-color-scheme="light"] .isa-sw-glass {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Tablas dentro de glass */
+.isa-glass-table-wrap .MuiTableHead-root .MuiTableCell-root {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+html[data-mui-color-scheme="dark"] .isa-glass-table-wrap .MuiTableHead-root .MuiTableCell-root,
+html.dark-mode .isa-glass-table-wrap .MuiTableHead-root .MuiTableCell-root {
+  color: rgba(226, 232, 240, 0.92);
+  background: linear-gradient(180deg, rgba(15, 34, 54, 0.95), rgba(11, 18, 32, 0.88));
+  border-bottom: 1px solid rgba(30, 144, 255, 0.2);
+}
+
+html[data-mui-color-scheme="light"] .isa-glass-table-wrap .MuiTableHead-root .MuiTableCell-root {
+  color: rgba(15, 23, 42, 0.82);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(240, 247, 255, 0.92));
+  border-bottom: 1px solid rgba(30, 144, 255, 0.16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .isa-glass-mesh-root--orbs::before,
+  .isa-glass-mesh-root--orbs::after {
+    animation: none;
+  }
+}
+
+/**
+ * Fondo de página estándar — tk-doc-web-surface (jagudeloe).
+ * Usar en layout-body, #root o GlassPageSurface.
+ */
+
+html[data-mui-color-scheme="light"] {
+  --isa-glass-page-mesh-base:
+    radial-gradient(ellipse 135% 90% at 50% -24%, rgba(30, 144, 255, 0.2), transparent 56%),
+    radial-gradient(ellipse 100% 62% at 6% 2%, rgba(99, 102, 241, 0.12), transparent 50%),
+    radial-gradient(ellipse 82% 52% at 96% 5%, rgba(0, 229, 255, 0.1), transparent 46%),
+    radial-gradient(ellipse 85% 72% at 0% 100%, rgba(190, 215, 245, 0.38), transparent 54%),
+    radial-gradient(ellipse 85% 72% at 100% 100%, rgba(190, 215, 245, 0.38), transparent 54%),
+    radial-gradient(ellipse 58% 85% at 0% 45%, rgba(200, 220, 245, 0.28), transparent 48%),
+    radial-gradient(ellipse 58% 85% at 100% 45%, rgba(200, 220, 245, 0.28), transparent 48%),
+    radial-gradient(ellipse 125% 42% at 50% 108%, rgba(180, 210, 240, 0.32), transparent 58%),
+    linear-gradient(165deg, #f5f9ff 0%, #f8fbff 22%, #eef6fc 48%, #f2f8fd 78%, #e8f2fa 100%);
+  --isa-glass-page-mesh-vignette:
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.9) 0%, transparent 12%),
+    linear-gradient(to top, rgba(255, 255, 255, 0.9) 0%, transparent 15%),
+    radial-gradient(ellipse 105% 95% at 50% 50%, transparent 40%, rgba(255, 255, 255, 0.65) 100%),
+    radial-gradient(ellipse 50% 38% at 78% 20%, rgba(0, 229, 255, 0.06), transparent 72%),
+    radial-gradient(ellipse 42% 32% at 14% 82%, rgba(99, 102, 241, 0.05), transparent 70%);
+  --isa-glass-page-fallback: #eef6fc;
+}
+
+html[data-mui-color-scheme="dark"],
+html.dark-mode,
+html:not([data-mui-color-scheme="light"]) {
+  --isa-glass-page-mesh-base:
+    radial-gradient(ellipse 135% 90% at 50% -24%, rgba(99, 102, 241, 0.52), transparent 56%),
+    radial-gradient(ellipse 100% 62% at 8% 3%, rgba(30, 144, 255, 0.36), transparent 52%),
+    radial-gradient(ellipse 86% 56% at 94% 7%, rgba(0, 229, 255, 0.3), transparent 48%),
+    radial-gradient(ellipse 92% 82% at 0% 100%, rgba(2, 5, 14, 0.92), transparent 56%),
+    radial-gradient(ellipse 92% 82% at 100% 100%, rgba(2, 5, 14, 0.92), transparent 56%),
+    radial-gradient(ellipse 58% 88% at 0% 42%, rgba(2, 6, 16, 0.72), transparent 50%),
+    radial-gradient(ellipse 58% 88% at 100% 42%, rgba(2, 6, 16, 0.72), transparent 50%),
+    radial-gradient(ellipse 130% 48% at 50% 108%, rgba(2, 8, 20, 0.82), transparent 56%),
+    linear-gradient(165deg, #02060e 0%, #061018 26%, #0e2242 54%, #060e1a 100%);
+  --isa-glass-page-mesh-vignette:
+    radial-gradient(ellipse 105% 95% at 50% 50%, transparent 36%, rgba(0, 0, 0, 0.52) 100%),
+    radial-gradient(ellipse 50% 38% at 78% 18%, rgba(0, 229, 255, 0.11), transparent 72%),
+    radial-gradient(ellipse 42% 32% at 12% 80%, rgba(99, 102, 241, 0.12), transparent 70%);
+  --isa-glass-page-fallback: #040a14;
+}
+
+/* Alias tk-doc (migración jagudeloe) */
+html[data-mui-color-scheme="light"] {
+  --tk-doc-mesh-base: var(--isa-glass-page-mesh-base);
+  --tk-doc-mesh-vignette: var(--isa-glass-page-mesh-vignette);
+}
+
+html[data-mui-color-scheme="dark"],
+html.dark-mode,
+html:not([data-mui-color-scheme="light"]) {
+  --tk-doc-mesh-base: var(--isa-glass-page-mesh-base);
+  --tk-doc-mesh-vignette: var(--isa-glass-page-mesh-vignette);
+}
+
+/* Superficie scroll — embebida en AppShell (isa-layout-body, tickets, swagger) */
+.isa-glass-page-surface,
+.tk-doc-web-surface {
+  position: relative;
+  isolation: isolate;
+  min-height: 100%;
+  background: var(--isa-glass-page-mesh-vignette), var(--isa-glass-page-mesh-base) !important;
+  background-image: var(--isa-glass-page-mesh-vignette), var(--isa-glass-page-mesh-base) !important;
+  background-attachment: local, local;
+}
+
+.isa-glass-page-surface > *,
+.tk-doc-web-surface > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Full-page: capas fijas en #root (driver doc-viewer) */
+.isa-glass-page-root {
+  position: relative;
+  isolation: isolate;
+}
+
+.isa-glass-page-root::before,
+.isa-glass-page-root::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-attachment: fixed;
+}
+
+.isa-glass-page-root::before {
+  background: var(--isa-glass-page-mesh-base);
+}
+
+.isa-glass-page-root::after {
+  background: var(--isa-glass-page-mesh-vignette);
+}
+
+html[data-mui-color-scheme="light"].isa-glass-page-mode,
+html[data-mui-color-scheme="light"] body.isa-glass-page-mode {
+  background: var(--isa-glass-page-fallback);
+  background-attachment: fixed;
+}
+
+html[data-mui-color-scheme="dark"].isa-glass-page-mode,
+html.dark-mode.isa-glass-page-mode,
+html:not([data-mui-color-scheme="light"]).isa-glass-page-mode,
+html[data-mui-color-scheme="dark"] body.isa-glass-page-mode,
+html.dark-mode body.isa-glass-page-mode,
+html:not([data-mui-color-scheme="light"]) body.isa-glass-page-mode {
+  background: var(--isa-glass-page-fallback);
+  background-attachment: fixed;
+}
+
+.isa-glass-page-root .isa-glass-page-surface,
+.isa-glass-page-root .tk-doc-web-surface {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+/* AppShell: layout-body con visor hijo */
+.isa-layout-body.isa-glass-page-surface,
+.isa-layout-root .isa-layout-body.isa-glass-page-surface,
+.isa-layout-body:has(> .isa-glass-page-surface),
+.isa-layout-body:has(> .tk-doc-web-surface),
+.isa-layout-body:has(> .isa-sw-viewer),
+.isa-layout-body:has(> .isa-sw-shell) {
+  background: var(--isa-glass-page-mesh-vignette), var(--isa-glass-page-mesh-base) !important;
+  background-image: var(--isa-glass-page-mesh-vignette), var(--isa-glass-page-mesh-base) !important;
+  background-attachment: local, local;
+}
+
+.isa-layout-body:has(> .isa-sw-viewer) > .isa-sw-viewer {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+.isa-layout-body:has(> .isa-sw-shell) > .isa-sw-shell {
+  background: transparent !important;
+  background-image: none !important;
+}

@@ -1,0 +1,203 @@
+/* Feedback — toasts MUI, panel de procesos y confirmaciones compartidas */
+
+/* Alert extiende Paper — evitar que overrides de panel neutralicen toasts filled */
+
+@keyframes isa-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* SqlExec inline progress (heredado) */
+
+@keyframes isa-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.85); }
+}
+
+/* SqlExecCard / SqlViewer — compartido (PatyIA, jagudeloe, bitácora) */
+
+[data-mui-color-scheme="dark"] .isa-process-panel {
+  --isa-process-bg: rgba(18, 24, 38, 0.96);
+}
+
+body.dark .isa-process-panel {
+  --isa-process-bg: rgba(18, 24, 38, 0.96);
+}
+
+[data-mui-color-scheme="dark"] .exec-progress .elapsed {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+[data-mui-color-scheme="dark"] .isa-exec-progress .elapsed {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+[data-mui-color-scheme="light"] .sql-exec-card {
+  background: rgba(248, 250, 252, 0.92);
+}
+
+body.light .sql-exec-card {
+  background: rgba(248, 250, 252, 0.92);
+}
+
+[data-mui-color-scheme="light"] .sql-viewer {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+body.light .sql-viewer {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.exec-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  margin: 6px 0;
+  border-radius: 8px;
+  background: rgba(30, 144, 255, 0.08);
+  font-size: 0.8125rem;
+  & .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #1e90ff;
+    animation: isa-pulse 1.2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  & .elapsed {
+    font-variant-numeric: tabular-nums;
+    color: rgba(0, 0, 0, 0.55);
+    font-size: 0.75rem;
+  }
+  & .msg {
+    flex: 1 1 auto;
+  }
+}
+
+.isa-confirm-message {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.isa-exec-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  margin: 6px 0;
+  border-radius: 8px;
+  background: rgba(30, 144, 255, 0.08);
+  font-size: 0.8125rem;
+  & .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #1e90ff;
+    animation: isa-pulse 1.2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  & .elapsed {
+    font-variant-numeric: tabular-nums;
+    color: rgba(0, 0, 0, 0.55);
+    font-size: 0.75rem;
+  }
+  & .msg {
+    flex: 1 1 auto;
+  }
+}
+
+.isa-process-anchor {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 9999;
+  max-width: min(400px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.isa-process-panel {
+  border: 1px solid rgba(30, 144, 255, 0.25);
+  background: var(--isa-process-bg, rgba(255, 255, 255, 0.96)) !important;
+  &-wrap {
+    pointer-events: auto;
+  }
+}
+
+.isa-process-step {
+  & iconify-icon.isa-spin {
+    animation: isa-spin 1s linear infinite;
+  }
+}
+
+.isa-toast-stack {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(420px, calc(100vw - 32px));
+  pointer-events: none;
+  & .MuiAlert-filledError {
+    background-color: #c62828 !important;
+    color: #fff !important;
+  }
+  & .MuiAlert-filledInfo {
+    background-color: #0288d1 !important;
+    color: #fff !important;
+  }
+  & .MuiAlert-filledSuccess {
+    background-color: #2e7d32 !important;
+    color: #fff !important;
+  }
+  & .MuiAlert-filledWarning {
+    background-color: #ed6c02 !important;
+    color: #fff !important;
+  }
+  & .MuiSnackbar-root {
+    position: relative !important;
+    pointer-events: auto;
+  }
+}
+
+.run-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.12));
+  border-radius: 999px;
+  padding: 0.1rem 0.25rem;
+}
+
+.sql-exec-card {
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.12));
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.sql-exec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.sql-viewer {
+  margin: 0;
+  padding: 0.5rem 0.6rem;
+  overflow: auto;
+  border-radius: 6px;
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.12));
+  background: rgba(0, 0, 0, 0.28);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* nest-css-max:processed */

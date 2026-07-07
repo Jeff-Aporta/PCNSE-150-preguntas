@@ -1,0 +1,189 @@
+/* IsaSplitView — kit neon-glass (extensible vía data-isa-kit en el root). */
+body.isa-split-resize-active {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+body.isa-split-resize-active * {
+  cursor: col-resize !important;
+}
+
+.isa-split-view {
+  box-sizing: border-box;
+}
+
+.isa-split-view__panel {
+  box-sizing: border-box;
+  padding-left: 1rem;
+  padding-right: 0.75rem;
+}
+
+.isa-split-view[data-isa-kit="neon-glass"] .isa-split-view__panel {
+  border-right: 1px solid rgba(30, 144, 255, 0.18);
+  background: linear-gradient(165deg, rgba(15, 23, 42, 0.72), rgba(11, 18, 32, 0.55));
+  backdrop-filter: blur(10px);
+}
+
+html[data-mui-color-scheme="light"] .isa-split-view[data-isa-kit="neon-glass"] .isa-split-view__panel {
+  border-right-color: rgba(59, 130, 246, 0.2);
+  background: linear-gradient(165deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.88));
+}
+
+.isa-split-view__panel--collapsed {
+  padding-left: 0.35rem;
+  padding-right: 0.35rem;
+  align-items: center;
+}
+
+.isa-split-view__collapsed-rail {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.isa-split-view__panel--collapsed .isa-split-view__panel-head {
+  justify-content: center;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.isa-split-view__panel--collapsed .isa-split-view__collapse-btn {
+  color: var(--neon-blue, #1e90ff);
+}
+
+.isa-split-view__panel-head {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 40px;
+  padding: 0;
+  border-bottom: 1px solid rgba(30, 144, 255, 0.14);
+}
+
+.isa-split-view__panel-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 0;
+  padding: 0.5rem 0.75rem;
+  box-sizing: border-box;
+  transition: background 0.15s ease;
+}
+
+.isa-split-view__panel-title:hover {
+  background: rgba(30, 144, 255, 0.1);
+}
+
+.isa-split-view__panel-title-text {
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+.isa-split-view__panel-head-end {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  align-self: stretch;
+  padding-right: 0.35rem;
+  box-sizing: border-box;
+}
+
+.isa-split-view__panel-body {
+  min-width: 0;
+}
+
+.isa-split-view__main {
+  min-width: 0;
+}
+
+.isa-split-view__resize-handle {
+  position: absolute;
+  top: 0;
+  right: -5px;
+  width: 10px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 5;
+  touch-action: none;
+  transform: none;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.isa-split-view__resize-handle.is-dragging {
+  background: rgba(30, 144, 255, 0.12);
+}
+
+.isa-split-view__resize-handle.is-dragging::after {
+  background: #1e90ff;
+  width: 2px;
+}
+
+.isa-split-view__resize-handle::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 1px;
+  margin: 0 auto;
+  background: rgba(148, 163, 184, 0.45);
+}
+
+.isa-split-view__resize-handle:hover {
+  background: rgba(30, 144, 255, 0.12);
+}
+
+.isa-split-view__resize-handle:hover::after {
+  background: #1e90ff;
+  width: 2px;
+}
+
+/* Alias legacy conv-log (isa-patyia) — mismas reglas */
+.conv-log-resize-handle {
+  position: absolute;
+  top: 0;
+  right: -5px;
+  width: 10px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 5;
+  touch-action: none;
+  transform: none;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+
+.conv-log-resize-handle.is-dragging,
+.conv-log-resize-handle:hover {
+  background: rgba(30, 144, 255, 0.12);
+}
+
+.conv-log-resize-handle::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 1px;
+  margin: 0 auto;
+  background: rgba(148, 163, 184, 0.45);
+}
+
+.conv-log-resize-handle.is-dragging::after,
+.conv-log-resize-handle:hover::after {
+  background: #1e90ff;
+  width: 2px;
+}
+
+body.conv-log-resize-active {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+body.conv-log-resize-active * {
+  cursor: col-resize !important;
+}
