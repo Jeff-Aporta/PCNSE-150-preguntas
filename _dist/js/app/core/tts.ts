@@ -1,4 +1,4 @@
-import type { Question } from "./quiz.ts";
+import type { AnswerId, Question } from "./quiz.ts";
 import type { AppLocale } from "./locale.ts";
 import { localizeQuestion, questionAudioPath } from "./question-i18n.ts";
 
@@ -25,6 +25,20 @@ export function buildTtsPrompt(q: Question, locale: AppLocale = "es"): string {
     return `Question ${num}. Topic ${L.topic}. ${L.question}. ${opts}`;
   }
   return `Pregunta ${num}. ${L.topic}. ${L.question}. ${opts}`;
+}
+
+/** Narración de justificación: tip + explicaciones A–D. */
+export function buildTipTtsPrompt(q: Question, locale: AppLocale = "es"): string {
+  const L = localizeQuestion(q, locale);
+  const num = q.id.replace(/^q/i, "");
+  const letters: AnswerId[] = ["A", "B", "C", "D"];
+  const exps = letters
+    .map((id) => (locale === "en" ? `Option ${id}. ${L.explanations[id]}` : `Opcion ${id}. ${L.explanations[id]}`))
+    .join(" ");
+  if (locale === "en") {
+    return `Explanation for question ${num}. Tip. ${L.tip}. ${exps}`;
+  }
+  return `Justificacion pregunta ${num}. Tip. ${L.tip}. ${exps}`;
 }
 
 export function ttsVoiceFor(locale: AppLocale): string {

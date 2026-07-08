@@ -13,8 +13,11 @@
 A free **PCNSE simulator** (Palo Alto Networks Certified Security Engineer) deployed on GitHub Pages.
 
 - **150 multiple-choice questions** in Spanish (canonical) + **English translations** in `data/questions.en.json`.
-- **Bilingual TTS audio** (`audio/es/`, `audio/en/`) — each MP3 narrates **question + options A–D**.
+- **Bilingual TTS audio** (`audio/es/`, `audio/en/`):
+  - `qNNN.mp3` — pregunta + opciones A–D
+  - `qNNN-tip.mp3` — tip + explicaciones A–D (justificación post-verificar)
 - **ES/EN UI toggle** in the AppBar (next to theme switch), persisted in `localStorage`.
+- **Each session shuffles question order** (Fisher–Yates in `buildSession`) — never present q001→q150 sorted.
 - **11 topics**: App-ID, User-ID, Content-ID, Security Policies, NAT, VPN, Panorama, HA, Decryption, WildFire, Troubleshooting.
 - **No login, no backend.** All data is JSON in the repo. Stats are stored in `localStorage`.
 - **neon-glass UI** styled like the rest of the InSoft / Jeff-Aporta / Personal Apps ecosystem.
@@ -36,8 +39,12 @@ william_quest/
 │   ├── questions.json               # Canonical ES bank (150 questions, metadata v2)
 │   └── questions.en.json            # EN translations (id + question/options/tip/explanations)
 ├── audio/
-│   ├── es/q001.mp3 ... q150.mp3     # Spanish TTS (question + options)
-│   ├── en/q001.mp3 ... q150.mp3     # English TTS (question + options)
+│   ├── es/
+│   │   ├── q001.mp3 ... q150.mp3      # Spanish TTS (question + options)
+│   │   └── q001-tip.mp3 ... q150-tip.mp3  # Spanish TTS (tip + explanations)
+│   ├── en/
+│   │   ├── q001.mp3 ... q150.mp3
+│   │   └── q001-tip.mp3 ... q150-tip.mp3
 │   └── q001.mp3 ... q150.mp3        # LEGACY — optional; runtime prefers es/en subdirs
 ├── _dist/js/                        # Built bundles + **editable app source**
 │   ├── boot/
@@ -52,9 +59,10 @@ william_quest/
 ├── scripts/
 │   ├── build.mjs                    # esbuild + custom bare-to-window plugin
 │   ├── dev-server.py                # python http.server with correct MIME for .ts/.tsx/.mjs
-│   ├── generate-audio.mjs           # MiniMax TTS → audio/{es,en}/qNNN.mp3
+│   ├── generate-audio.mjs           # MiniMax TTS → audio/{es,en}/qNNN[.tip].mp3 (--kind=)
 │   ├── translate-questions-en.mjs   # MiniMax chat → questions.en.json
 │   ├── tts-prompt.mjs               # Shared TTS prompt (must match core/tts.ts)
+│   ├── shuffle.mjs                  # Fisher–Yates shared with tests (must match quiz.ts)
 │   ├── minimax-tts.mjs              # MiniMax T2A API client
 │   ├── minimax-tts-cli.py           # TTS subprocess for dev-server /api/tts
 │   └── validate-audio.ps1           # PowerShell: checks 150 MP3 exist
@@ -104,11 +112,12 @@ william_quest/
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-**Audio playback:** `playQuestionAudio(q, locale)` in `core/audio.ts`.
-- Static MP3: `audio/{locale}/qNNN.mp3` (resolved via `document.baseURI`, not `/audio/...` absolute).
+**Audio playback:** `playQuestionAudio(q, locale)` / `playTipAudio(q, locale)` in `core/audio.ts`.
+- Question MP3: `audio/{locale}/qNNN.mp3` (via `document.baseURI`).
+- Tip/justification MP3: `audio/{locale}/qNNN-tip.mp3`.
 - Fallback dev: `POST /api/tts` (MiniMax via `scripts/minimax-tts-cli.py`).
-- TTS prompt **must include options A–D** — use `scripts/tts-prompt.mjs` (shared with tests).
-- Play button: `setPlaybackListener` syncs UI; listeners attach **before** `audio.play()`.
+- TTS prompts **must include options / explanations A–D** — use `scripts/tts-prompt.mjs` (`buildTtsPrompt` + `buildTipTtsPrompt`).
+- UI: shared `AudioPlayerBar` (timeline + stop + circular play) for both tracks; only one track plays at a time.
 
 ---
 
@@ -331,6 +340,46 @@ python scripts/dev-server.py
 - Don't use question-only TTS prompts (users expect options read aloud).
 - Don't attach `wireAudio` only after `await play()` completes.
 
+### 6.12 Tip / justification audio + right panel (DO NOT repeat)
+
+| Symptom | Root cause | Fix |
+|---|---|---|
+| Justificación sin narración | Solo existía `qNNN.mp3` (pregunta) | Generar `qNNN-tip.mp3` con `buildTipTtsPrompt` + `--kind=tip` |
+| Play tip regenera TTS en prod | Tip MP3 missing in Pages | Commit **300** tip files (`es`+`en`); tests enforce 150×2 |
+| MiniMax `fetch failed` mid-batch | Transient network/API | Re-run `generate-audio.mjs --kind=tip --ids=qNNN --locale=en` for gaps |
+| Justificación empuja opciones hacia abajo | Explanation card was below options in one column | Right panel (`md:400`) after verify; stack on mobile |
+| Tabs Práctica/Resultados “no hacen nada” | `onChange` early-return + `disabled` never passed to `MUI.Tab` | Pass `disabled: !!t.disabled` in `NavTabRow`; don’t block quiz without session |
+| Stop button ovalado / play idle a la derecha | Stack `width:100%` + IconButton sin size fijo | Idle: shrink bar; buttons `40×40` `borderRadius:50%` `aspectRatio:1/1` |
+
+**DO**
+- Use `AudioPlayerBar` for **both** question and tip (DRY). Tracks: `"question"` | `"tip"`.
+- Generate tips: `npm run generate:audio -- --kind=tip` (or `--kind=all`).
+- Keep `scripts/tts-prompt.mjs` ↔ `core/tts.ts` tip prompts in sync (tests assert).
+- Layout after verify: question/options **left**, tip card **right**.
+- Nav: Results tab `disabled` until `state.result`; Práctica always navigable (Home config if no session).
+
+**DON'T**
+- Don't re-implement a second play/pause UI outside `AudioPlayerBar`.
+- Don't block `route === "quiz"` when `!session` — show HomeView for config instead.
+- Don't leave tip MP3 out of commits (Pages won’t have them).
+- Don't set AudioPlayerBar to fixed 340px width when timeline is hidden.
+
+### 6.13 Session order — shuffle (DO NOT present q001…q150)
+
+| Symptom | Root cause | Fix |
+|---|---|---|
+| Cada intento empieza siempre en la misma pregunta | `buildSession` / HomeView `sort` by `id` | Fisher–Yates `shuffleArray` in `buildSession` only |
+
+**DO**
+- Start quizzes **only** via `buildSession(mode, topic, questions)` from `core/quiz.ts`.
+- Keep `scripts/shuffle.mjs` algorithm identical to `quiz.ts` (tests check both).
+- HomeView must call `buildSession` — no local filter+sort copy.
+
+**DON'T**
+- Don't `sort((a,b) => a.id.localeCompare(b.id))` when starting a session.
+- Don't shuffle the **canonical bank** cache in `loadQuestions()` — shuffle a **copy** per session.
+- Don't re-shuffle mid-session when changing locale (locale only re-localizes text/audio).
+
 ### 6.7 File I/O discipline
 
 **DO**
@@ -346,12 +395,13 @@ python scripts/dev-server.py
 ### 6.11 GitHub / binary assets
 
 **DO**
-- Commit `audio/es/` + `audio/en/` (~150 MB total) — GitHub accepts it (max file 100 MB; ours are <1 MB each).
-- Push triggers `deploy-ghpages.yml` automatically (~30–60 s).
+- Commit `audio/es/` + `audio/en/` question **and tip** MP3 (~300 question + ~300 tip; GitHub accepts — max file 100 MB; ours are <2 MB each).
+- Push triggers `deploy-ghpages.yml` automatically (~30–90 s; tip binaries add upload time).
 
 **DON'T**
 - Don't assume GitHub rejects MP3 folders — it won't at this size.
 - Consider removing legacy `audio/q*.mp3` at root eventually (~24 MB duplicate; runtime prefers `audio/es/`).
+- Don't commit tip audio without also updating `tests/02-audio.test.mjs` expectations (already expects 150 tips/locale).
 
 ---
 
@@ -397,7 +447,7 @@ Tests are independent (each opens with `node:test describe()`). Failures print t
 | Test file | Invariant |
 |---|---|
 | `01-schema.test.mjs` | `data/questions.json` has all required fields, all 4 options, valid correctAnswer, explanations for all options. |
-| `02-audio.test.mjs` | 150 MP3 in `audio/es/` and `audio/en/`; no gaps. |
+| `02-audio.test.mjs` | 150 question MP3 + **150 tip** MP3 in `audio/es/` and `audio/en/`; no gaps. |
 | `03-bundles.test.mjs` | All 4 JS bundles pass `node --check` (parses without syntax errors). |
 | `04-distribution.test.mjs` | Topic distribution sums to 150; all 11 topics present. |
 | `05-id-format.test.mjs` | IDs are `qNNN`, unique, contiguously covering `q001..q150`. |
@@ -405,7 +455,9 @@ Tests are independent (each opens with `node:test describe()`). Failures print t
 | `07-workflow.test.mjs` | `deploy-ghpages.yml` uses `node scripts/build.mjs`, triggers on `main`. |
 | `08-readme.test.mjs` | README doesn't mention `public/`; mentions 150 questions. |
 | `09-i18n.test.mjs` | `questions.en.json` has 150 rows; ids match ES; TTS prompt includes A–D. |
-| `10-runtime-contract.test.mjs` | Boot eval, base href, i18n wiring, audio locale paths, play/pause listener. |
+| `10-runtime-contract.test.mjs` | Boot eval, base href, i18n wiring, audio locale paths, AudioPlayerBar tip+question. |
+| `11-session-shuffle.test.mjs` | Fisher–Yates shuffle; `buildSession` never id-sorts; HomeView uses `buildSession`. |
+| `12-ui-contracts.test.mjs` | Tab `disabled` wiring; circular play/stop; right tip panel; tip audio paths. |
 
 ---
 

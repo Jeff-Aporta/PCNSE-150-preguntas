@@ -94,6 +94,7 @@
         return React.createElement(MUI.Tab, {
           key: t.id,
           value: t.id,
+          disabled: !!t.disabled,
           label: React.createElement(NavTabLabel, {
             UI: UI,
             icon: t.icon,

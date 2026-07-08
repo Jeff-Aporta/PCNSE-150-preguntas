@@ -68,26 +68,29 @@ describe('runtime contract — audio playback', () => {
     assert.match(src, /Opcion|Option/);
     assert.match(src, /L\.options/);
     assert.match(audio, /questionAudioPath/);
-    assert.match(audio, /setPlaybackListener/);
+    assert.match(audio, /playTipAudio/);
+    assert.match(audio, /buildTipTtsPrompt/);
+    assert.match(audio, /subscribePlayback/);
     assert.match(audio, /bindPlaybackEvents/);
     assert.match(audio, /Range.*bytes=0-511/);
     assert.match(audio, /if \(loc === "en"\) return \[primary\]/);
     assert.doesNotMatch(audio, /method:\s*['"]HEAD['"]/);
   });
 
-  it('QuizView wires setPlaybackListener and play/pause toggle', async () => {
+  it('QuizView wires AudioPlayerBar for question and tip', async () => {
     const p = await paths();
     const src = await readSrc(p.root, '_dist/js/app/views/QuizView.tsx');
-    assert.match(src, /setPlaybackListener/);
-    assert.match(src, /handleAudioToggle/);
-    assert.match(src, /mdi:pause/);
-    assert.match(src, /playQuestionAudio\(currentQuestion,\s*locale\)/);
+    assert.match(src, /AudioPlayerBar/);
+    assert.match(src, /track="question"/);
+    assert.match(src, /track="tip"/);
+    assert.match(src, /playTipAria/);
   });
 
   it('generate-audio imports shared tts-prompt.mjs', async () => {
     const p = await paths();
     const src = await readSrc(p.root, 'scripts/generate-audio.mjs');
     assert.match(src, /from ['"]\.\/tts-prompt\.mjs['"]/);
+    assert.match(src, /buildTipTtsPrompt/);
     assert.doesNotMatch(src, /function buildTtsPrompt\(/);
   });
 });

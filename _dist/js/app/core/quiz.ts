@@ -92,6 +92,17 @@ export async function loadQuestions(): Promise<Question[]> {
   return cachedQuestions;
 }
 
+/** Fisher–Yates in-place shuffle. Returns the same array. */
+export function shuffleArray<T>(arr: T[], rng: () => number = Math.random): T[] {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    const tmp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = tmp;
+  }
+  return arr;
+}
+
 export function buildSession(mode: QuizMode, topic?: string, allQuestions: Question[] = []): QuizSession {
   let selected: Question[];
   if (mode === "topic" && topic) {
@@ -99,8 +110,8 @@ export function buildSession(mode: QuizMode, topic?: string, allQuestions: Quest
   } else {
     selected = allQuestions.slice();
   }
-  // Orden determinista: por id
-  selected.sort((a, b) => a.id.localeCompare(b.id));
+  // Orden aleatorio por sesión (examen real no viene ordenado por id)
+  shuffleArray(selected);
   return {
     mode,
     topic,

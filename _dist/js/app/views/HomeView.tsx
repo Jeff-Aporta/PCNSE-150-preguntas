@@ -15,7 +15,8 @@ import {
   Radio,
   Divider,
 } from "@mui/material";
-import type { Question } from "../core/quiz.ts";
+import type { Question, QuizSession } from "../core/quiz.ts";
+import { buildSession } from "../core/quiz.ts";
 import { useAppLocale } from "../components/LocaleToolbar.tsx";
 import { t, tf } from "../core/ui-i18n.ts";
 import { CARD_SHELL, CARD_SCROLL_BODY, CHIP_PAD } from "../core/card-scroll.ts";
@@ -23,14 +24,7 @@ import { CARD_SHELL, CARD_SCROLL_BODY, CHIP_PAD } from "../core/card-scroll.ts";
 type Props = {
   questions: Question[];
   stats: { lastScore?: number; totalAttempts: number };
-  onStart: (session: {
-    mode: "all" | "topic";
-    topic?: string;
-    totalQuestions: number;
-    questions: Question[];
-    startedAt: number;
-    durationSec: number;
-  }) => void;
+  onStart: (session: QuizSession) => void;
 };
 
 const HERO_CARD_SX = {
@@ -59,16 +53,7 @@ export function HomeView({ questions, stats, onStart }: Props) {
   const visibleCount = mode === "all" ? questions.length : questions.filter((q) => q.topic === selectedTopic).length;
 
   const handleStart = () => {
-    const filtered = mode === "all" ? questions.slice() : questions.filter((q) => q.topic === selectedTopic);
-    filtered.sort((a, b) => a.id.localeCompare(b.id));
-    onStart({
-      mode,
-      topic: mode === "topic" ? selectedTopic : undefined,
-      totalQuestions: filtered.length,
-      questions: filtered,
-      startedAt: Date.now(),
-      durationSec: Math.max(300, filtered.length * 90),
-    });
+    onStart(buildSession(mode, mode === "topic" ? selectedTopic : undefined, questions));
   };
 
   return (

@@ -16,6 +16,19 @@ export function buildTtsPrompt(q, locale, enRow) {
   return `Pregunta ${num}. ${topic}. ${question}. ${opts}`;
 }
 
+export function buildTipTtsPrompt(q, locale, enRow) {
+  const num = q.id.replace(/^q/i, "");
+  const tip = locale === "en" && enRow ? enRow.tip : q.tip;
+  const explanations = locale === "en" && enRow ? enRow.explanations : q.explanations;
+  const exps = ["A", "B", "C", "D"]
+    .map((id) => (locale === "en" ? `Option ${id}. ${explanations[id]}` : `Opcion ${id}. ${explanations[id]}`))
+    .join(" ");
+  if (locale === "en") {
+    return `Explanation for question ${num}. Tip. ${tip}. ${exps}`;
+  }
+  return `Justificacion pregunta ${num}. Tip. ${tip}. ${exps}`;
+}
+
 /** Aserciones reutilizables en tests. */
 export function assertPromptIncludesOptions(prompt, locale) {
   const prefix = locale === "en" ? "Option A." : "Opcion A.";

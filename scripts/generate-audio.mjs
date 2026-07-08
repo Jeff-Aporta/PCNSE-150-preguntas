@@ -1,9 +1,10 @@
 /**
- * Genera audio/{es|en}/qNNN.mp3 con MiniMax T2A (pregunta + opciones A–D).
+ * Genera audio/{es|en}/qNNN.mp3 y qNNN-tip.mp3 con MiniMax T2A.
  *
  * Uso:
  *   MINIMAX_API_KEY=sk-... node scripts/generate-audio.mjs
  *   MINIMAX_API_KEY=sk-... node scripts/generate-audio.mjs --force
+ *   MINIMAX_API_KEY=sk-... node scripts/generate-audio.mjs --kind=tip
  *   MINIMAX_API_KEY=sk-... node scripts/generate-audio.mjs --locale=en
  *   MINIMAX_API_KEY=sk-... node scripts/generate-audio.mjs --ids q001,q040
  */
@@ -11,7 +12,7 @@ import { readFileSync, writeFileSync, mkdirSync, statSync, existsSync } from "no
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { synthesizeMinimax } from "./minimax-tts.mjs";
-import { buildTtsPrompt } from "./tts-prompt.mjs";
+import { buildTtsPrompt, buildTipTtsPrompt } from "./tts-prompt.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -22,12 +23,18 @@ const QUESTIONS_EN_PATH = join(ROOT, "data", "questions.en.json");
 const args = process.argv.slice(2);
 const force = args.includes("--force");
 const localeArg = args.find((a) => a.startsWith("--locale="))?.slice(9) || "all";
+const kindArg = args.find((a) => a.startsWith("--kind="))?.slice(7) || "all";
 const idsArg = args.find((a) => a.startsWith("--ids="))?.slice(6)?.split(",").filter(Boolean);
 
 const LOCALES = localeArg === "all" ? ["es", "en"] : [localeArg];
+const KINDS = kindArg === "all" ? ["question", "tip"] : [kindArg];
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+function outFile(kind, loc, id) {
+  return join(AUDIO_ROOT, loc, kind === "tip" ? `${id}-tip.mp3` : `${id}.mp3`);
 }
 
 async function main() {
@@ -48,37 +55,40 @@ async function main() {
     mkdirSync(join(AUDIO_ROOT, loc), { recursive: true });
   }
 
-  console.log(`Generando TTS MiniMax (${LOCALES.join(", ")}) para ${questions.length} preguntas…`);
+  console.log(`Generando TTS MiniMax (${LOCALES.join(", ")}, ${KINDS.join(", ")}) para ${questions.length} preguntas…`);
   let ok = 0;
   let skip = 0;
   let fail = 0;
 
   for (const loc of LOCALES) {
-    for (const q of questions) {
-      if (loc === "en" && !enMap.has(q.id)) {
-        console.warn(`SKIP ${q.id} [en]: sin traducción en questions.en.json`);
-        skip++;
-        continue;
-      }
-      const out = join(AUDIO_ROOT, loc, `${q.id}.mp3`);
-      if (!force && existsSync(out) && statSync(out).size > 1024) {
-        skip++;
-        continue;
-      }
-      const text = buildTtsPrompt(q, loc, enMap.get(q.id));
-      process.stdout.write(`${q.id} [${loc}]… `);
-      try {
-        const mp3 = await synthesizeMinimax(text, {
-          language_boost: loc === "en" ? "English" : "Spanish",
-        });
-        writeFileSync(out, mp3);
-        ok++;
-        console.log(`OK (${(mp3.length / 1024).toFixed(1)} KB)`);
-        await sleep(1100);
-      } catch (err) {
-        fail++;
-        console.log(`FAIL: ${err.message}`);
-        await sleep(2000);
+    for (const kind of KINDS) {
+      for (const q of questions) {
+        if (loc === "en" && !enMap.has(q.id)) {
+          console.warn(`SKIP ${q.id} [${loc}/${kind}]: sin traducción en questions.en.json`);
+          skip++;
+          continue;
+        }
+        const out = outFile(kind, loc, q.id);
+        if (!force && existsSync(out) && statSync(out).size > 1024) {
+          skip++;
+          continue;
+        }
+        const text =
+          kind === "tip" ? buildTipTtsPrompt(q, loc, enMap.get(q.id)) : buildTtsPrompt(q, loc, enMap.get(q.id));
+        process.stdout.write(`${q.id} [${loc}/${kind}]… `);
+        try {
+          const mp3 = await synthesizeMinimax(text, {
+            language_boost: loc === "en" ? "English" : "Spanish",
+          });
+          writeFileSync(out, mp3);
+          ok++;
+          console.log(`OK (${(mp3.length / 1024).toFixed(1)} KB)`);
+          await sleep(1100);
+        } catch (err) {
+          fail++;
+          console.log(`FAIL: ${err.message}`);
+          await sleep(2000);
+        }
       }
     }
   }

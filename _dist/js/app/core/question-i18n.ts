@@ -15,6 +15,10 @@ export function questionAudioPath(id: string, locale: AppLocale): string {
   return `audio/${locale}/${id}.mp3`;
 }
 
+export function questionTipAudioPath(id: string, locale: AppLocale): string {
+  return `audio/${locale}/${id}-tip.mp3`;
+}
+
 /** Devuelve copia de la pregunta con textos del idioma activo. */
 export function localizeQuestion(q: Question, locale: AppLocale): Question {
   if (locale === "es" || !q.en) {

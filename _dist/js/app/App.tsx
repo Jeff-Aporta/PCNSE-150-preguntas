@@ -7,7 +7,7 @@ import { HomeView } from "./views/HomeView.tsx";
 import { QuizView } from "./views/QuizView.tsx";
 import { ResultsView } from "./views/ResultsView.tsx";
 import { LocaleToolbar, useAppLocale } from "./components/LocaleToolbar.tsx";
-import { loadQuestions, type Question, type QuizSession, type QuizResult } from "./core/quiz.ts";
+import { loadQuestions, shuffleArray, type Question, type QuizSession, type QuizResult } from "./core/quiz.ts";
 import { loadStats as _loadStats } from "./core/stats.ts";
 import { t } from "./core/ui-i18n.ts";
 
@@ -72,12 +72,19 @@ export function App() {
 
   const retryQuiz = useCallback(() => {
     if (!state.session) return;
-    setState((s) => ({
-      ...s,
-      route: "quiz",
-      session: { ...state.session!, startedAt: Date.now() },
-      result: null,
-    }));
+    setState((s) => {
+      const prev = s.session!;
+      return {
+        ...s,
+        route: "quiz",
+        session: {
+          ...prev,
+          questions: shuffleArray(prev.questions.slice()),
+          startedAt: Date.now(),
+        },
+        result: null,
+      };
+    });
   }, [state.session]);
 
   const navRows = useMemo(
@@ -97,7 +104,6 @@ export function App() {
         value: state.route,
         onChange: (id: string) => {
           if (id === "results" && !state.result) return;
-          if (id === "quiz" && !state.session) return;
           setState((s) => ({ ...s, route: id as Route }));
         },
       },
@@ -112,9 +118,11 @@ export function App() {
     body = <CenteredMessage message={t("loadError", locale)} icon="mdi:cloud-alert-outline" />;
   } else if (state.route === "home") {
     body = <HomeView questions={state.questions} onStart={startQuiz} stats={_loadStats()} />;
-  } else if (state.route === "quiz" && state.session) {
-    body = (
+  } else if (state.route === "quiz") {
+    body = state.session ? (
       <QuizView session={state.session} questions={state.questions} onFinish={finishQuiz} onAbort={goHome} />
+    ) : (
+      <HomeView questions={state.questions} onStart={startQuiz} stats={_loadStats()} />
     );
   } else if (state.route === "results" && state.result) {
     body = (
