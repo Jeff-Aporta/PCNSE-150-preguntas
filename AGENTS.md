@@ -112,11 +112,23 @@ william_quest/
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-**Audio playback:** `playQuestionAudio(q, locale)` / `playTipAudio(q, locale)` in `core/audio.ts`.
-- Question MP3: `audio/{locale}/qNNN.mp3` (via `document.baseURI`).
-- Tip/justification MP3: `audio/{locale}/qNNN-tip.mp3`.
+**Audio playback:** `playQuestionAudio(q, locale)` / `playTipAudio(q, isCorrect, locale)` in `core/audio.ts`.
+- **Modos**:
+  - **Playlist virtual (preferente)**: 12 clips MP3 por pregunta + manifest JSON con offsets.
+    - Question track: `stmt` + A/B/C/D en el orden de la sesión (post-shuffle).
+    - Tip track: `ttip` + `correct`/`wrong` + EA/EB/EC/ED (explicaciones en orden canónico).
+  - **Monolítico (fallback)**: si no hay manifest, reproduce `audio/{locale}/qNNN.mp3` y `qNNN-tip.mp3`.
+- Clips por pregunta/locale (12 archivos):
+  - `audio/{es|en}/qNNN-stmt.mp3`
+  - `audio/{es|en}/qNNN-{A|B|C|D}.mp3`
+  - `audio/{es|en}/qNNN-ttip.mp3`
+  - `audio/{es|en}/qNNN-{correct|wrong}.mp3`
+  - `audio/{es|en}/qNNN-E{A|B|C|D}.mp3`
+- Manifest: `audio/{es|en}/qNNN.segments.json` con `{version, totalDur, clips:[{key, file, durSec}]}`.
+- El runtime (`core/audio-playlist.ts`) emite `virtualTime ∈ [0, totalDur]` calculado como
+  `offsets[currentIdx] + audio.currentTime`, simulando un único audio de varios archivos.
+- TTS prompts por clip: `scripts/tts-prompt.mjs` → `buildClipPrompts` (5 prompts) + `buildTipClipPrompts` (7 prompts).
 - Fallback dev: `POST /api/tts` (MiniMax via `scripts/minimax-tts-cli.py`).
-- TTS prompts **must include options / explanations A–D** — use `scripts/tts-prompt.mjs` (`buildTtsPrompt` + `buildTipTtsPrompt`).
 - UI: shared `AudioPlayerBar` (timeline + stop + circular play) for both tracks; only one track plays at a time.
 
 ---
@@ -363,6 +375,30 @@ python scripts/dev-server.py
 - Don't block `route === "quiz"` when `!session` — show HomeView for config instead.
 - Don't leave tip MP3 out of commits (Pages won’t have them).
 - Don't set AudioPlayerBar to fixed 340px width when timeline is hidden.
+
+### 6.14 Audio fragmentado + manifest virtual (DO NOT volver a monolítico con shuffle)
+
+|| Symptom | Root cause | Fix |
+||---|---|---|
+|| Audio dice "Opción B" mientras la pantalla muestra "Opción C" (post-shuffle) | El MP3 monolítico `qNNN.mp3` lee A→B→C→D en orden canónico; `shuffleQuestionOptions` reordena las opciones para la sesión | Generar clips por fragmento (`stmt/A/B/C/D/ttip/correct/wrong/EA/EB/EC/ED`) y un playlist virtual que ordena los clips según el slot visible |
+|| El slider del timeline salta a tiempos que no corresponden a los clips | Sin manifest de offsets, `currentTime` es real del MP3 único y no se puede "mover entre archivos" | `qNNN.segments.json` con `[{key, file, durSec}]`; `core/audio-playlist.ts` calcula `virtualTime = offsets[i] + audio.currentTime` y traduce seeks al clip correcto |
+|| EN UI con audio en ES (o viceversa) tras regenerar clips | `generate-audio.mjs` regeneraba monolíticos con textos mezclados | `buildClipPrompts(q, loc, enRow)` se llama con locale; el manifest se genera con paths `audio/{loc}/qNNN-{key}.mp3` |
+|| `playQuestionAudio` no carga clips al primer play | Manifest no existe o falta algún clip | `playQuestionAudio` intenta playlist → si falla, fallback monolítico; si un clip falta en runtime, regenera TTS al vuelo con `fetchTtsAudioBlob` |
+
+**DO**
+- Generar clips con `node scripts/regenerate-clips-batch.mjs` → invocar MCP `matrix_batch_text_to_audio` en lotes de 10 → `node scripts/consolidate-clips.mjs` para mover los MP3 a su destino → `node scripts/generate-audio.mjs --clips` para regenerar manifests con duraciones `ffprobe`.
+- O bien, generar todo de una vez: `MINIMAX_API_KEY=sk-... node scripts/generate-audio.mjs --clips`.
+- Mantener el orden de clips por sesión acorde a `q.options` rebarajado (`buildQuestionOrder` en `core/audio-playlist.ts`).
+- El manifest se regenera automáticamente al final de cada generación (`ensureManifest`).
+- Tests `tests/02-audio.test.mjs` validan los 12 clips + manifest por locale; el monolítico es opcional.
+
+**DON'T**
+- No volver a un único `qNNN.mp3` monolítico para `playQuestionAudio`: el shuffle de A–D rompe la sincronización audio↔UI.
+- No hardcodear la duración de los clips en el manifest — siempre usar `ffprobe` (o `Audio.duration` en runtime si el manifest está desactualizado).
+- No añadir clips sin actualizar `QUESTION_CLIP_KEYS` / `TIP_CLIP_KEYS` en `scripts/tts-prompt.mjs` y los tests.
+- No eliminar los monolíticos `qNNN.mp3` / `qNNN-tip.mp3` mientras el fallback runtime los use.
+
+---
 
 ### 6.13 Option shuffle — barajar A–D por sesión (DO NOT always letter B)
 

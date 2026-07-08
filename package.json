@@ -8,7 +8,10 @@
     "dev": "python scripts/dev-server.py",
     "build": "node scripts/build.mjs",
     "build:tscheck": "tsc --noEmit -p tsconfig.json",
-    "generate:audio": "node scripts/generate-audio.mjs",
+    "generate:audio": "node scripts/generate-audio.mjs --clips",
+    "generate:audio:mono": "node scripts/generate-audio.mjs --mono",
+    "batches:audio": "node scripts/regenerate-clips-batch.mjs",
+    "consolidate:audio": "node scripts/consolidate-clips.mjs",
     "translate:en": "node scripts/translate-questions-en.mjs",
     "test": "node --test tests/*.test.mjs",
     "validate:audio": "powershell -ExecutionPolicy Bypass -File scripts/validate-audio.ps1"

@@ -26,6 +26,7 @@ type Props = {
   question: Question | null;
   idleTooltipKey: "listenQuestion" | "listenTip";
   playAriaKey: "playAudioAria" | "playTipAria";
+  isCorrect?: boolean; // solo para track="tip": decide correct.mp3 vs wrong.mp3
 };
 
 function formatAudioTime(sec: number): string {
@@ -35,7 +36,7 @@ function formatAudioTime(sec: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export function AudioPlayerBar({ track, question, idleTooltipKey, playAriaKey }: Props) {
+export function AudioPlayerBar({ track, question, idleTooltipKey, playAriaKey, isCorrect = false }: Props) {
   const { locale } = useAppLocale();
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -107,7 +108,7 @@ export function AudioPlayerBar({ track, question, idleTooltipKey, playAriaKey }:
     setLoading(true);
     try {
       if (track === "question") await playQuestionAudio(question, locale);
-      else await playTipAudio(question, locale);
+      else await playTipAudio(question, isCorrect, locale);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg);

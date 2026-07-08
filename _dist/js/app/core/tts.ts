@@ -14,7 +14,7 @@ export function resolveAssetUrl(path: string): string {
   return new URL(clean, document.baseURI).href;
 }
 
-/** Narración completa: pregunta + opciones A–D. */
+/** Narración monolítica (FALLBACK). */
 export function buildTtsPrompt(q: Question, locale: AppLocale = "es"): string {
   const L = localizeQuestion(q, locale);
   const num = q.id.replace(/^q/i, "");
@@ -27,7 +27,7 @@ export function buildTtsPrompt(q: Question, locale: AppLocale = "es"): string {
   return `Pregunta ${num}. ${L.topic}. ${L.question}. ${opts}`;
 }
 
-/** Narración de justificación: tip + explicaciones A–D. */
+/** Justificación monolítica (FALLBACK). */
 export function buildTipTtsPrompt(q: Question, locale: AppLocale = "es"): string {
   const L = localizeQuestion(q, locale);
   const num = q.id.replace(/^q/i, "");
@@ -39,6 +39,47 @@ export function buildTipTtsPrompt(q: Question, locale: AppLocale = "es"): string
     return `Explanation for question ${num}. Tip. ${L.tip}. ${exps}`;
   }
   return `Justificacion pregunta ${num}. Tip. ${L.tip}. ${exps}`;
+}
+
+/** Prompts por fragmento — question track. */
+export function buildClipPrompts(q: Question, locale: AppLocale = "es"): Record<string, string> {
+  const L = localizeQuestion(q, locale);
+  const num = q.id.replace(/^q/i, "");
+  const stmt = locale === "en" ? `Question ${num}. Topic ${L.topic}. ${L.question}` : `Pregunta ${num}. ${L.topic}. ${L.question}`;
+  const out: Record<string, string> = {
+    stmt,
+    A: locale === "en" ? `Option A. ${L.options[0].text}` : `Opcion A. ${L.options[0].text}`,
+    B: locale === "en" ? `Option B. ${L.options[1].text}` : `Opcion B. ${L.options[1].text}`,
+    C: locale === "en" ? `Option C. ${L.options[2].text}` : `Opcion C. ${L.options[2].text}`,
+    D: locale === "en" ? `Option D. ${L.options[3].text}` : `Opcion D. ${L.options[3].text}`,
+  };
+  return out;
+}
+
+/** Prompts por fragmento — tip track. */
+export function buildTipClipPrompts(q: Question, locale: AppLocale = "es", isCorrect = false): Record<string, string> {
+  const L = localizeQuestion(q, locale);
+  const num = q.id.replace(/^q/i, "");
+  const letters: AnswerId[] = ["A", "B", "C", "D"];
+  const ttip = locale === "en" ? `Explanation for question ${num}. Tip. ${L.tip}` : `Justificacion pregunta ${num}. Tip. ${L.tip}`;
+  const fb = isCorrect
+    ? (locale === "en" ? "Correct." : "Correcto.")
+    : (locale === "en" ? "Incorrect." : "Incorrecto.");
+  const out: Record<string, string> = {
+    ttip,
+    correct: fb,
+    wrong: fb,
+  };
+  for (const id of letters) {
+    out[id === "A" ? "EA" : id === "B" ? "EB" : id === "C" ? "EC" : "ED"] =
+      locale === "en" ? `Option ${id}. ${L.explanations[id]}` : `Opcion ${id}. ${L.explanations[id]}`;
+  }
+  return out;
+}
+
+/** Paths de clip por key (canónica). */
+export function clipPath(qid: string, locale: AppLocale, key: string): string {
+  return `audio/${locale}/${qid}-${key}.mp3`;
 }
 
 export function ttsVoiceFor(locale: AppLocale): string {

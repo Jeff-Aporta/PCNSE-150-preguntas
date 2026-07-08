@@ -542,12 +542,13 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                   </Stack>
 
                   <Box sx={{ mb: 1.5, flexShrink: 0 }}>
-                    <AudioPlayerBar
-                      track="tip"
-                      question={currentQuestion}
-                      idleTooltipKey="listenTip"
-                      playAriaKey="playTipAria"
-                    />
+              <AudioPlayerBar
+                track="tip"
+                question={currentQuestion}
+                idleTooltipKey="listenTip"
+                playAriaKey="playTipAria"
+                isCorrect={isCorrect}
+              />
                   </Box>
 
                   <Box sx={{ ...PANEL_SCROLL }}>
