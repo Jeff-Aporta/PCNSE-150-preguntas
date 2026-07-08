@@ -7,7 +7,7 @@ import { HomeView } from "./views/HomeView.tsx";
 import { QuizView } from "./views/QuizView.tsx";
 import { ResultsView } from "./views/ResultsView.tsx";
 import { LocaleToolbar, useAppLocale } from "./components/LocaleToolbar.tsx";
-import { loadQuestions, shuffleArray, type Question, type QuizSession, type QuizResult } from "./core/quiz.ts";
+import { loadQuestions, shuffleArray, shuffleQuestionOptions, type Question, type QuizSession, type QuizResult } from "./core/quiz.ts";
 import { loadStats as _loadStats } from "./core/stats.ts";
 import { t } from "./core/ui-i18n.ts";
 
@@ -74,14 +74,13 @@ export function App() {
     if (!state.session) return;
     setState((s) => {
       const prev = s.session!;
+      const shuffled = shuffleArray(
+        prev.questions.map((q) => shuffleQuestionOptions(q))
+      );
       return {
         ...s,
         route: "quiz",
-        session: {
-          ...prev,
-          questions: shuffleArray(prev.questions.slice()),
-          startedAt: Date.now(),
-        },
+        session: { ...prev, questions: shuffled, startedAt: Date.now() },
         result: null,
       };
     });

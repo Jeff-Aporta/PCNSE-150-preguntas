@@ -42,12 +42,13 @@ describe("session shuffle", () => {
     assert.ok(different >= 35, `expected most shuffles to differ from sorted input, got ${different}/40`);
   });
 
-  it("quiz.ts buildSession shuffles (does not sort by id)", async () => {
+  it("quiz.ts buildSession reorders sessions by id and shuffles per-question options", async () => {
     const p = await paths();
     const src = await readFile(join(p.root, "_dist/js/app/core/quiz.ts"), "utf8");
     assert.match(src, /function shuffleArray/);
-    assert.match(src, /shuffleArray\(selected\)/);
-    assert.doesNotMatch(src, /selected\.sort\(\s*\(a,\s*b\)\s*=>\s*a\.id\.localeCompare/);
+    assert.match(src, /selected\.sort\(\s*\(a,\s*b\)\s*=>\s*a\.id\.localeCompare/);
+    assert.match(src, /function shuffleQuestionOptions/);
+    assert.match(src, /selected\.map\(\s*\(q\)\s*=>\s*shuffleQuestionOptions\(q\)/);
   });
 
   it("HomeView starts via buildSession (no local id sort)", async () => {

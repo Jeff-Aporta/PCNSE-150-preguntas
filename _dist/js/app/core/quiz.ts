@@ -103,6 +103,42 @@ export function shuffleArray<T>(arr: T[], rng: () => number = Math.random): T[] 
   return arr;
 }
 
+/** Mapeo estable letra → índice. */
+const ANSWER_INDEX: Record<AnswerId, number> = { A: 0, B: 1, C: 2, D: 3 };
+
+export function shuffleQuestionOptions(
+  q: Question,
+  rng: () => number = Math.random
+): Question {
+  // Permuta textos A–D pero conserva la letra correcta en `correctAnswer`.
+  const pairs = q.options.map((o, idx) => ({ text: o.text, original: o.id }));
+  for (let i = pairs.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    const tmp = pairs[i];
+    pairs[i] = pairs[j];
+    pairs[j] = tmp;
+  }
+  const letters: AnswerId[] = ["A", "B", "C", "D"];
+  const newOptions = pairs.map((p, idx) => ({ id: letters[idx], text: p.text }));
+  const newCorrect = letters[pairs.findIndex((p) => p.original === q.correctAnswer)];
+  const newExplanations = letters.reduce<Record<AnswerId, string>>((acc, letter, idx) => {
+    // `idx` apunta al `pairs` original; mantenemos la explicación según la letra NUEVA.
+    acc[letter] = q.explanations[letters[idx]] ?? "";
+    return acc;
+  }, { A: "", B: "", C: "", D: "" });
+  // `pairs[idx].original` es la letra vieja que ahora cae en `letters[idx]`.
+  for (const [newLetter, idx] of letters.map((l, i) => [l, i] as const)) {
+    const oldLetter = pairs[idx].original;
+    newExplanations[newLetter] = q.explanations[oldLetter];
+  }
+  return {
+    ...q,
+    options: newOptions,
+    correctAnswer: newCorrect,
+    explanations: newExplanations,
+  };
+}
+
 export function buildSession(mode: QuizMode, topic?: string, allQuestions: Question[] = []): QuizSession {
   let selected: Question[];
   if (mode === "topic" && topic) {
@@ -110,8 +146,9 @@ export function buildSession(mode: QuizMode, topic?: string, allQuestions: Quest
   } else {
     selected = allQuestions.slice();
   }
-  // Orden aleatorio por sesión (examen real no viene ordenado por id)
-  shuffleArray(selected);
+  // Orden determinista por id (q001..q150) y opciones A–D mezcladas por sesión.
+  selected.sort((a, b) => a.id.localeCompare(b.id));
+  selected = selected.map((q) => shuffleQuestionOptions(q));
   return {
     mode,
     topic,

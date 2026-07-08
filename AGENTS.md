@@ -364,20 +364,24 @@ python scripts/dev-server.py
 - Don't leave tip MP3 out of commits (Pages won’t have them).
 - Don't set AudioPlayerBar to fixed 340px width when timeline is hidden.
 
-### 6.13 Session order — shuffle (DO NOT present q001…q150)
+### 6.13 Option shuffle — barajar A–D por sesión (DO NOT always letter B)
 
 | Symptom | Root cause | Fix |
 |---|---|---|
-| Cada intento empieza siempre en la misma pregunta | `buildSession` / HomeView `sort` by `id` | Fisher–Yates `shuffleArray` in `buildSession` only |
+| La respuesta correcta siempre es la misma letra (p. ej. B) | `options` array sorted by `id` (A,B,C,D) en el banco canónico | `shuffleQuestionOptions(q)` en `buildSession` remapea `options`, `correctAnswer` y `explanations` |
+| Usuario marca "B" en la versión rebarajada y el sistema dice Incorrecto | El texto de la respuesta correcta cambió de letra pero `correctAnswer` no | `shuffleQuestionOptions` mantiene la **invariante**: el texto apuntado por `correctAnswer` siempre coincide con el de la opción que el usuario ve en esa posición |
 
 **DO**
 - Start quizzes **only** via `buildSession(mode, topic, questions)` from `core/quiz.ts`.
+- Al reintentar (retry) también rebarajar las opciones (`shuffleArray(...)` + `shuffleQuestionOptions`).
+- Mantener el **orden de preguntas** estable por `id` (q001, q002, ...) — el examen real baraja opciones, no bloques.
 - Keep `scripts/shuffle.mjs` algorithm identical to `quiz.ts` (tests check both).
 - HomeView must call `buildSession` — no local filter+sort copy.
 
 **DON'T**
-- Don't `sort((a,b) => a.id.localeCompare(b.id))` when starting a session.
+- Don't `sort((a,b) => a.id.localeCompare(b.id))` on the option **array** per session.
 - Don't shuffle the **canonical bank** cache in `loadQuestions()` — shuffle a **copy** per session.
+- Don't forget to remap `correctAnswer` + `explanations` together when option letters move (would break grading).
 - Don't re-shuffle mid-session when changing locale (locale only re-localizes text/audio).
 
 ### 6.7 File I/O discipline
@@ -456,8 +460,9 @@ Tests are independent (each opens with `node:test describe()`). Failures print t
 | `08-readme.test.mjs` | README doesn't mention `public/`; mentions 150 questions. |
 | `09-i18n.test.mjs` | `questions.en.json` has 150 rows; ids match ES; TTS prompt includes A–D. |
 | `10-runtime-contract.test.mjs` | Boot eval, base href, i18n wiring, audio locale paths, AudioPlayerBar tip+question. |
-| `11-session-shuffle.test.mjs` | Fisher–Yates shuffle; `buildSession` never id-sorts; HomeView uses `buildSession`. |
+| `11-session-shuffle.test.mjs` | Fisher–Yates shuffle; `buildSession` keeps question order by id; HomeView uses `buildSession`. |
 | `12-ui-contracts.test.mjs` | Tab `disabled` wiring; circular play/stop; right tip panel; tip audio paths. |
+| `13-option-shuffle.test.mjs` | `shuffleQuestionOptions` remaps correctAnswer + explanations; buildSession applies it; retry reshuffles. |
 
 ---
 
