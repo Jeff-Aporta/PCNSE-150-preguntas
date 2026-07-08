@@ -1,10 +1,14 @@
 /**
- * tests/09-i18n.test.mjs — banco EN + paridad con ES.
+ * tests/09-i18n.test.mjs — banco EN + paridad con ES + prompts por clip.
  */
 import { describe, it, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { paths, readJson } from './_helpers.mjs';
-import { buildTtsPrompt, assertPromptIncludesOptions } from '../scripts/tts-prompt.mjs';
+import {
+  buildTtsPrompt, assertPromptIncludesOptions,
+  buildClipPrompts, buildTipClipPrompts,
+  QUESTION_CLIP_KEYS, TIP_CLIP_KEYS,
+} from '../scripts/tts-prompt.mjs';
 
 const OPTION_IDS = ['A', 'B', 'C', 'D'];
 
@@ -52,5 +56,37 @@ describe('i18n — questions.en.json', () => {
     assertPromptIncludesOptions(enPrompt, 'en');
     assert.match(esPrompt, /^Pregunta 001\./);
     assert.match(enPrompt, /^Question 001\. Topic/);
+  });
+
+  it('buildClipPrompts emits stmt + 4 options for ES and EN', () => {
+    const q = esBank.questions[0];
+    const enRow = enBank.questions.find((r) => r.id === q.id);
+    const esClips = buildClipPrompts(q, 'es', null);
+    const enClips = buildClipPrompts(q, 'en', enRow);
+    for (const k of QUESTION_CLIP_KEYS) {
+      assert.ok(esClips[k]?.trim(), `ES clip ${k} missing`);
+      assert.ok(enClips[k]?.trim(), `EN clip ${k} missing`);
+    }
+    assert.match(esClips.stmt, /^Pregunta 001\./);
+    assert.match(enClips.stmt, /^Question 001\. Topic/);
+    assert.match(esClips.A, /^Opcion A\./);
+    assert.match(enClips.A, /^Option A\./);
+  });
+
+  it('buildTipClipPrompts emits ttip + correct/wrong + 4 explanations for ES and EN', () => {
+    const q = esBank.questions[0];
+    const enRow = enBank.questions.find((r) => r.id === q.id);
+    for (const isCorrect of [true, false]) {
+      const es = buildTipClipPrompts(q, 'es', null, isCorrect);
+      const en = buildTipClipPrompts(q, 'en', enRow, isCorrect);
+      for (const k of TIP_CLIP_KEYS) {
+        assert.ok(es[k]?.trim(), `ES tip clip ${k} missing`);
+        assert.ok(en[k]?.trim(), `EN tip clip ${k} missing`);
+      }
+      assert.match(es.ttip, /^Justificacion pregunta/);
+      assert.match(en.ttip, /^Explanation for question/);
+      assert.equal(es.correct, isCorrect ? "Correcto." : "Incorrecto.");
+      assert.equal(en.correct, isCorrect ? "Correct." : "Incorrect.");
+    }
   });
 });

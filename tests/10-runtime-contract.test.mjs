@@ -61,20 +61,22 @@ describe('runtime contract — i18n UI', () => {
 });
 
 describe('runtime contract — audio playback', () => {
-  it('audio.ts: locale paths, no HEAD-only check, playback listener', async () => {
+  it('audio.ts delegates to playlist when manifest present, falls back to mono', async () => {
     const p = await paths();
     const src = await readSrc(p.root, '_dist/js/app/core/tts.ts');
     const audio = await readSrc(p.root, '_dist/js/app/core/audio.ts');
-    assert.match(src, /Opcion|Option/);
-    assert.match(src, /L\.options/);
-    assert.match(audio, /questionAudioPath/);
-    assert.match(audio, /playTipAudio/);
-    assert.match(audio, /buildTipTtsPrompt/);
+    const playlist = await readSrc(p.root, '_dist/js/app/core/audio-playlist.ts');
+    assert.match(src, /buildClipPrompts/);
+    assert.match(src, /buildTipClipPrompts/);
+    assert.match(audio, /playQuestionClips|playQuestionAudio/);
+    assert.match(audio, /playTipClips|playTipAudio/);
+    assert.match(audio, /playFromStaticOrTts/); // fallback
     assert.match(audio, /subscribePlayback/);
-    assert.match(audio, /bindPlaybackEvents/);
     assert.match(audio, /Range.*bytes=0-511/);
-    assert.match(audio, /if \(loc === "en"\) return \[primary\]/);
     assert.doesNotMatch(audio, /method:\s*['"]HEAD['"]/);
+    assert.match(playlist, /fetchManifest/);
+    assert.match(playlist, /loadAndPlayClip/);
+    assert.match(playlist, /virtualTimeOf/);
   });
 
   it('QuizView wires AudioPlayerBar for question and tip', async () => {

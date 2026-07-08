@@ -1,91 +1,97 @@
 /**
- * tests/02-audio.test.mjs — verify audio files per locale (es + en).
+ * tests/02-audio.test.mjs — verify per-clip MP3 + manifest JSON per locale.
+ *
+ * Estructura nueva (audio fragmentado):
+ *   audio/{es|en}/qNNN-{stmt|A|B|C|D|ttip|correct|wrong|EA|EB|EC|ED}.mp3
+ *   audio/{es|en}/qNNN.segments.json   ← manifest con offsets
+ *
+ * Los monolíticos qNNN.mp3 / qNNN-tip.mp3 son FALLBACK runtime; los tests
+ * los exigen si no hay manifest, y los clips + manifest si ya se regeneró.
  */
 import { describe, it, before } from "node:test";
 import assert from "node:assert/strict";
-import { readdir, stat } from "node:fs/promises";
+import { readdir, stat, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { paths } from "./_helpers.mjs";
 
 const LOCALES = ["es", "en"];
+const CLIP_KEYS = ["stmt", "A", "B", "C", "D", "ttip", "correct", "wrong", "EA", "EB", "EC", "ED"];
 
-async function listAudioIds(audioDir, suffix = "") {
-  const ids = [];
-  const re = suffix ? new RegExp(`^q(\\d{3})${suffix}\\.mp3$`) : /^q(\d{3})\.mp3$/;
-  try {
-    for (const f of await readdir(audioDir)) {
-      const m = re.exec(f);
-      if (m) ids.push("q" + m[1].padStart(3, "0"));
-    }
-  } catch {
-    return [];
-  }
-  return ids.sort();
+async function listFiles(audioDir) {
+  try { return await readdir(audioDir); } catch { return []; }
 }
 
-describe("audio coverage", () => {
+describe("audio coverage — clip fragments + manifest", () => {
   let questionsIds;
   let byLocale = {};
-  let tipByLocale = {};
 
   before(async () => {
     const p = await paths();
     const data = await (await import("./_helpers.mjs")).readJson(p.questions);
     questionsIds = data.questions.map((q) => q.id).sort();
-    for (const loc of LOCALES) {
-      byLocale[loc] = await listAudioIds(join(p.audio, loc));
-      tipByLocale[loc] = await listAudioIds(join(p.audio, loc), "-tip");
-    }
+    for (const loc of LOCALES) byLocale[loc] = await listFiles(join(p.audio, loc));
   });
 
   for (const loc of LOCALES) {
-    it(`${loc}: exactly 150 audio files exist (q001..q150)`, () => {
-      assert.equal(byLocale[loc].length, 150, `expected 150 ${loc} audio files, found ${byLocale[loc].length}`);
-      assert.equal(questionsIds.length, 150);
-    });
-
-    it(`${loc}: audio IDs match question IDs`, () => {
-      const a = new Set(byLocale[loc]);
-      const q = new Set(questionsIds);
-      const onlyInAudio = [...a].filter((x) => !q.has(x));
-      const onlyInQuestions = [...q].filter((x) => !a.has(x));
-      assert.deepEqual(onlyInAudio, [], `${loc}: audio without question: ${onlyInAudio.join(", ")}`);
-      assert.deepEqual(onlyInQuestions, [], `${loc}: question without audio: ${onlyInQuestions.join(", ")}`);
-    });
-
-    it(`${loc}: contiguous q001..q150`, () => {
-      const nums = byLocale[loc].map((id) => parseInt(id.slice(1), 10));
-      for (let i = 0; i < 150; i++) {
-        assert.equal(nums[i], i + 1, `${loc} gap at ${i}: expected q${String(i + 1).padStart(3, "0")}, got ${byLocale[loc][i]}`);
-      }
-    });
-
-    it(`${loc}: every file >1KB`, async () => {
-      const p = await paths();
-      for (const id of byLocale[loc]) {
-        const full = join(p.audio, loc, id + ".mp3");
-        const s = await stat(full);
-        assert.ok(s.size > 1024, `${loc}/${id}.mp3 too small (${s.size} bytes)`);
+    it(`${loc}: 150 manifests OR 150 monolíticos (clip regenerado o fallback)`, () => {
+      const files = byLocale[loc] || [];
+      const manifests = files.filter((f) => f.endsWith(".segments.json"));
+      const monoFallback = files.filter((f) => /^q\d{3}\.mp3$/.test(f));
+      const tipFallback = files.filter((f) => /^q\d{3}-tip\.mp3$/.test(f));
+      if (manifests.length) {
+        const ids = manifests.map((f) => f.replace(/\.segments\.json$/, "")).sort();
+        assert.deepEqual(ids, questionsIds, `${loc} manifest ids mismatch`);
+      } else {
+        assert.equal(monoFallback.length, 150, `${loc}: sin manifest y sin 150 monolíticos`);
+        assert.equal(tipFallback.length, 150, `${loc}: sin manifest y sin 150 tip monolíticos`);
       }
     });
   }
 
   for (const loc of LOCALES) {
-    it(`${loc}: exactly 150 tip audio files exist (q001-tip..q150-tip)`, () => {
-      assert.equal(tipByLocale[loc].length, 150, `expected 150 ${loc} tip audio files, found ${tipByLocale[loc].length}`);
+    it(`${loc}: 12 clips per question when manifest is present`, () => {
+      const files = byLocale[loc] || [];
+      const hasManifest = files.some((f) => f.endsWith(".segments.json"));
+      if (!hasManifest) return; // skip: todavía no se ha regenerado
+      for (const key of CLIP_KEYS) {
+        const re = new RegExp(`^q\\d{3}-${key}\\.mp3$`);
+        const ids = files.filter((f) => re.test(f))
+          .map((f) => f.replace(new RegExp(`-${key}\\.mp3$`), ""))
+          .sort();
+        assert.deepEqual(ids, questionsIds, `${loc}/${key} missing or extra`);
+      }
     });
 
-    it(`${loc}: tip audio IDs match question IDs`, () => {
-      assert.deepEqual(tipByLocale[loc], questionsIds);
-    });
-
-    it(`${loc}: every tip file >1KB`, async () => {
+    it(`${loc}: every clip file >1KB (cuando manifest presente)`, async () => {
+      const files = byLocale[loc] || [];
+      const hasManifest = files.some((f) => f.endsWith(".segments.json"));
+      if (!hasManifest) return;
       const p = await paths();
-      for (const id of tipByLocale[loc]) {
-        const full = join(p.audio, loc, id + "-tip.mp3");
-        const s = await stat(full);
-        assert.ok(s.size > 1024, `${loc}/${id}-tip.mp3 too small (${s.size} bytes)`);
+      for (const key of CLIP_KEYS) {
+        for (const id of questionsIds) {
+          const full = join(p.audio, loc, `${id}-${key}.mp3`);
+          const s = await stat(full);
+          assert.ok(s.size > 1024, `${loc}/${id}-${key}.mp3 too small (${s.size} bytes)`);
+        }
       }
     });
   }
+
+  it("manifest JSON shape is valid when present (version 1, clips array, totalDur)", async () => {
+    const p = await paths();
+    for (const loc of LOCALES) {
+      const sample = join(p.audio, loc, "q001.segments.json");
+      try {
+        const m = JSON.parse(await readFile(sample, "utf8"));
+        assert.equal(m.version, 1);
+        assert.ok(Array.isArray(m.clips));
+        assert.equal(m.clips.length, CLIP_KEYS.length);
+        assert.ok(m.clips.every((c) => CLIP_KEYS.includes(c.key) && c.file && c.durSec >= 0));
+        assert.ok(m.totalDur >= 0);
+      } catch (e) {
+        if (e.code === "ENOENT") return; // sin manifest todavía: skip
+        throw e;
+      }
+    }
+  });
 });

@@ -45,20 +45,23 @@ describe("UI contracts — audio players", () => {
     assert.match(src, /flexDirection:\s*\{\s*xs:\s*["']column["'],\s*md:\s*["']row["']\s*\}/);
   });
 
-  it("audio.ts exposes playTipAudio + tip path qNNN-tip.mp3", async () => {
+  it("audio.ts exposes playTipAudio + clip path delegates to playlist", async () => {
     const audio = await read("_dist/js/app/core/audio.ts");
     const i18n = await read("_dist/js/app/core/question-i18n.ts");
+    const playlist = await read("_dist/js/app/core/audio-playlist.ts");
     assert.match(audio, /export async function playTipAudio/);
-    assert.match(i18n, /\$\{id\}-tip\.mp3/);
+    assert.match(audio, /playTipClips/);
+    assert.match(playlist, /export async function playTipClips/);
     assert.match(audio, /subscribePlayback/);
   });
 
-  it("generate-audio supports --kind=tip and shared tip prompt", async () => {
+  it("generate-audio supports --clips and per-fragment prompts", async () => {
     const gen = await read("scripts/generate-audio.mjs");
     const prompt = await read("scripts/tts-prompt.mjs");
-    assert.match(gen, /--kind=/);
-    assert.match(gen, /buildTipTtsPrompt/);
-    assert.match(prompt, /export function buildTipTtsPrompt/);
-    assert.match(prompt, /Justificacion pregunta|Explanation for question/);
+    assert.match(gen, /--clips/);
+    assert.match(gen, /buildClipPrompts|buildTipClipPrompts/);
+    assert.match(prompt, /export function buildClipPrompts/);
+    assert.match(prompt, /export function buildTipClipPrompts/);
+    assert.match(prompt, /QUESTION_CLIP_KEYS|TIP_CLIP_KEYS/);
   });
 });
