@@ -9,10 +9,10 @@
 import { bootstrapAppMeta } from "./app-meta.js";
 
 bootstrapAppMeta({
-  shortName: "William Quest",
-  title: "William Quest — Simulador PCNSE",
+  shortName: "Palo Alto Quest",
+  title: "Palo Alto Quest — Simulador PCNSE",
   icon: "mdi:shield-lock-outline",
   theme: { lsKey: "william-quest:theme" },
 });
 
-console.log("[WilliamQuest] isa-setup done");
+console.log("[PaloAltoQuest] isa-setup done");

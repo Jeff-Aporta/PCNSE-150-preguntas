@@ -1,4 +1,4 @@
-# William Quest — Simulador PCNSE
+# Palo Alto Quest — Simulador PCNSE
 
 Simulador gratuito de opción múltiple para la certificación **PCNSE** (Palo Alto Networks Certified Security Engineer).
 

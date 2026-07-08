@@ -1,6 +1,6 @@
-# AGENTS.md — William Quest
+# AGENTS.md — Palo Alto Quest
 
-> **Canonical LLM-facing doc** for the William Quest simulator project.
+> **Canonical LLM-facing doc** for the Palo Alto Quest simulator project.
 > If you're an AI agent (Claude, GPT, Codex, Cursor, Aider, OpenCode, Devin, Gemini CLI, etc.),
 > **read this file first** before touching the codebase.
 > Everything below reflects the **current state of the repo** — older notes (in commit messages,

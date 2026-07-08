@@ -145,7 +145,7 @@ export function App() {
     <AppShell
       ns={NS}
       navRows={navRows}
-      brand={{ title: "William Quest", icon: "mdi:shield-lock-outline" }}
+      brand={{ title: "Palo Alto Quest", icon: "mdi:shield-lock-outline" }}
       toolbarExtra={<LocaleToolbar />}
     >
       <Box

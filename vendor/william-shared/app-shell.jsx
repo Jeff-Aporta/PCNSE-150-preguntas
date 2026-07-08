@@ -24,8 +24,8 @@
       }
     }
     return {
-      shortName: readMetaTag("application-name") || document.title || "William Quest",
-      title: document.title || "William Quest",
+      shortName: readMetaTag("application-name") || document.title || "Palo Alto Quest",
+      title: document.title || "Palo Alto Quest",
       icon: readMetaTag("app-icon") || "mdi:shield-lock-outline",
     };
   }
