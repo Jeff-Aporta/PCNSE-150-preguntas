@@ -1,10 +1,26 @@
-/** Scroll interno en CardContent cuando el contenido desborda. */
-export const CARD_SCROLL = {
+/** Card en columna flex: el shell limita altura; el body hace scroll. */
+export const CARD_SHELL = {
+  flex: "1 1 0",
+  minHeight: 0,
+  overflow: "hidden",
+  display: "flex",
+  flexDirection: "column",
+} as const;
+
+export const CARD_SCROLL_BODY = {
+  flex: 1,
+  minHeight: 0,
   overflowY: "auto",
   overflowX: "hidden",
   WebkitOverflowScrolling: "touch",
-  maxHeight: { xs: "min(40vh, 420px)", sm: "min(46vh, 480px)" },
   pr: 0.5,
+} as const;
+
+/** Scroll con maxHeight fijo (quiz: pregunta/opciones dentro de una card). */
+export const CARD_SCROLL = {
+  ...CARD_SCROLL_BODY,
+  flex: "none",
+  maxHeight: { xs: "min(40vh, 420px)", sm: "min(46vh, 480px)" },
 } as const;
 
 export const CARD_SCROLL_TALL = {

@@ -20,7 +20,7 @@ import { saveStats } from "../core/stats.ts";
 import { useAppLocale } from "../components/LocaleToolbar.tsx";
 import { localizeQuestion } from "../core/question-i18n.ts";
 import { t, tf, scoreLabelFor, formatDuration } from "../core/ui-i18n.ts";
-import { CARD_SCROLL, CARD_SCROLL_TALL } from "../core/card-scroll.ts";
+import { CARD_SHELL, CARD_SCROLL_BODY } from "../core/card-scroll.ts";
 
 type Props = {
   result: QuizResult;
@@ -45,23 +45,34 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
       sx={{
         flex: 1,
         minHeight: 0,
-        overflow: "auto",
+        overflow: "hidden",
         p: { xs: 1.5, sm: 3 },
         display: "flex",
         justifyContent: "center",
       }}
     >
-      <Box sx={{ width: "100%", maxWidth: 880, display: "flex", flexDirection: "column", gap: 2.5, py: 1 }}>
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: 880,
+          flex: 1,
+          minHeight: 0,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+        }}
+      >
         {/* Score hero */}
         <Card
           sx={{
-            overflow: "hidden",
+            ...CARD_SHELL,
+            flex: "0 1 42%",
             background: "linear-gradient(135deg, rgba(30,144,255,0.18) 0%, rgba(99,102,241,0.10) 50%, rgba(168,85,247,0.08) 100%)",
             border: `1px solid ${scoreColor.border}`,
             boxShadow: `0 8px 32px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 48px ${scoreColor.glow}`,
           }}
         >
-          <CardContent sx={{ p: { xs: 3, sm: 4 }, ...CARD_SCROLL_TALL }}>
+          <CardContent sx={{ p: { xs: 3, sm: 4 }, ...CARD_SCROLL_BODY }}>
             <Stack direction={{ xs: "column", sm: "row" }} alignItems={{ sm: "center" }} spacing={3}>
               <Box
                 sx={{
@@ -184,8 +195,8 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
         </Card>
 
         {/* Detalle por pregunta */}
-        <Card sx={{ overflow: "hidden" }}>
-          <CardContent sx={{ p: { xs: 2, sm: 3 }, ...CARD_SCROLL_TALL }}>
+        <Card sx={{ ...CARD_SHELL, flex: "1 1 0" }}>
+          <CardContent sx={{ p: { xs: 2, sm: 3 }, ...CARD_SCROLL_BODY }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               <iconify-icon icon="mdi:format-list-checkbox" width="1.2em" height="1.2em" style={{ verticalAlign: "middle", marginRight: 8 }} />
               {t("reviewTitle", locale)}

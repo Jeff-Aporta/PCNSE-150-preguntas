@@ -55,7 +55,10 @@ export async function paths() {
   return {
     root,
     questions: join(root, 'data', 'questions.json'),
+    questionsEn: join(root, 'data', 'questions.en.json'),
     audio: join(root, 'audio'),
+    audioEs: join(root, 'audio', 'es'),
+    audioEn: join(root, 'audio', 'en'),
     bundles: {
       app: join(root, '_dist', 'js', 'app.bundle.js'),
       williamFront: join(root, '_dist', 'js', 'william-front.bundle.js'),

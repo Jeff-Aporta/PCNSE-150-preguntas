@@ -11,6 +11,7 @@ import { readFileSync, writeFileSync, mkdirSync, statSync, existsSync } from "no
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { synthesizeMinimax } from "./minimax-tts.mjs";
+import { buildTtsPrompt } from "./tts-prompt.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -24,20 +25,6 @@ const localeArg = args.find((a) => a.startsWith("--locale="))?.slice(9) || "all"
 const idsArg = args.find((a) => a.startsWith("--ids="))?.slice(6)?.split(",").filter(Boolean);
 
 const LOCALES = localeArg === "all" ? ["es", "en"] : [localeArg];
-
-function buildTtsPrompt(q, locale, enRow) {
-  const num = q.id.replace(/^q/i, "");
-  const topic = q.topic;
-  const question = locale === "en" && enRow ? enRow.question : q.question;
-  const options = locale === "en" && enRow ? enRow.options : q.options;
-  const opts = options
-    .map((o) => (locale === "en" ? `Option ${o.id}. ${o.text}` : `Opcion ${o.id}. ${o.text}`))
-    .join(" ");
-  if (locale === "en") {
-    return `Question ${num}. Topic ${topic}. ${question}. ${opts}`;
-  }
-  return `Pregunta ${num}. ${topic}. ${question}. ${opts}`;
-}
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));

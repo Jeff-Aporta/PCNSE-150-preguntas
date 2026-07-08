@@ -9,6 +9,22 @@ import { buildTtsPrompt, fetchTtsAudioBlob, resolveAssetUrl } from "./tts.ts";
 
 let currentAudio: HTMLAudioElement | null = null;
 let currentBlobUrl: string | null = null;
+let onPlaybackChange: ((playing: boolean) => void) | null = null;
+
+export function setPlaybackListener(fn: ((playing: boolean) => void) | null) {
+  onPlaybackChange = fn;
+}
+
+function syncPlayback(audio: HTMLAudioElement | null) {
+  onPlaybackChange?.(!!audio && !audio.paused && !audio.ended);
+}
+
+function bindPlaybackEvents(audio: HTMLAudioElement) {
+  const sync = () => syncPlayback(audio);
+  audio.addEventListener("play", sync);
+  audio.addEventListener("pause", sync);
+  audio.addEventListener("ended", sync);
+}
 
 export { resolveAssetUrl, buildTtsPrompt, questionAudioPath };
 
@@ -53,8 +69,10 @@ export async function playQuestionAudio(q: Question, locale?: AppLocale): Promis
     if (!(await assetExists(staticUrl))) continue;
     const audio = new Audio(staticUrl);
     audio.preload = "auto";
+    bindPlaybackEvents(audio);
     currentAudio = audio;
     await audio.play();
+    syncPlayback(audio);
     return audio;
   }
 
@@ -63,8 +81,10 @@ export async function playQuestionAudio(q: Question, locale?: AppLocale): Promis
   const blobUrl = URL.createObjectURL(blob);
   currentBlobUrl = blobUrl;
   const audio = new Audio(blobUrl);
+  bindPlaybackEvents(audio);
   currentAudio = audio;
   await audio.play();
+  syncPlayback(audio);
   return audio;
 }
 
@@ -101,4 +121,5 @@ export function stopAudio() {
     URL.revokeObjectURL(currentBlobUrl);
     currentBlobUrl = null;
   }
+  syncPlayback(null);
 }

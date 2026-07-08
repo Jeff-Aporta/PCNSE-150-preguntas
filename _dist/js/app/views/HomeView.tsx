@@ -18,7 +18,7 @@ import {
 import type { Question } from "../core/quiz.ts";
 import { useAppLocale } from "../components/LocaleToolbar.tsx";
 import { t, tf } from "../core/ui-i18n.ts";
-import { CARD_SCROLL, CARD_SCROLL_TALL, CHIP_PAD } from "../core/card-scroll.ts";
+import { CARD_SHELL, CARD_SCROLL_BODY, CHIP_PAD } from "../core/card-scroll.ts";
 
 type Props = {
   questions: Question[];
@@ -32,6 +32,17 @@ type Props = {
     durationSec: number;
   }) => void;
 };
+
+const HERO_CARD_SX = {
+  ...CARD_SHELL,
+  background:
+    "linear-gradient(135deg, rgba(30,144,255,0.18) 0%, rgba(99,102,241,0.10) 50%, rgba(0,229,255,0.08) 100%)",
+  border: "1px solid rgba(30,144,255,0.30)",
+  backdropFilter: "blur(16px) saturate(160%)",
+  WebkitBackdropFilter: "blur(16px) saturate(160%)",
+  boxShadow:
+    "0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 48px rgba(30,144,255,0.10)",
+} as const;
 
 export function HomeView({ questions, stats, onStart }: Props) {
   const { locale } = useAppLocale();
@@ -66,7 +77,7 @@ export function HomeView({ questions, stats, onStart }: Props) {
         flex: 1,
         minHeight: 0,
         overflow: "hidden",
-        p: { xs: 2, sm: 4 },
+        p: { xs: 1.5, sm: 3 },
         display: "flex",
         justifyContent: "center",
       }}
@@ -75,20 +86,28 @@ export function HomeView({ questions, stats, onStart }: Props) {
         sx={{
           width: "100%",
           maxWidth: 880,
-          display: "flex",
-          flexDirection: "column",
-          gap: 3,
-          py: 2,
           flex: 1,
           minHeight: 0,
-          overflowY: "auto",
-          pr: 0.25,
+          display: "flex",
+          flexDirection: "column",
+          gap: { xs: 1.5, sm: 2 },
         }}
       >
-        <Card sx={{ overflow: "hidden", background: "linear-gradient(135deg, rgba(30,144,255,0.18) 0%, rgba(99,102,241,0.10) 50%, rgba(0,229,255,0.08) 100%)", border: "1px solid rgba(30,144,255,0.30)", backdropFilter: "blur(16px) saturate(160%)", WebkitBackdropFilter: "blur(16px) saturate(160%)", boxShadow: "0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 48px rgba(30,144,255,0.10)" }}>
-          <CardContent sx={{ p: { xs: 3, sm: 5 }, ...CARD_SCROLL }}>
+        <Card sx={HERO_CARD_SX}>
+          <CardContent sx={{ p: { xs: 2.5, sm: 4 }, ...CARD_SCROLL_BODY }}>
             <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1.5 }}>
-              <Box sx={{ width: 56, height: 56, borderRadius: 2, background: "linear-gradient(135deg, #1e90ff, #6366f1, #00e5ff)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 28px rgba(30,144,255,0.55), inset 0 1px 0 rgba(255,255,255,0.18)" }}>
+              <Box
+                sx={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: 2,
+                  background: "linear-gradient(135deg, #1e90ff, #6366f1, #00e5ff)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 0 28px rgba(30,144,255,0.55), inset 0 1px 0 rgba(255,255,255,0.18)",
+                }}
+              >
                 <iconify-icon icon="mdi:shield-lock-outline" width="2em" height="2em" style={{ color: "#fff" }} />
               </Box>
               <Box>
@@ -114,8 +133,8 @@ export function HomeView({ questions, stats, onStart }: Props) {
           </CardContent>
         </Card>
 
-        <Card sx={{ overflow: "hidden" }}>
-          <CardContent sx={{ p: { xs: 2.5, sm: 3.5 }, ...CARD_SCROLL_TALL }}>
+        <Card sx={CARD_SHELL}>
+          <CardContent sx={{ p: { xs: 2, sm: 3 }, ...CARD_SCROLL_BODY }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
               <iconify-icon icon="mdi:cog-outline" width="1.2em" height="1.2em" style={{ verticalAlign: "middle", marginRight: 8 }} />
               {t("configTitle", locale)}
@@ -192,8 +211,8 @@ export function HomeView({ questions, stats, onStart }: Props) {
           </CardContent>
         </Card>
 
-        <Card sx={{ overflow: "hidden" }}>
-          <CardContent sx={{ p: { xs: 2.5, sm: 3 }, ...CARD_SCROLL }}>
+        <Card sx={CARD_SHELL}>
+          <CardContent sx={{ p: { xs: 2, sm: 2.5 }, ...CARD_SCROLL_BODY }}>
             <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 700 }}>
               <iconify-icon icon="mdi:information-outline" width="1.2em" height="1.2em" style={{ verticalAlign: "middle", marginRight: 8 }} />
               {t("howTitle", locale)}

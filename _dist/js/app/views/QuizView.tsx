@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import type { AnswerId, AnswerRecord, Question, QuizSession, QuizResult } from "../core/quiz.ts";
 import { gradeAnswer, computeResult } from "../core/quiz.ts";
-import { playQuestionAudio, stopAudio, pauseAudio, resumeAudio, getCurrentAudio, isAudioPlaying } from "../core/audio.ts";
+import { playQuestionAudio, stopAudio, pauseAudio, resumeAudio, getCurrentAudio, isAudioPlaying, setPlaybackListener } from "../core/audio.ts";
 import { useAppLocale } from "../components/LocaleToolbar.tsx";
 import { localizeQuestion } from "../core/question-i18n.ts";
 import { t, tDifficulty } from "../core/ui-i18n.ts";
@@ -99,13 +99,9 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
 
   useEffect(() => () => stopAudio(), []);
 
-  const wireAudio = useCallback((audio: HTMLAudioElement) => {
-    const onPlay = () => setAudioPlaying(true);
-    const onPause = () => setAudioPlaying(false);
-    const onEnded = () => setAudioPlaying(false);
-    audio.addEventListener("play", onPlay);
-    audio.addEventListener("pause", onPause);
-    audio.addEventListener("ended", onEnded);
+  useEffect(() => {
+    setPlaybackListener((playing) => setAudioPlaying(playing));
+    return () => setPlaybackListener(null);
   }, []);
 
   const handleAudioToggle = useCallback(async () => {
@@ -128,9 +124,7 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
     setAudioError(null);
     setAudioLoading(true);
     try {
-      const audio = await playQuestionAudio(currentQuestion, locale);
-      audioRef.current = audio;
-      wireAudio(audio);
+      audioRef.current = await playQuestionAudio(currentQuestion, locale);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setAudioError(msg);
@@ -138,7 +132,7 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
     } finally {
       setAudioLoading(false);
     }
-  }, [currentQuestion, audioLoading, locale, wireAudio]);
+  }, [currentQuestion, audioLoading, locale]);
 
   const handleSelect = useCallback(
     (letter: AnswerId) => {
