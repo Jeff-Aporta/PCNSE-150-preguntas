@@ -5,9 +5,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "powershell -ExecutionPolicy Bypass -File scripts/dev-server.ps1",
+    "dev": "python scripts/dev-server.py",
     "build": "node scripts/build.mjs",
     "build:tscheck": "tsc --noEmit -p tsconfig.json",
+    "test": "node --test tests/*.test.mjs",
     "validate:audio": "powershell -ExecutionPolicy Bypass -File scripts/validate-audio.ps1"
   },
   "keywords": [
