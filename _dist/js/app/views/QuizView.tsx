@@ -2,6 +2,7 @@
  * views/QuizView.tsx — Pantalla del simulacro (preguntas secuenciales).
  */
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useTheme } from "@mui/material/styles";
 import {
   Box,
   Typography,
@@ -43,6 +44,12 @@ const PANEL_SCROLL = { ...SCROLL, flex: 1, minHeight: 0 };
 
 export function QuizView({ session, onFinish, onAbort }: Props) {
   const { locale } = useAppLocale();
+  const theme = useTheme();
+  const isLight = theme.palette.mode === "light";
+  const modeValue = <T,>(v: T | { light: T; dark: T }) =>
+    typeof v === "object" && v !== null && "light" in (v as { light: T })
+      ? (v as { light: T; dark: T })[isLight ? "light" : "dark"]
+      : (v as T);
   const total = session.totalQuestions;
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedByQuestion, setSelectedByQuestion] = useState<Record<string, AnswerId | undefined>>({});
@@ -161,18 +168,40 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
         flexDirection: "column",
       }}
     >
-      <Box sx={{ width: "100%", maxWidth: currentVerified ? 1320 : 880, mx: "auto", flex: 1, minHeight: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+      <Box sx={{ width: "100%", maxWidth: currentVerified ? { xs: 880, md: 1320 } : { xs: 880 }, mx: "auto", flex: 1, minHeight: 0, display: "flex", flexDirection: "column", gap: 2 }}>
         {/* Header */}
-        <Stack direction="row" alignItems="center" spacing={2} sx={{ flexShrink: 0 }}>
-          <Button
-            size="small"
-            onClick={onAbort}
-            startIcon={<iconify-icon icon="mdi:arrow-left" width="1.1em" height="1.1em" />}
-            sx={{ color: "text.secondary" }}
-          >
-            {t("exit", locale)}
-          </Button>
-          <Box sx={{ flex: 1 }}>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          alignItems={{ xs: "stretch", sm: "center" }}
+          spacing={{ xs: 1, sm: 2 }}
+          sx={{ flexShrink: 0 }}
+        >
+          <Stack direction="row" alignItems="center" spacing={1.5} sx={{ width: { xs: "100%", sm: "auto" } }}>
+            <Button
+              size="small"
+              onClick={onAbort}
+              startIcon={<iconify-icon icon="mdi:arrow-left" width="1.1em" height="1.1em" />}
+              sx={{ color: "text.secondary" }}
+            >
+              {t("exit", locale)}
+            </Button>
+            <Box sx={{ flex: 1, display: { xs: "block", sm: "none" }, minWidth: 0 }}>
+              <LinearProgress
+                variant="determinate"
+                value={progress}
+                sx={{
+                  height: 6,
+                  borderRadius: 3,
+                  backgroundColor: "rgba(30,144,255,0.10)",
+                  "& .MuiLinearProgress-bar": {
+                    background: "linear-gradient(90deg, #1e90ff, #6366f1, #00e5ff)",
+                    boxShadow: isLight ? "0 1px 2px rgba(30,144,255,0.30)" : "0 0 12px rgba(30,144,255,0.55)",
+                  },
+                }}
+              />
+            </Box>
+          </Stack>
+          <Box sx={{ flex: 1, display: { xs: "none", sm: "block" }, minWidth: 0 }}>
             <LinearProgress
               variant="determinate"
               value={progress}
@@ -182,39 +211,57 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                 backgroundColor: "rgba(30,144,255,0.10)",
                 "& .MuiLinearProgress-bar": {
                   background: "linear-gradient(90deg, #1e90ff, #6366f1, #00e5ff)",
-                  boxShadow: "0 0 12px rgba(30,144,255,0.55)",
+                  boxShadow: isLight ? "0 1px 2px rgba(30,144,255,0.30)" : "0 0 12px rgba(30,144,255,0.55)",
                 },
               }}
             />
           </Box>
-          <Chip
-            label={`${currentIdx + 1}/${total}`}
-            sx={{
-              fontWeight: 700,
-              border: "1px solid rgba(30,144,255,0.35)",
-              backgroundColor: "rgba(30,144,255,0.10)",
-              color: "#7dd3fc",
-            }}
-          />
-          <Chip
-            icon={
-              <iconify-icon
-                icon={timeLeft < 60 ? "mdi:timer-alert-outline" : "mdi:timer-outline"}
-                width="1.1em"
-                height="1.1em"
-              />
-            }
-            label={`${mm}:${ss}`}
-            sx={{
-              fontWeight: 700,
-              fontVariantNumeric: "tabular-nums",
-              pl: 1,
-              border: timeLeft < 60 ? "1px solid rgba(239,68,68,0.55)" : "1px solid rgba(245,158,11,0.45)",
-              backgroundColor: timeLeft < 60 ? "rgba(239,68,68,0.10)" : "rgba(245,158,11,0.10)",
-              color: timeLeft < 60 ? "#fca5a5" : "#fcd34d",
-              "& .MuiChip-icon": { ml: 0.5, mr: -0.25 },
-            }}
-          />
+          <Stack direction="row" spacing={1} sx={{ justifyContent: { xs: "space-between", sm: "flex-end" } }}>
+            <Chip
+              label={`${currentIdx + 1}/${total}`}
+              sx={{
+                fontWeight: 700,
+                border: `1px solid ${isLight ? "rgba(30,144,255,0.45)" : "rgba(30,144,255,0.35)"}`,
+                backgroundColor: isLight ? "rgba(30,144,255,0.10)" : "rgba(30,144,255,0.10)",
+                color: isLight ? "#0c4a82" : "#7dd3fc",
+              }}
+            />
+            <Chip
+              icon={
+                <iconify-icon
+                  icon={timeLeft < 60 ? "mdi:timer-alert-outline" : "mdi:timer-outline"}
+                  width="1.1em"
+                  height="1.1em"
+                />
+              }
+              label={`${mm}:${ss}`}
+              sx={{
+                fontWeight: 700,
+                fontVariantNumeric: "tabular-nums",
+                pl: 1,
+                border:
+                  timeLeft < 60
+                    ? `1px solid ${isLight ? "rgba(190,18,60,0.55)" : "rgba(239,68,68,0.55)"}`
+                    : `1px solid ${isLight ? "rgba(180,83,9,0.55)" : "rgba(245,158,11,0.45)"}`,
+                backgroundColor:
+                  timeLeft < 60
+                    ? isLight
+                      ? "rgba(190,18,60,0.10)"
+                      : "rgba(239,68,68,0.10)"
+                    : isLight
+                    ? "rgba(180,83,9,0.10)"
+                    : "rgba(245,158,11,0.10)",
+                color: isLight
+                  ? timeLeft < 60
+                    ? "#9f1239"
+                    : "#92400e"
+                  : timeLeft < 60
+                  ? "#fca5a5"
+                  : "#fcd34d",
+                "& .MuiChip-icon": { ml: 0.5, mr: -0.25 },
+              }}
+            />
+          </Stack>
         </Stack>
 
         <Box
@@ -234,8 +281,9 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
           sx={{
             flexShrink: 0,
             overflow: "hidden",
-            background:
-              "linear-gradient(135deg, rgba(30,144,255,0.10) 0%, rgba(99,102,241,0.06) 50%, rgba(0,229,255,0.04) 100%)",
+            background: isLight
+              ? "linear-gradient(135deg, rgba(30,144,255,0.08) 0%, rgba(99,102,241,0.04) 50%, rgba(0,229,255,0.03) 100%)"
+              : "linear-gradient(135deg, rgba(30,144,255,0.10) 0%, rgba(99,102,241,0.06) 50%, rgba(0,229,255,0.04) 100%)",
           }}
         >
           <CardContent sx={{ p: { xs: 2.5, sm: 3.5 }, ...SCROLL_QUESTION }}>
@@ -245,18 +293,18 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                 label={L.topic}
                 sx={{
                   fontWeight: 700,
-                  border: "1px solid rgba(0,229,255,0.40)",
-                  backgroundColor: "rgba(0,229,255,0.10)",
-                  color: "#7dd3fc",
+                  border: `1px solid ${isLight ? "rgba(8,145,178,0.45)" : "rgba(0,229,255,0.40)"}`,
+                  backgroundColor: isLight ? "rgba(8,145,178,0.10)" : "rgba(0,229,255,0.10)",
+                  color: isLight ? "#0e7490" : "#7dd3fc",
                 }}
               />
               <Chip
                 size="small"
                 label={tDifficulty(L.difficulty, locale)}
                 sx={{
-                  border: "1px solid rgba(168,85,247,0.40)",
-                  backgroundColor: "rgba(168,85,247,0.10)",
-                  color: "#d8b4fe",
+                  border: `1px solid ${isLight ? "rgba(124,58,237,0.45)" : "rgba(168,85,247,0.40)"}`,
+                  backgroundColor: isLight ? "rgba(124,58,237,0.10)" : "rgba(168,85,237,0.10)",
+                  color: isLight ? "#6d28d9" : "#d8b4fe",
                   textTransform: "capitalize",
                 }}
               />
@@ -305,11 +353,11 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                   gap: 2,
                   p: { xs: 1.5, sm: 2 },
                   borderRadius: 2,
-                  border: `1px solid ${palette.border}`,
+                  border: `1px solid ${modeValue(palette.border)}`,
                   background: palette.background,
                   backdropFilter: "blur(8px)",
                   transition: "all 0.2s ease",
-                  boxShadow: palette.shadow,
+                  boxShadow: modeValue(palette.shadow),
                   "&:hover": currentVerified
                     ? {}
                     : {
@@ -320,29 +368,24 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                 }}
               >
                 <Box
+                  aria-hidden
                   sx={{
-                    width: 36,
-                    height: 36,
+                    width: { xs: 32, sm: 36 },
+                    height: { xs: 32, sm: 36 },
                     borderRadius: "50%",
                     flexShrink: 0,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     fontWeight: 800,
-                    fontSize: "1.05rem",
+                    fontSize: { xs: "0.95rem", sm: "1.05rem" },
                     background: palette.badgeBg,
-                    border: `1px solid ${palette.badgeBorder}`,
-                    color: palette.badgeColor,
+                    border: `1px solid ${modeValue(palette.badgeBorder)}`,
+                    color: modeValue(palette.badgeColor),
                     boxShadow: palette.badgeShadow,
                   }}
                 >
-                  {state === "correct" ? (
-                    <iconify-icon icon="mdi:check-bold" width="1.2em" height="1.2em" />
-                  ) : state === "wrong" ? (
-                    <iconify-icon icon="mdi:close-thick" width="1.1em" height="1.1em" />
-                  ) : (
-                    opt.id
-                  )}
+                  {opt.id}
                 </Box>
                 <Typography
                   sx={{
@@ -361,16 +404,22 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
         </Stack>
 
         {/* Botones de acción */}
-        <Stack direction="row" spacing={1.5} sx={{ mt: 1, flexShrink: 0 }}>
+        <Stack
+          direction={{ xs: "column-reverse", sm: "row" }}
+          alignItems={{ xs: "stretch", sm: "center" }}
+          spacing={{ xs: 1, sm: 1.5 }}
+          sx={{ mt: 1, flexShrink: 0 }}
+        >
           <Button
             variant="outlined"
             disabled={currentIdx === 0}
             onClick={goPrev}
             startIcon={<iconify-icon icon="mdi:chevron-left" width="1.2em" height="1.2em" />}
+            sx={{ width: { xs: "100%", sm: "auto" } }}
           >
             {t("prev", locale)}
           </Button>
-          <Box sx={{ flex: 1 }} />
+          <Box sx={{ flex: 1, display: { xs: "none", sm: "block" } }} />
           {!currentVerified ? (
             <Button
               variant="contained"
@@ -378,8 +427,12 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
               onClick={handleVerify}
               startIcon={<iconify-icon icon="mdi:check-decagram-outline" width="1.2em" height="1.2em" />}
               sx={{
+                width: { xs: "100%", sm: "auto" },
                 background: currentSelected
                   ? "linear-gradient(135deg, #1e90ff 0%, #6366f1 100%)"
+                  : undefined,
+                boxShadow: currentSelected && isLight
+                  ? "0 6px 16px rgba(30,144,255,0.30)"
                   : undefined,
               }}
             >
@@ -391,9 +444,16 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
               onClick={goNext}
               endIcon={<iconify-icon icon={currentIdx === total - 1 ? "mdi:flag-checkered" : "mdi:chevron-right"} width="1.2em" height="1.2em" />}
               sx={{
+                width: { xs: "100%", sm: "auto" },
                 background: "linear-gradient(135deg, #00e5ff 0%, #1e90ff 50%, #6366f1 100%)",
-                boxShadow: "0 0 24px rgba(30,144,255,0.40)",
-                "&:hover": { boxShadow: "0 0 32px rgba(30,144,255,0.60)" },
+                boxShadow: isLight
+                  ? "0 6px 18px rgba(30,144,255,0.30)"
+                  : "0 0 24px rgba(30,144,255,0.40)",
+                "&:hover": {
+                  boxShadow: isLight
+                    ? "0 10px 26px rgba(30,144,255,0.40)"
+                    : "0 0 32px rgba(30,144,255,0.60)",
+                },
               }}
             >
               {currentIdx === total - 1 ? t("finish", locale) : t("next", locale)}
@@ -408,7 +468,7 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
               sx={{
                 width: { xs: "100%", md: 400 },
                 flexShrink: 0,
-                minHeight: 0,
+                minHeight: { xs: 220, md: 0 },
                 display: "flex",
                 flexDirection: "column",
               }}
@@ -421,12 +481,23 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                   flexDirection: "column",
                   overflow: "hidden",
                   background: isCorrect
-                    ? "linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.06) 100%)"
+                    ? isLight
+                      ? "linear-gradient(135deg, rgba(16,185,129,0.10) 0%, rgba(255,255,255,0.85) 100%)"
+                      : "linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.06) 100%)"
+                    : isLight
+                    ? "linear-gradient(135deg, rgba(239,68,68,0.10) 0%, rgba(255,255,255,0.88) 100%)"
                     : "linear-gradient(135deg, rgba(239,68,68,0.10) 0%, rgba(185,28,28,0.06) 100%)",
-                  border: isCorrect ? "1px solid rgba(16,185,129,0.40)" : "1px solid rgba(239,68,68,0.40)",
+                  border: isCorrect
+                    ? `1px solid ${isLight ? "rgba(16,185,129,0.40)" : "rgba(16,185,129,0.40)"}`
+                    : `1px solid ${isLight ? "rgba(239,68,68,0.40)" : "rgba(239,68,68,0.40)"}`,
                   boxShadow: isCorrect
-                    ? "0 0 28px rgba(16,185,129,0.18), inset 0 1px 0 rgba(255,255,255,0.04)"
+                    ? isLight
+                      ? "0 1px 0 rgba(255,255,255,0.6) inset, 0 6px 18px rgba(16,185,129,0.10)"
+                      : "0 0 28px rgba(16,185,129,0.18), inset 0 1px 0 rgba(255,255,255,0.04)"
+                    : isLight
+                    ? "0 1px 0 rgba(255,255,255,0.6) inset, 0 6px 18px rgba(239,68,68,0.10)"
                     : "0 0 28px rgba(239,68,68,0.16), inset 0 1px 0 rgba(255,255,255,0.04)",
+                  backdropFilter: "blur(12px)",
                 }}
               >
                 <CardContent
@@ -442,8 +513,8 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                   <Stack direction="row" alignItems="center" spacing={1.2} sx={{ mb: 1.5, flexShrink: 0, flexWrap: "wrap", gap: 1 }}>
                     <Box
                       sx={{
-                        width: 32,
-                        height: 32,
+                        width: { xs: 28, sm: 32 },
+                        height: { xs: 28, sm: 32 },
                         borderRadius: 1.2,
                         background: isCorrect
                           ? "linear-gradient(135deg, #10b981, #059669)"
@@ -451,7 +522,11 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        boxShadow: isCorrect ? "0 0 18px rgba(16,185,129,0.45)" : "0 0 18px rgba(239,68,68,0.45)",
+                        boxShadow: isLight
+                          ? "0 2px 6px rgba(0,0,0,0.18)"
+                          : isCorrect
+                          ? "0 0 14px rgba(16,185,129,0.45)"
+                          : "0 0 14px rgba(239,68,68,0.45)",
                       }}
                     >
                       <iconify-icon
@@ -503,23 +578,57 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                               sx={{
                                 display: "flex",
                                 gap: 1,
-                                p: 1.1,
+                                p: { xs: 0.9, sm: 1.1 },
                                 borderRadius: 1.5,
                                 background: letterCorrect
-                                  ? "rgba(16,185,129,0.10)"
+                                  ? isLight
+                                    ? "rgba(16,185,129,0.16)"
+                                    : "rgba(16,185,129,0.10)"
                                   : isPicked
-                                  ? "rgba(239,68,68,0.10)"
+                                  ? isLight
+                                    ? "rgba(239,68,68,0.14)"
+                                    : "rgba(239,68,68,0.10)"
                                   : "transparent",
                                 border: letterCorrect
-                                  ? "1px solid rgba(16,185,129,0.30)"
+                                  ? `1px solid ${
+                                      isLight ? "rgba(16,185,129,0.45)" : "rgba(16,185,129,0.30)"
+                                    }`
                                   : isPicked
-                                  ? "1px solid rgba(239,68,68,0.30)"
+                                  ? `1px solid ${
+                                      isLight ? "rgba(239,68,68,0.45)" : "rgba(239,68,68,0.30)"
+                                    }`
+                                  : isLight
+                                  ? "1px solid rgba(0,0,0,0.06)"
                                   : "1px solid transparent",
+                                boxShadow: letterCorrect
+                                  ? isLight
+                                    ? "0 0 0 2px rgba(16,185,129,0.08)"
+                                    : "0 0 12px rgba(16,185,129,0.18)"
+                                  : isPicked
+                                  ? isLight
+                                    ? "0 0 0 2px rgba(239,68,68,0.08)"
+                                    : "0 0 12px rgba(239,68,68,0.18)"
+                                  : "none",
                               }}
                             >
-                              <Typography sx={{ fontWeight: 800, minWidth: 22 }}>
+                              <Typography
+                                aria-hidden
+                                sx={{
+                                  fontWeight: 800,
+                                  minWidth: 22,
+                                  flexShrink: 0,
+                                  color: letterCorrect
+                                    ? isLight
+                                      ? "#0f9d68"
+                                      : "#10b981"
+                                    : isPicked
+                                    ? isLight
+                                      ? "#d32f2f"
+                                      : "#ef4444"
+                                    : "text.primary",
+                                }}
+                              >
                                 {letter}
-                                {letterCorrect ? " ✓" : isPicked ? " ✗" : ""}
                               </Typography>
                               <Typography sx={{ flex: 1, fontSize: "0.92rem", lineHeight: 1.55 }}>
                                 {L.explanations[letter]}
@@ -545,41 +654,45 @@ function optionPalette(state: "idle" | "selected" | "correct" | "wrong" | "misse
     case "correct":
       return {
         border: "rgba(16,185,129,0.55)",
-        background: "linear-gradient(135deg, rgba(16,185,129,0.16) 0%, rgba(5,150,105,0.06) 100%)",
-        shadow: "0 0 24px rgba(16,185,129,0.30)",
+        background:
+          "linear-gradient(135deg, rgba(16,185,129,0.16) 0%, rgba(5,150,105,0.06) 100%)",
+        shadow: { light: "0 0 18px rgba(16,185,129,0.18)", dark: "0 0 24px rgba(16,185,129,0.30)" },
         badgeBg: "linear-gradient(135deg, #10b981, #059669)",
         badgeBorder: "rgba(16,185,129,0.70)",
         badgeColor: "#fff",
-        badgeShadow: "0 0 14px rgba(16,185,129,0.55)",
+        badgeShadow: "0 0 10px rgba(16,185,129,0.45)",
       };
     case "wrong":
       return {
         border: "rgba(239,68,68,0.55)",
-        background: "linear-gradient(135deg, rgba(239,68,68,0.14) 0%, rgba(185,28,28,0.06) 100%)",
-        shadow: "0 0 24px rgba(239,68,68,0.30)",
+        background:
+          "linear-gradient(135deg, rgba(239,68,68,0.14) 0%, rgba(185,28,28,0.06) 100%)",
+        shadow: { light: "0 0 18px rgba(239,68,68,0.16)", dark: "0 0 24px rgba(239,68,68,0.30)" },
         badgeBg: "linear-gradient(135deg, #ef4444, #b91c1c)",
         badgeBorder: "rgba(239,68,68,0.70)",
         badgeColor: "#fff",
-        badgeShadow: "0 0 14px rgba(239,68,68,0.55)",
+        badgeShadow: "0 0 10px rgba(239,68,68,0.45)",
       };
     case "selected":
       return {
         border: "rgba(0,229,255,0.55)",
-        background: "linear-gradient(135deg, rgba(0,229,255,0.10) 0%, rgba(30,144,255,0.08) 100%)",
-        shadow: "0 0 18px rgba(0,229,255,0.25)",
+        background:
+          "linear-gradient(135deg, rgba(0,229,255,0.10) 0%, rgba(30,144,255,0.08) 100%)",
+        shadow: { light: "0 0 14px rgba(0,229,255,0.16)", dark: "0 0 18px rgba(0,229,255,0.25)" },
         badgeBg: "linear-gradient(135deg, #00e5ff, #1e90ff)",
         badgeBorder: "rgba(0,229,255,0.70)",
         badgeColor: "#fff",
-        badgeShadow: "0 0 14px rgba(0,229,255,0.55)",
+        badgeShadow: "0 0 10px rgba(0,229,255,0.45)",
       };
     default:
       return {
-        border: "rgba(30,144,255,0.22)",
-        background: "linear-gradient(135deg, rgba(15,23,42,0.40) 0%, rgba(11,18,32,0.55) 100%)",
-        shadow: "0 4px 12px rgba(0,0,0,0.20)",
+        border: { light: "rgba(30,144,255,0.30)", dark: "rgba(30,144,255,0.22)" },
+        background:
+          "linear-gradient(135deg, rgba(15,23,42,0.40) 0%, rgba(11,18,32,0.55) 100%)",
+        shadow: { light: "0 2px 8px rgba(30,144,255,0.10)", dark: "0 4px 12px rgba(0,0,0,0.20)" },
         badgeBg: "rgba(30,144,255,0.10)",
-        badgeBorder: "rgba(30,144,255,0.40)",
-        badgeColor: "#7dd3fc",
+        badgeBorder: { light: "rgba(30,144,255,0.50)", dark: "rgba(30,144,255,0.40)" },
+        badgeColor: { light: "#0f5d99", dark: "#7dd3fc" },
         badgeShadow: "none",
       };
   }

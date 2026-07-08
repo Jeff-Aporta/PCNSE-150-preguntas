@@ -15,6 +15,7 @@ import {
   Collapse,
   IconButton,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import type { Question, QuizResult } from "../core/quiz.ts";
 import { saveStats } from "../core/stats.ts";
 import { useAppLocale } from "../components/LocaleToolbar.tsx";
@@ -33,6 +34,8 @@ const optionLetters: ("A" | "B" | "C" | "D")[] = ["A", "B", "C", "D"];
 
 export function ResultsView({ result, questions, onRetry, onHome }: Props) {
   const { locale } = useAppLocale();
+  const theme = useTheme();
+  const isLight = theme.palette.mode === "light";
   const [expanded, setExpanded] = useState<string | null>(null);
   const scoreColor = scoreColorFor(result.scorePercent);
   const scoreLabel = scoreLabelFor(result.scorePercent, locale);
@@ -66,10 +69,14 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
         <Card
           sx={{
             ...CARD_SHELL,
-            flex: "0 1 42%",
-            background: "linear-gradient(135deg, rgba(30,144,255,0.18) 0%, rgba(99,102,241,0.10) 50%, rgba(168,85,247,0.08) 100%)",
+            flex: { xs: "0 1 auto", sm: "0 1 42%" },
+            background: isLight
+              ? "linear-gradient(135deg, rgba(30,144,255,0.14) 0%, rgba(99,102,241,0.08) 50%, rgba(168,85,247,0.06) 100%)"
+              : "linear-gradient(135deg, rgba(30,144,255,0.18) 0%, rgba(99,102,241,0.10) 50%, rgba(168,85,247,0.08) 100%)",
             border: `1px solid ${scoreColor.border}`,
-            boxShadow: `0 8px 32px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 48px ${scoreColor.glow}`,
+            boxShadow: isLight
+              ? `0 8px 22px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.6)`
+              : `0 8px 32px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 48px ${scoreColor.glow}`,
           }}
         >
           <CardContent sx={{ p: { xs: 3, sm: 4 }, ...CARD_SCROLL_BODY }}>
@@ -85,7 +92,9 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
                   flexDirection: "column",
                   background: scoreColor.bg,
                   border: `2px solid ${scoreColor.border}`,
-                  boxShadow: `0 0 36px ${scoreColor.glow}, inset 0 1px 0 rgba(255,255,255,0.10)`,
+                  boxShadow: isLight
+                    ? `0 6px 18px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.40)`
+                    : `0 0 36px ${scoreColor.glow}, inset 0 1px 0 rgba(255,255,255,0.10)`,
                   mx: { xs: "auto", sm: 0 },
                 }}
               >
@@ -178,7 +187,12 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
                 startIcon={<iconify-icon icon="mdi:restart" width="1.2em" height="1.2em" />}
                 sx={{
                   background: "linear-gradient(135deg, #1e90ff 0%, #6366f1 100%)",
-                  boxShadow: "0 0 20px rgba(30,144,255,0.40)",
+                  boxShadow: isLight
+                    ? "0 6px 16px rgba(30,144,255,0.30)"
+                    : "0 0 20px rgba(30,144,255,0.40)",
+                  "&:hover": isLight
+                    ? { boxShadow: "0 10px 22px rgba(30,144,255,0.40)" }
+                    : undefined,
                 }}
               >
                 {t("retry", locale)}
@@ -212,10 +226,20 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
                     key={q.id}
                     sx={{
                       border: "1px solid",
-                      borderColor: correct ? "rgba(16,185,129,0.32)" : "rgba(239,68,68,0.32)",
+                      borderColor: correct
+                        ? isLight
+                          ? "rgba(16,185,129,0.50)"
+                          : "rgba(16,185,129,0.32)"
+                        : isLight
+                        ? "rgba(239,68,68,0.50)"
+                        : "rgba(239,68,68,0.32)",
                       borderRadius: 2,
                       background: correct
-                        ? "linear-gradient(135deg, rgba(16,185,129,0.06) 0%, rgba(5,150,105,0.02) 100%)"
+                        ? isLight
+                          ? "linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(255,255,255,0.85) 100%)"
+                          : "linear-gradient(135deg, rgba(16,185,129,0.06) 0%, rgba(5,150,105,0.02) 100%)"
+                        : isLight
+                        ? "linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(255,255,255,0.88) 100%)"
                         : "linear-gradient(135deg, rgba(239,68,68,0.06) 0%, rgba(185,28,28,0.02) 100%)",
                       overflow: "hidden",
                     }}
@@ -228,7 +252,9 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
                         display: "flex",
                         alignItems: "center",
                         gap: 1.5,
-                        "&:hover": { backgroundColor: "rgba(255,255,255,0.03)" },
+                        "&:hover": isLight
+                          ? { backgroundColor: "rgba(30,144,255,0.05)" }
+                          : { backgroundColor: "rgba(255,255,255,0.03)" },
                       }}
                     >
                       <Box
@@ -243,7 +269,9 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
                           background: correct
                             ? "linear-gradient(135deg, #10b981, #059669)"
                             : "linear-gradient(135deg, #ef4444, #b91c1c)",
-                          boxShadow: correct
+                          boxShadow: isLight
+                            ? "0 2px 6px rgba(0,0,0,0.18)"
+                            : correct
                             ? "0 0 14px rgba(16,185,129,0.45)"
                             : "0 0 14px rgba(239,68,68,0.45)",
                         }}

@@ -15,6 +15,7 @@ import {
   Radio,
   Divider,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import type { Question, QuizSession } from "../core/quiz.ts";
 import { buildSession } from "../core/quiz.ts";
 import { useAppLocale } from "../components/LocaleToolbar.tsx";
@@ -40,6 +41,8 @@ const HERO_CARD_SX = {
 
 export function HomeView({ questions, stats, onStart }: Props) {
   const { locale } = useAppLocale();
+  const theme = useTheme();
+  const isLight = theme.palette.mode === "light";
   const topics = useMemo(() => {
     const set = new Set<string>();
     questions.forEach((q) => set.add(q.topic));
@@ -83,20 +86,28 @@ export function HomeView({ questions, stats, onStart }: Props) {
             <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1.5 }}>
               <Box
                 sx={{
-                  width: 56,
-                  height: 56,
+                  width: { xs: 44, sm: 56 },
+                  height: { xs: 44, sm: 56 },
                   borderRadius: 2,
                   background: "linear-gradient(135deg, #1e90ff, #6366f1, #00e5ff)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  boxShadow: "0 0 28px rgba(30,144,255,0.55), inset 0 1px 0 rgba(255,255,255,0.18)",
+                  boxShadow: isLight
+                    ? "0 6px 18px rgba(30,144,255,0.30), inset 0 1px 0 rgba(255,255,255,0.35)"
+                    : "0 0 28px rgba(30,144,255,0.55), inset 0 1px 0 rgba(255,255,255,0.18)",
+                  flexShrink: 0,
                 }}
               >
-                <iconify-icon icon="mdi:shield-lock-outline" width="2em" height="2em" style={{ color: "#fff" }} />
+                <iconify-icon
+                  icon="mdi:shield-lock-outline"
+                  width="2em"
+                  height="2em"
+                  style={{ color: "#fff" }}
+                />
               </Box>
-              <Box>
-                <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -0.5, lineHeight: 1.1 }}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: -0.5, lineHeight: 1.1, fontSize: { xs: "1.55rem", sm: "2.125rem" } }}>
                   {t("heroTitle", locale)}
                 </Typography>
                 <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.4 }}>
@@ -110,10 +121,54 @@ export function HomeView({ questions, stats, onStart }: Props) {
             </Typography>
 
             <Stack direction="row" spacing={1.2} sx={{ mt: 2.5, flexWrap: "wrap", gap: 1.2 }}>
-              <Chip icon={<iconify-icon icon="mdi:headphones" width="1.1em" height="1.1em" />} label={t("chipAudio", locale)} size="small" sx={{ ...CHIP_PAD, border: "1px solid rgba(0,229,255,0.45)", backgroundColor: "rgba(0,229,255,0.10)", color: "#7dd3fc" }} />
-              <Chip icon={<iconify-icon icon="mdi:lightbulb-on-outline" width="1.1em" height="1.1em" />} label={t("chipTips", locale)} size="small" sx={{ ...CHIP_PAD, border: "1px solid rgba(245,158,11,0.45)", backgroundColor: "rgba(245,158,11,0.10)", color: "#fcd34d" }} />
-              <Chip icon={<iconify-icon icon="mdi:school-outline" width="1.1em" height="1.1em" />} label={t("chipSimple", locale)} size="small" sx={{ ...CHIP_PAD, border: "1px solid rgba(16,185,129,0.45)", backgroundColor: "rgba(16,185,129,0.10)", color: "#6ee7b7" }} />
-              <Chip icon={<iconify-icon icon="mdi:chart-line" width="1.1em" height="1.1em" />} label={t("chipScore", locale)} size="small" sx={{ ...CHIP_PAD, border: "1px solid rgba(168,85,247,0.45)", backgroundColor: "rgba(168,85,247,0.10)", color: "#d8b4fe" }} />
+              <Chip
+                icon={<iconify-icon icon="mdi:headphones" width="1.1em" height="1.1em" />}
+                label={t("chipAudio", locale)}
+                size="small"
+                sx={{
+                  ...CHIP_PAD,
+                  border: `1px solid ${isLight ? "rgba(8,145,178,0.40)" : "rgba(0,229,255,0.45)"}`,
+                  backgroundColor: isLight ? "rgba(8,145,178,0.10)" : "rgba(0,229,255,0.10)",
+                  color: isLight ? "#0e7490" : "#7dd3fc",
+                  fontWeight: 600,
+                }}
+              />
+              <Chip
+                icon={<iconify-icon icon="mdi:lightbulb-on-outline" width="1.1em" height="1.1em" />}
+                label={t("chipTips", locale)}
+                size="small"
+                sx={{
+                  ...CHIP_PAD,
+                  border: `1px solid ${isLight ? "rgba(180,83,9,0.40)" : "rgba(245,158,11,0.45)"}`,
+                  backgroundColor: isLight ? "rgba(180,83,9,0.10)" : "rgba(245,158,11,0.10)",
+                  color: isLight ? "#92400e" : "#fcd34d",
+                  fontWeight: 600,
+                }}
+              />
+              <Chip
+                icon={<iconify-icon icon="mdi:school-outline" width="1.1em" height="1.1em" />}
+                label={t("chipSimple", locale)}
+                size="small"
+                sx={{
+                  ...CHIP_PAD,
+                  border: `1px solid ${isLight ? "rgba(5,150,105,0.40)" : "rgba(16,185,129,0.45)"}`,
+                  backgroundColor: isLight ? "rgba(5,150,105,0.10)" : "rgba(16,185,129,0.10)",
+                  color: isLight ? "#047857" : "#6ee7b7",
+                  fontWeight: 600,
+                }}
+              />
+              <Chip
+                icon={<iconify-icon icon="mdi:chart-line" width="1.1em" height="1.1em" />}
+                label={t("chipScore", locale)}
+                size="small"
+                sx={{
+                  ...CHIP_PAD,
+                  border: `1px solid ${isLight ? "rgba(124,58,237,0.40)" : "rgba(168,85,247,0.45)"}`,
+                  backgroundColor: isLight ? "rgba(124,58,237,0.10)" : "rgba(168,85,247,0.10)",
+                  color: isLight ? "#6d28d9" : "#d8b4fe",
+                  fontWeight: 600,
+                }}
+              />
             </Stack>
           </CardContent>
         </Card>
@@ -150,8 +205,22 @@ export function HomeView({ questions, stats, onStart }: Props) {
                           cursor: "pointer",
                           fontWeight: selected ? 700 : 500,
                           ...(selected
-                            ? { background: "linear-gradient(135deg, rgba(30,144,255,0.30) 0%, rgba(99,102,241,0.22) 100%)", border: "1px solid rgba(30,144,255,0.55)", color: "#fff", boxShadow: "0 0 14px rgba(30,144,255,0.30)" }
-                            : { border: "1px solid rgba(30,144,255,0.30)", backgroundColor: "rgba(30,144,255,0.06)" }),
+                            ? {
+                                background: isLight
+                                  ? "linear-gradient(135deg, rgba(30,144,255,0.20) 0%, rgba(99,102,241,0.15) 100%)"
+                                  : "linear-gradient(135deg, rgba(30,144,255,0.30) 0%, rgba(99,102,241,0.22) 100%)",
+                                border: `1px solid ${isLight ? "rgba(30,144,255,0.55)" : "rgba(30,144,255,0.55)"}`,
+                                color: isLight ? "#0c4a82" : "#fff",
+                                fontWeight: 700,
+                                boxShadow: isLight
+                                  ? "0 1px 0 rgba(255,255,255,0.7) inset"
+                                  : "0 0 14px rgba(30,144,255,0.30)",
+                              }
+                            : {
+                                border: `1px solid ${isLight ? "rgba(30,144,255,0.40)" : "rgba(30,144,255,0.30)"}`,
+                                backgroundColor: isLight ? "rgba(30,144,255,0.06)" : "rgba(30,144,255,0.06)",
+                                color: "text.primary",
+                              }),
                         }}
                       />
                     );
@@ -162,7 +231,11 @@ export function HomeView({ questions, stats, onStart }: Props) {
 
             <Divider sx={{ my: 2, opacity: 0.5 }} />
 
-            <Stack direction="row" alignItems="center" sx={{ width: "100%", gap: 2 }}>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              alignItems={{ xs: "stretch", sm: "center" }}
+              sx={{ width: "100%", gap: { xs: 1.5, sm: 2 } }}
+            >
               <Box sx={{ flex: 1, minWidth: 0 }}>
                 <Typography variant="body2" sx={{ color: "text.secondary" }}>
                   {tf("questionsCount", locale, { count: visibleCount, min: Math.round(Math.max(300, visibleCount * 90) / 60) })}
@@ -180,14 +253,20 @@ export function HomeView({ questions, stats, onStart }: Props) {
                 startIcon={<iconify-icon icon="mdi:play-circle-outline" width="1.2em" height="1.2em" />}
                 sx={{
                   flexShrink: 0,
-                  ml: "auto",
-                  px: 4,
+                  ml: { xs: 0, sm: "auto" },
+                  px: { xs: 2.5, sm: 4 },
                   py: 1.4,
-                  fontSize: "1.02rem",
+                  fontSize: { xs: "0.98rem", sm: "1.02rem" },
                   fontWeight: 700,
                   background: "linear-gradient(135deg, #1e90ff 0%, #6366f1 60%, #00e5ff 100%)",
-                  boxShadow: "0 0 32px rgba(30,144,255,0.45), inset 0 1px 0 rgba(255,255,255,0.18)",
-                  "&:hover": { boxShadow: "0 0 40px rgba(30,144,255,0.65), inset 0 1px 0 rgba(255,255,255,0.22)" },
+                  boxShadow: isLight
+                    ? "0 6px 18px rgba(30,144,255,0.30), inset 0 1px 0 rgba(255,255,255,0.35)"
+                    : "0 0 32px rgba(30,144,255,0.45), inset 0 1px 0 rgba(255,255,255,0.18)",
+                  "&:hover": {
+                    boxShadow: isLight
+                      ? "0 10px 26px rgba(30,144,255,0.40), inset 0 1px 0 rgba(255,255,255,0.45)"
+                      : "0 0 40px rgba(30,144,255,0.65), inset 0 1px 0 rgba(255,255,255,0.22)",
+                  },
                 }}
               >
                 {t("startQuiz", locale)}
