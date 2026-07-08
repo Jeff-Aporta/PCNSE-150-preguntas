@@ -274,13 +274,124 @@
   // ─────────────────────────────────────────────
   function createIcon(React) {
     return function Icon({ icon, size = 18, color, style, ...rest }) {
+      const styleObj =
+        style && typeof style === "object" && !Array.isArray(style)
+          ? { ...style, ...(color ? { color } : {}) }
+          : color
+          ? { color }
+          : undefined;
       return React.createElement("iconify-icon", {
         icon: icon,
         width: typeof size === "number" ? `${size}px` : size,
         height: typeof size === "number" ? `${size}px` : size,
-        ...(color ? { style: `color: ${color}; ${style || ""}` } : { style: style || "" }),
+        ...(styleObj ? { style: styleObj } : {}),
         ...rest,
       });
+    };
+  }
+
+  // ─────────────────────────────────────────────
+  // Locale — ES/EN
+  // ─────────────────────────────────────────────
+  const localeStores = new Map();
+
+  function readStoredLocale(lsKey) {
+    try {
+      const v = localStorage.getItem(lsKey);
+      if (v === "en" || v === "es") return v;
+    } catch (e) {}
+    return "es";
+  }
+
+  function applyDomLang(locale) {
+    try {
+      document.documentElement.lang = locale === "en" ? "en" : "es";
+    } catch (e) {}
+  }
+
+  function getLocaleStore(lsKey) {
+    if (!localeStores.has(lsKey)) {
+      let locale = readStoredLocale(lsKey);
+      const listeners = new Set();
+      applyDomLang(locale);
+      localeStores.set(lsKey, {
+        getLocale: () => locale,
+        subscribe(fn) {
+          listeners.add(fn);
+          return () => listeners.delete(fn);
+        },
+        setLocale(next) {
+          if (next !== "en" && next !== "es") return;
+          if (next === locale) return;
+          locale = next;
+          try {
+            localStorage.setItem(lsKey, locale);
+          } catch (e) {}
+          applyDomLang(locale);
+          listeners.forEach((fn) => {
+            try {
+              fn(locale);
+            } catch (e) {}
+          });
+        },
+        toggle() {
+          this.setLocale(locale === "es" ? "en" : "es");
+        },
+      });
+    }
+    return localeStores.get(lsKey);
+  }
+
+  function createLocaleApi(React, MUI, lsKey) {
+    function useAppLocale() {
+      const store = getLocaleStore(lsKey);
+      const [locale, setLocaleState] = React.useState(() => store.getLocale());
+      React.useEffect(() => store.subscribe(setLocaleState), [store]);
+      const toggle = React.useCallback(() => store.toggle(), [store]);
+      const setLocale = React.useCallback((l) => store.setLocale(l), [store]);
+      return { locale, toggle, setLocale };
+    }
+    return {
+      useAppLocale,
+      getLocale: () => getLocaleStore(lsKey).getLocale(),
+      setLocale: (l) => getLocaleStore(lsKey).setLocale(l),
+      toggle: () => getLocaleStore(lsKey).toggle(),
+    };
+  }
+
+  function createLangSwitch(React, MUI) {
+    return function LangSwitch({ locale, onChange }) {
+      return React.createElement(
+        MUI.ToggleButtonGroup,
+        {
+          size: "small",
+          exclusive: true,
+          value: locale,
+          onChange: function (_e, v) {
+            if (v) onChange(v);
+          },
+          "aria-label": "Idioma / Language",
+          sx: {
+            "& .MuiToggleButton-root": {
+              px: 1,
+              py: 0.35,
+              minWidth: 36,
+              fontWeight: 700,
+              fontSize: "0.72rem",
+              letterSpacing: 0.4,
+              borderColor: "rgba(30,144,255,0.35)",
+              color: "text.secondary",
+              "&.Mui-selected": {
+                color: "#7dd3fc",
+                backgroundColor: "rgba(30,144,255,0.18)",
+                borderColor: "rgba(30,144,255,0.55)",
+              },
+            },
+          },
+        },
+        React.createElement(MUI.ToggleButton, { value: "es", "aria-label": "Español", title: "Español" }, "ES"),
+        React.createElement(MUI.ToggleButton, { value: "en", "aria-label": "English", title: "English" }, "EN")
+      );
     };
   }
 
@@ -399,11 +510,14 @@
     const MUI = window.MaterialUI;
     const lsKey = (globalThis.AppMeta && globalThis.AppMeta.cfg && globalThis.AppMeta.cfg.theme && globalThis.AppMeta.cfg.theme.lsKey) ||
       ns.toLowerCase() + ":theme";
+    const localeKey = ns.toLowerCase() + ":locale";
     const bag = window[ns] = window[ns] || {};
     bag.Theme = createThemeApi(React, MUI, lsKey);
+    bag.Locale = createLocaleApi(React, MUI, localeKey);
     bag.UI = {
       Icon: createIcon(React),
       ThemeSwitch: createThemeSwitch(React, MUI),
+      LangSwitch: createLangSwitch(React, MUI),
       ...createFeedbackApi(React),
     };
     bag.WilliamFront = { registerApp, ns };

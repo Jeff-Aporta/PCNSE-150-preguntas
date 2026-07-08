@@ -16,7 +16,10 @@ import {
 } from "@mui/material";
 import type { AnswerId, AnswerRecord, Question, QuizSession, QuizResult } from "../core/quiz.ts";
 import { gradeAnswer, computeResult } from "../core/quiz.ts";
-import { playAudio, stopAudio } from "../core/audio.ts";
+import { playQuestionAudio, stopAudio, pauseAudio, resumeAudio, getCurrentAudio, isAudioPlaying } from "../core/audio.ts";
+import { useAppLocale } from "../components/LocaleToolbar.tsx";
+import { localizeQuestion } from "../core/question-i18n.ts";
+import { t, tDifficulty } from "../core/ui-i18n.ts";
 
 type Props = {
   session: QuizSession;
@@ -27,17 +30,34 @@ type Props = {
 
 const optionLetters: AnswerId[] = ["A", "B", "C", "D"];
 
+/** Scroll interno en cards cuando el texto es largo (tips, preguntas, opciones). */
+const SCROLL = {
+  overflowY: "auto",
+  overflowX: "hidden",
+  WebkitOverflowScrolling: "touch",
+  pr: 0.25,
+} as const;
+
+const SCROLL_QUESTION = { ...SCROLL, maxHeight: { xs: "22vh", sm: "26vh" } };
+const SCROLL_OPTION = { ...SCROLL, maxHeight: { xs: "11vh", sm: "13vh" } };
+const SCROLL_EXPLAIN = { ...SCROLL, maxHeight: { xs: "34vh", sm: "42vh" } };
+
 export function QuizView({ session, onFinish, onAbort }: Props) {
+  const { locale } = useAppLocale();
   const total = session.totalQuestions;
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedByQuestion, setSelectedByQuestion] = useState<Record<string, AnswerId | undefined>>({});
   const [verifiedByQuestion, setVerifiedByQuestion] = useState<Record<string, boolean>>({});
   const [answers, setAnswers] = useState<AnswerRecord[]>([]);
   const [timeLeft, setTimeLeft] = useState<number>(session.durationSec);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [audioError, setAudioError] = useState<string | null>(null);
   const questionStartRef = useRef<number>(Date.now());
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const currentQuestion = session.questions[currentIdx];
+  const L = currentQuestion ? localizeQuestion(currentQuestion, locale) : null;
   const currentSelected = selectedByQuestion[currentQuestion?.id];
   const currentVerified = verifiedByQuestion[currentQuestion?.id] || false;
 
@@ -69,19 +89,56 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
     return () => clearInterval(interval);
   }, [session, selectedByQuestion, answers, onFinish]);
 
-  // Resetear cronómetro por pregunta
+  // Resetear cronómetro y audio por pregunta / idioma
   useEffect(() => {
     questionStartRef.current = Date.now();
-    return () => {
-      stopAudio();
-    };
-  }, [currentIdx]);
-
-  const handlePlayAudio = useCallback(() => {
-    if (!currentQuestion) return;
+    setAudioError(null);
+    setAudioPlaying(false);
     stopAudio();
-    audioRef.current = playAudio("/" + currentQuestion.audioFile);
-  }, [currentQuestion]);
+  }, [currentIdx, locale]);
+
+  useEffect(() => () => stopAudio(), []);
+
+  const wireAudio = useCallback((audio: HTMLAudioElement) => {
+    const onPlay = () => setAudioPlaying(true);
+    const onPause = () => setAudioPlaying(false);
+    const onEnded = () => setAudioPlaying(false);
+    audio.addEventListener("play", onPlay);
+    audio.addEventListener("pause", onPause);
+    audio.addEventListener("ended", onEnded);
+  }, []);
+
+  const handleAudioToggle = useCallback(async () => {
+    if (!currentQuestion || audioLoading) return;
+    const playing = isAudioPlaying();
+    const current = getCurrentAudio();
+    if (playing && current) {
+      pauseAudio();
+      return;
+    }
+    if (current && current.paused && current.currentTime > 0 && !current.ended) {
+      try {
+        await resumeAudio();
+      } catch (err) {
+        console.error("[WilliamQuest] audio resume:", err);
+      }
+      return;
+    }
+    stopAudio();
+    setAudioError(null);
+    setAudioLoading(true);
+    try {
+      const audio = await playQuestionAudio(currentQuestion, locale);
+      audioRef.current = audio;
+      wireAudio(audio);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setAudioError(msg);
+      console.error("[WilliamQuest] audio:", err);
+    } finally {
+      setAudioLoading(false);
+    }
+  }, [currentQuestion, audioLoading, locale, wireAudio]);
 
   const handleSelect = useCallback(
     (letter: AnswerId) => {
@@ -145,13 +202,25 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
       sx={{
         flex: 1,
         minHeight: 0,
-        overflow: "auto",
+        overflow: "hidden",
         p: { xs: 1.5, sm: 3 },
         display: "flex",
         justifyContent: "center",
       }}
     >
-      <Box sx={{ width: "100%", maxWidth: 880, display: "flex", flexDirection: "column", gap: 2, py: 1 }}>
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: 880,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          py: 1,
+          flex: 1,
+          minHeight: 0,
+          overflow: "hidden",
+        }}
+      >
         {/* Header */}
         <Stack direction="row" alignItems="center" spacing={2}>
           <Button
@@ -160,7 +229,7 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
             startIcon={<iconify-icon icon="mdi:arrow-left" width="1.1em" height="1.1em" />}
             sx={{ color: "text.secondary" }}
           >
-            Salir
+            {t("exit", locale)}
           </Button>
           <Box sx={{ flex: 1 }}>
             <LinearProgress
@@ -205,18 +274,20 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
           />
         </Stack>
 
-        {/* Pregunta */}
+        {L ? (
         <Card
           sx={{
+            flexShrink: 0,
+            overflow: "hidden",
             background:
               "linear-gradient(135deg, rgba(30,144,255,0.10) 0%, rgba(99,102,241,0.06) 50%, rgba(0,229,255,0.04) 100%)",
           }}
         >
-          <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
+          <CardContent sx={{ p: { xs: 2.5, sm: 3.5 }, ...SCROLL_QUESTION }}>
             <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1.5, flexWrap: "wrap", gap: 1 }}>
               <Chip
                 size="small"
-                label={currentQuestion.topic}
+                label={L.topic}
                 sx={{
                   fontWeight: 700,
                   border: "1px solid rgba(0,229,255,0.40)",
@@ -226,7 +297,7 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
               />
               <Chip
                 size="small"
-                label={currentQuestion.difficulty}
+                label={tDifficulty(L.difficulty, locale)}
                 sx={{
                   border: "1px solid rgba(168,85,247,0.40)",
                   backgroundColor: "rgba(168,85,247,0.10)",
@@ -235,21 +306,42 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                 }}
               />
               <Box sx={{ flex: 1 }} />
-              <Tooltip title="Escuchar la pregunta">
-                <IconButton
-                  onClick={handlePlayAudio}
-                  sx={{
-                    background: "linear-gradient(135deg, rgba(0,229,255,0.18), rgba(30,144,255,0.18))",
-                    border: "1px solid rgba(0,229,255,0.40)",
-                    "&:hover": {
-                      boxShadow: "0 0 16px rgba(0,229,255,0.45)",
-                      background: "linear-gradient(135deg, rgba(0,229,255,0.28), rgba(30,144,255,0.28))",
-                    },
-                  }}
-                  aria-label="Reproducir audio de la pregunta"
-                >
-                  <iconify-icon icon="mdi:volume-high" width="1.4em" height="1.4em" />
-                </IconButton>
+              <Tooltip
+                title={
+                  audioError ||
+                  (audioLoading ? t("generatingAudio", locale) : audioPlaying ? t("pauseAudioAria", locale) : t("listenQuestion", locale))
+                }
+              >
+                <span>
+                  <IconButton
+                    onClick={handleAudioToggle}
+                    disabled={audioLoading}
+                    sx={{
+                      background: audioPlaying
+                        ? "linear-gradient(135deg, rgba(0,229,255,0.32), rgba(30,144,255,0.32))"
+                        : "linear-gradient(135deg, rgba(0,229,255,0.18), rgba(30,144,255,0.18))",
+                      border: `1px solid ${audioPlaying ? "rgba(0,229,255,0.70)" : "rgba(0,229,255,0.40)"}`,
+                      opacity: audioLoading ? 0.6 : 1,
+                      boxShadow: audioPlaying ? "0 0 22px rgba(0,229,255,0.50)" : "none",
+                      animation: audioPlaying ? "wq-audio-pulse 1.4s ease-in-out infinite" : "none",
+                      "@keyframes wq-audio-pulse": {
+                        "0%, 100%": { transform: "scale(1)", boxShadow: "0 0 18px rgba(0,229,255,0.40)" },
+                        "50%": { transform: "scale(1.06)", boxShadow: "0 0 28px rgba(0,229,255,0.65)" },
+                      },
+                      "&:hover": {
+                        boxShadow: "0 0 16px rgba(0,229,255,0.45)",
+                        background: "linear-gradient(135deg, rgba(0,229,255,0.28), rgba(30,144,255,0.28))",
+                      },
+                    }}
+                    aria-label={audioPlaying ? t("pauseAudioAria", locale) : t("playAudioAria", locale)}
+                  >
+                    <iconify-icon
+                      icon={audioLoading ? "mdi:loading" : audioPlaying ? "mdi:pause" : "mdi:play"}
+                      width="1.4em"
+                      height="1.4em"
+                    />
+                  </IconButton>
+                </span>
               </Tooltip>
             </Stack>
 
@@ -257,16 +349,17 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
               variant="h6"
               sx={{ fontWeight: 600, lineHeight: 1.5, fontSize: { xs: "1.05rem", sm: "1.18rem" } }}
             >
-              {currentQuestion.question}
+              {L.question}
             </Typography>
           </CardContent>
         </Card>
+        ) : null}
 
         {/* Opciones */}
-        <Stack spacing={1.5}>
-          {currentQuestion.options.map((opt) => {
+        <Stack spacing={1.5} sx={{ flex: "1 1 auto", minHeight: 0, overflowY: "auto", pr: 0.25 }}>
+          {(L?.options || []).map((opt) => {
             const isSelected = currentSelected === opt.id;
-            const isCorrect = currentQuestion.correctAnswer === opt.id;
+            const isCorrect = L!.correctAnswer === opt.id;
             let state: "idle" | "selected" | "correct" | "wrong" | "missed" = "idle";
             if (currentVerified) {
               if (isCorrect) state = "correct";
@@ -327,7 +420,15 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                     opt.id
                   )}
                 </Box>
-                <Typography sx={{ flex: 1, fontSize: { xs: "0.95rem", sm: "1.02rem" }, lineHeight: 1.55 }}>
+                <Typography
+                  sx={{
+                    flex: 1,
+                    minWidth: 0,
+                    fontSize: { xs: "0.95rem", sm: "1.02rem" },
+                    lineHeight: 1.55,
+                    ...SCROLL_OPTION,
+                  }}
+                >
                   {opt.text}
                 </Typography>
               </Box>
@@ -336,39 +437,41 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
         </Stack>
 
         {/* Explicación post-verificar */}
-        {currentVerified && (
+        {currentVerified && L ? (
           <Card
             sx={{
+              flexShrink: 0,
+              overflow: "hidden",
               background:
-                currentSelected === currentQuestion.correctAnswer
+                currentSelected === L.correctAnswer
                   ? "linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(5,150,105,0.06) 100%)"
                   : "linear-gradient(135deg, rgba(239,68,68,0.10) 0%, rgba(185,28,28,0.06) 100%)",
-              border: currentSelected === currentQuestion.correctAnswer
+              border: currentSelected === L.correctAnswer
                 ? "1px solid rgba(16,185,129,0.40)"
                 : "1px solid rgba(239,68,68,0.40)",
             }}
           >
-            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+            <CardContent sx={{ p: { xs: 2, sm: 3 }, ...SCROLL_EXPLAIN }}>
               <Stack direction="row" alignItems="center" spacing={1.2} sx={{ mb: 1.2 }}>
                 <Box
                   sx={{
                     width: 32,
                     height: 32,
                     borderRadius: 1.2,
-                    background: currentSelected === currentQuestion.correctAnswer
+                    background: currentSelected === L.correctAnswer
                       ? "linear-gradient(135deg, #10b981, #059669)"
                       : "linear-gradient(135deg, #ef4444, #b91c1c)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: currentSelected === currentQuestion.correctAnswer
+                    boxShadow: currentSelected === L.correctAnswer
                       ? "0 0 18px rgba(16,185,129,0.45)"
                       : "0 0 18px rgba(239,68,68,0.45)",
                   }}
                 >
                   <iconify-icon
                     icon={
-                      currentSelected === currentQuestion.correctAnswer
+                      currentSelected === L.correctAnswer
                         ? "mdi:check-circle-outline"
                         : "mdi:close-circle-outline"
                     }
@@ -378,7 +481,7 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                   />
                 </Box>
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  {currentSelected === currentQuestion.correctAnswer ? "¡Correcto!" : "Incorrecto"}
+                  {currentSelected === L.correctAnswer ? t("correct", locale) : t("wrong", locale)}
                 </Typography>
               </Stack>
 
@@ -387,9 +490,9 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                   variant="body2"
                   sx={{ color: "text.secondary", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, mb: 0.4 }}
                 >
-                  Tip del porqué
+                  {t("tipLabel", locale)}
                 </Typography>
-                <Typography sx={{ lineHeight: 1.65 }}>{currentQuestion.tip}</Typography>
+                <Typography sx={{ lineHeight: 1.65 }}>{L.tip}</Typography>
               </Box>
 
               <Box>
@@ -397,15 +500,15 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                   variant="body2"
                   sx={{ color: "text.secondary", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, mb: 0.6 }}
                 >
-                  Explicación por opción
+                  {t("explainLabel", locale)}
                 </Typography>
                 <Stack spacing={0.8}>
-                  {optionLetters.map((L) => {
-                    const isCorrect = currentQuestion.correctAnswer === L;
-                    const isPicked = currentSelected === L;
+                  {optionLetters.map((letter) => {
+                    const isCorrect = L.correctAnswer === letter;
+                    const isPicked = currentSelected === letter;
                     return (
                       <Box
-                        key={L}
+                        key={letter}
                         sx={{
                           display: "flex",
                           gap: 1,
@@ -424,11 +527,11 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                         }}
                       >
                         <Typography sx={{ fontWeight: 800, minWidth: 22 }}>
-                          {L}
+                          {letter}
                           {isCorrect ? " ✓" : isPicked ? " ✗" : ""}
                         </Typography>
                         <Typography sx={{ flex: 1, fontSize: "0.92rem", lineHeight: 1.55 }}>
-                          {currentQuestion.explanations[L]}
+                          {L.explanations[letter]}
                         </Typography>
                       </Box>
                     );
@@ -437,17 +540,17 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
               </Box>
             </CardContent>
           </Card>
-        )}
+        ) : null}
 
         {/* Botones de acción */}
-        <Stack direction="row" spacing={1.5} sx={{ mt: 1 }}>
+        <Stack direction="row" spacing={1.5} sx={{ mt: 1, flexShrink: 0 }}>
           <Button
             variant="outlined"
             disabled={currentIdx === 0}
             onClick={goPrev}
             startIcon={<iconify-icon icon="mdi:chevron-left" width="1.2em" height="1.2em" />}
           >
-            Anterior
+            {t("prev", locale)}
           </Button>
           <Box sx={{ flex: 1 }} />
           {!currentVerified ? (
@@ -462,7 +565,7 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                   : undefined,
               }}
             >
-              Verificar respuesta
+              {t("verify", locale)}
             </Button>
           ) : (
             <Button
@@ -475,7 +578,7 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                 "&:hover": { boxShadow: "0 0 32px rgba(30,144,255,0.60)" },
               }}
             >
-              {currentIdx === total - 1 ? "Finalizar" : "Siguiente"}
+              {currentIdx === total - 1 ? t("finish", locale) : t("next", locale)}
             </Button>
           )}
         </Stack>

@@ -2,6 +2,8 @@
  * core/quiz.ts — Tipos y helpers del banco de preguntas.
  */
 
+import type { QuestionTranslation } from "./question-i18n.ts";
+
 export type AnswerId = "A" | "B" | "C" | "D";
 
 export type Question = {
@@ -14,6 +16,7 @@ export type Question = {
   tip: string;
   explanations: Record<AnswerId, string>;
   audioFile: string;
+  en?: QuestionTranslation;
 };
 
 export type QuestionBank = {
@@ -55,18 +58,35 @@ export type QuizResult = {
   topicBreakdown: Record<string, { correct: number; total: number }>;
 };
 
-const QUESTIONS_URL = "/data/questions.json";
+const QUESTIONS_URL = new URL("data/questions.json", document.baseURI).href;
+const QUESTIONS_EN_URL = new URL("data/questions.en.json", document.baseURI).href;
 
 let cachedQuestions: Question[] | null = null;
 
 export async function loadQuestions(): Promise<Question[]> {
   if (cachedQuestions) return cachedQuestions;
-  const res = await fetch(QUESTIONS_URL, { cache: "no-store" });
-  if (!res.ok) throw new Error("No se pudo cargar questions.json: " + res.status);
-  const data = (await res.json()) as QuestionBank;
-  // Asegurar audioFile (q001.mp3) por id
+  const [esRes, enRes] = await Promise.all([
+    fetch(QUESTIONS_URL, { cache: "no-store" }),
+    fetch(QUESTIONS_EN_URL, { cache: "no-store" }).catch(() => null),
+  ]);
+  if (!esRes.ok) throw new Error("No se pudo cargar questions.json: " + esRes.status);
+  const data = (await esRes.json()) as QuestionBank;
+  let enMap = new Map<string, QuestionTranslation>();
+  if (enRes?.ok) {
+    const enBank = (await enRes.json()) as { questions?: Array<QuestionTranslation & { id: string }> };
+    for (const row of enBank.questions || []) {
+      enMap.set(row.id, {
+        question: row.question,
+        options: row.options,
+        tip: row.tip,
+        explanations: row.explanations,
+      });
+    }
+  }
   for (const q of data.questions) {
-    q.audioFile = "audio/" + q.id + ".mp3";
+    const en = enMap.get(q.id);
+    if (en) q.en = en;
+    q.audioFile = `audio/es/${q.id}.mp3`;
   }
   cachedQuestions = data.questions;
   return cachedQuestions;

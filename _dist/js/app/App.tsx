@@ -1,19 +1,25 @@
 /**
  * App.tsx — Componente raíz.
- * Mantiene el estado global del quiz: ruta actual, sesión activa, progreso.
- * No usa librería de router: navega por estado.
  */
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, type ComponentType } from "react";
 import { Box } from "@mui/material";
-// AppShell es cargado por william-front.js / app-shell.jsx y expuesto en window.WilliamFront.Layout.AppShell
-declare const AppShell: any;
 import { HomeView } from "./views/HomeView.tsx";
 import { QuizView } from "./views/QuizView.tsx";
 import { ResultsView } from "./views/ResultsView.tsx";
+import { LocaleToolbar, useAppLocale } from "./components/LocaleToolbar.tsx";
 import { loadQuestions, type Question, type QuizSession, type QuizResult } from "./core/quiz.ts";
 import { loadStats as _loadStats } from "./core/stats.ts";
+import { t } from "./core/ui-i18n.ts";
 
 const NS = "WILLIAM";
+
+function resolveAppShell(): ComponentType<any> | null {
+  const g = globalThis as typeof globalThis & {
+    AppShell?: ComponentType<any>;
+    WilliamFront?: { Layout?: { AppShell?: ComponentType<any> } };
+  };
+  return g.AppShell ?? g.WilliamFront?.Layout?.AppShell ?? null;
+}
 
 export type Route = "home" | "quiz" | "results";
 
@@ -26,6 +32,7 @@ export type AppState = {
 };
 
 export function App() {
+  const { locale } = useAppLocale();
   const [state, setState] = useState<AppState>({
     route: "home",
     questions: [],
@@ -34,7 +41,6 @@ export function App() {
     result: null,
   });
 
-  // Cargar preguntas al inicio
   useEffect(() => {
     let alive = true;
     loadQuestions()
@@ -66,11 +72,12 @@ export function App() {
 
   const retryQuiz = useCallback(() => {
     if (!state.session) return;
-    const newSession = {
-      ...state.session,
-      startedAt: Date.now(),
-    };
-    setState((s) => ({ ...s, route: "quiz", session: newSession, result: null }));
+    setState((s) => ({
+      ...s,
+      route: "quiz",
+      session: { ...state.session!, startedAt: Date.now() },
+      result: null,
+    }));
   }, [state.session]);
 
   const navRows = useMemo(
@@ -78,9 +85,14 @@ export function App() {
       {
         id: "primary",
         tabs: [
-          { id: "home", icon: "mdi:home-outline", label: "Inicio" },
-          { id: "quiz", icon: "mdi:head-question-outline", label: "Práctica" },
-          { id: "results", icon: "mdi:trophy-outline", label: "Resultados", disabled: !state.result },
+          { id: "home", icon: "mdi:home-outline", label: t("navHome", locale) },
+          { id: "quiz", icon: "mdi:head-question-outline", label: t("navQuiz", locale) },
+          {
+            id: "results",
+            icon: "mdi:trophy-outline",
+            label: t("navResults", locale),
+            disabled: !state.result,
+          },
         ],
         value: state.route,
         onChange: (id: string) => {
@@ -90,45 +102,45 @@ export function App() {
         },
       },
     ],
-    [state.route, state.session, state.result]
+    [state.route, state.session, state.result, locale]
   );
 
   let body;
   if (state.loadingQuestions) {
-    body = <CenteredMessage message="Cargando banco de preguntas…" />;
+    body = <CenteredMessage message={t("loadingQuestions", locale)} />;
   } else if (state.questions.length === 0) {
-    body = (
-      <CenteredMessage
-        message="No se pudieron cargar las preguntas. Verifica tu conexión o inténtalo más tarde."
-        icon="mdi:cloud-alert-outline"
-      />
-    );
+    body = <CenteredMessage message={t("loadError", locale)} icon="mdi:cloud-alert-outline" />;
   } else if (state.route === "home") {
     body = <HomeView questions={state.questions} onStart={startQuiz} stats={_loadStats()} />;
   } else if (state.route === "quiz" && state.session) {
     body = (
-      <QuizView
-        session={state.session}
-        questions={state.questions}
-        onFinish={finishQuiz}
-        onAbort={goHome}
-      />
+      <QuizView session={state.session} questions={state.questions} onFinish={finishQuiz} onAbort={goHome} />
     );
   } else if (state.route === "results" && state.result) {
     body = (
-      <ResultsView
-        result={state.result}
-        questions={state.questions}
-        onRetry={retryQuiz}
-        onHome={goHome}
-      />
+      <ResultsView result={state.result} questions={state.questions} onRetry={retryQuiz} onHome={goHome} />
     );
   } else {
-    body = <CenteredMessage message="Estado inválido. Vuelve al inicio." icon="mdi:alert-circle-outline" />;
+    body = <CenteredMessage message={t("invalidState", locale)} icon="mdi:alert-circle-outline" />;
+  }
+
+  const AppShell = resolveAppShell();
+  if (!AppShell) {
+    return (
+      <CenteredMessage
+        message="AppShell no cargado. Recarga la página o ejecuta npm run build."
+        icon="mdi:alert-circle-outline"
+      />
+    );
   }
 
   return (
-    <AppShell ns={NS} navRows={navRows} brand={{ title: "William Quest", icon: "mdi:shield-lock-outline" }}>
+    <AppShell
+      ns={NS}
+      navRows={navRows}
+      brand={{ title: "William Quest", icon: "mdi:shield-lock-outline" }}
+      toolbarExtra={<LocaleToolbar />}
+    >
       <Box
         sx={{
           flex: 1,
@@ -159,11 +171,8 @@ function CenteredMessage({ message, icon }: { message: string; icon?: string }) 
         color: "text.secondary",
       }}
     >
-      {icon ? (
-        <iconify-icon icon={icon} width="3rem" height="3rem" style={{ opacity: 0.65 }} />
-      ) : null}
+      {icon ? <iconify-icon icon={icon} width="3rem" height="3rem" style={{ opacity: 0.65 }} /> : null}
       <Box sx={{ fontSize: "1.05rem", fontWeight: 500, textAlign: "center", maxWidth: 480 }}>{message}</Box>
     </Box>
   );
 }
-

@@ -17,6 +17,10 @@ import {
 } from "@mui/material";
 import type { Question, QuizResult } from "../core/quiz.ts";
 import { saveStats } from "../core/stats.ts";
+import { useAppLocale } from "../components/LocaleToolbar.tsx";
+import { localizeQuestion } from "../core/question-i18n.ts";
+import { t, tf, scoreLabelFor, formatDuration } from "../core/ui-i18n.ts";
+import { CARD_SCROLL, CARD_SCROLL_TALL } from "../core/card-scroll.ts";
 
 type Props = {
   result: QuizResult;
@@ -28,9 +32,10 @@ type Props = {
 const optionLetters: ("A" | "B" | "C" | "D")[] = ["A", "B", "C", "D"];
 
 export function ResultsView({ result, questions, onRetry, onHome }: Props) {
+  const { locale } = useAppLocale();
   const [expanded, setExpanded] = useState<string | null>(null);
   const scoreColor = scoreColorFor(result.scorePercent);
-  const scoreLabel = scoreLabelFor(result.scorePercent);
+  const scoreLabel = scoreLabelFor(result.scorePercent, locale);
 
   // Save stats once on mount (in case score improves)
   saveStats(result.scorePercent);
@@ -50,12 +55,13 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
         {/* Score hero */}
         <Card
           sx={{
+            overflow: "hidden",
             background: "linear-gradient(135deg, rgba(30,144,255,0.18) 0%, rgba(99,102,241,0.10) 50%, rgba(168,85,247,0.08) 100%)",
             border: `1px solid ${scoreColor.border}`,
             boxShadow: `0 8px 32px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 48px ${scoreColor.glow}`,
           }}
         >
-          <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+          <CardContent sx={{ p: { xs: 3, sm: 4 }, ...CARD_SCROLL_TALL }}>
             <Stack direction={{ xs: "column", sm: "row" }} alignItems={{ sm: "center" }} spacing={3}>
               <Box
                 sx={{
@@ -76,7 +82,7 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
                   {result.scorePercent}%
                 </Typography>
                 <Typography sx={{ fontWeight: 700, fontSize: "0.7rem", color: scoreColor.text, opacity: 0.85, letterSpacing: 0.5, textTransform: "uppercase", mt: 0.5 }}>
-                  Score
+                  {t("score", locale)}
                 </Typography>
               </Box>
               <Box sx={{ flex: 1 }}>
@@ -84,8 +90,12 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
                   {scoreLabel}
                 </Typography>
                 <Typography variant="body1" sx={{ color: "text.secondary", mb: 1.5, textAlign: { xs: "center", sm: "left" } }}>
-                  {result.correctCount} de {result.totalQuestions} correctas · {formatDuration(result.durationUsedSec)} usado
-                  {result.durationUsedSec >= result.session.durationSec ? " (tiempo agotado)" : ""}
+                  {tf("correctOf", locale, {
+                    correct: result.correctCount,
+                    total: result.totalQuestions,
+                    duration: formatDuration(result.durationUsedSec, locale),
+                  })}
+                  {result.durationUsedSec >= result.session.durationSec ? t("timeUp", locale) : ""}
                 </Typography>
                 <LinearProgress
                   variant="determinate"
@@ -108,7 +118,7 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
             {/* Topic breakdown */}
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 600, color: "text.secondary", textTransform: "uppercase", letterSpacing: 0.5, mb: 1.2 }}>
-                Desempeño por tema
+                {t("topicBreakdown", locale)}
               </Typography>
               <Stack spacing={1}>
                 {Object.entries(result.topicBreakdown)
@@ -160,28 +170,29 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
                   boxShadow: "0 0 20px rgba(30,144,255,0.40)",
                 }}
               >
-                Reintentar
+                {t("retry", locale)}
               </Button>
               <Button
                 variant="outlined"
                 onClick={onHome}
                 startIcon={<iconify-icon icon="mdi:home-outline" width="1.2em" height="1.2em" />}
               >
-                Volver al inicio
+                {t("backHome", locale)}
               </Button>
             </Stack>
           </CardContent>
         </Card>
 
         {/* Detalle por pregunta */}
-        <Card>
-          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+        <Card sx={{ overflow: "hidden" }}>
+          <CardContent sx={{ p: { xs: 2, sm: 3 }, ...CARD_SCROLL_TALL }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               <iconify-icon icon="mdi:format-list-checkbox" width="1.2em" height="1.2em" style={{ verticalAlign: "middle", marginRight: 8 }} />
-              Revisión detallada
+              {t("reviewTitle", locale)}
             </Typography>
             <Stack spacing={1.2}>
               {result.session.questions.map((q, idx) => {
+                const L = localizeQuestion(questions.find((qq) => qq.id === q.id) || q, locale);
                 const ans = result.answers.find((a) => a.questionId === q.id);
                 const correct = ans?.correct || false;
                 const isOpen = expanded === q.id;
@@ -235,7 +246,7 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
                       </Box>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
                         <Typography sx={{ fontSize: "0.78rem", color: "text.secondary", fontWeight: 600 }}>
-                          Pregunta {idx + 1} · {q.topic}
+                          {tf("questionN", locale, { n: idx + 1, topic: L.topic })}
                         </Typography>
                         <Typography
                           sx={{
@@ -249,14 +260,14 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
                             textOverflow: "ellipsis",
                           }}
                         >
-                          {q.question}
+                          {L.question}
                         </Typography>
                       </Box>
                       <Stack direction="row" spacing={0.6} alignItems="center">
                         {ans ? (
                           <Chip
                             size="small"
-                            label={`Tu: ${ans.selected}`}
+                            label={tf("yourAnswer", locale, { letter: ans.selected })}
                             sx={{
                               fontWeight: 700,
                               border: `1px solid ${correct ? "rgba(16,185,129,0.40)" : "rgba(239,68,68,0.40)"}`,
@@ -266,7 +277,7 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
                         ) : null}
                         <Chip
                           size="small"
-                          label={`OK: ${q.correctAnswer}`}
+                          label={tf("correctAnswer", locale, { letter: L.correctAnswer })}
                           sx={{
                             fontWeight: 700,
                             border: "1px solid rgba(16,185,129,0.40)",
@@ -285,31 +296,31 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
                     <Collapse in={isOpen}>
                       <Box sx={{ p: { xs: 1.5, sm: 2 }, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
                         <Typography sx={{ mb: 1.5, lineHeight: 1.55, fontWeight: 500 }}>
-                          {q.question}
+                          {L.question}
                         </Typography>
                         <Box sx={{ mb: 1.5 }}>
                           <Typography
                             variant="body2"
                             sx={{ color: "text.secondary", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, mb: 0.5 }}
                           >
-                            Tip del porqué
+                            {t("tipLabel", locale)}
                           </Typography>
-                          <Typography sx={{ lineHeight: 1.6 }}>{q.tip}</Typography>
+                          <Typography sx={{ lineHeight: 1.6 }}>{L.tip}</Typography>
                         </Box>
                         <Box>
                           <Typography
                             variant="body2"
                             sx={{ color: "text.secondary", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, mb: 0.6 }}
                           >
-                            Explicación por opción
+                            {t("explainLabel", locale)}
                           </Typography>
                           <Stack spacing={0.7}>
-                            {optionLetters.map((L) => {
-                              const isC = q.correctAnswer === L;
-                              const isPicked = ans?.selected === L;
+                            {optionLetters.map((letter) => {
+                              const isC = L.correctAnswer === letter;
+                              const isPicked = ans?.selected === letter;
                               return (
                                 <Box
-                                  key={L}
+                                  key={letter}
                                   sx={{
                                     display: "flex",
                                     gap: 1,
@@ -328,11 +339,11 @@ export function ResultsView({ result, questions, onRetry, onHome }: Props) {
                                   }}
                                 >
                                   <Typography sx={{ fontWeight: 800, minWidth: 22 }}>
-                                    {L}
+                                    {letter}
                                     {isC ? " ✓" : isPicked ? " ✗" : ""}
                                   </Typography>
                                   <Typography sx={{ flex: 1, fontSize: "0.92rem", lineHeight: 1.5 }}>
-                                    {q.explanations[L]}
+                                    {L.explanations[letter]}
                                   </Typography>
                                 </Box>
                               );
@@ -387,18 +398,4 @@ function scoreColorFor(p: number) {
     text: "#fca5a5",
     barBg: "linear-gradient(90deg, #ef4444, #f87171)",
   };
-}
-
-function scoreLabelFor(p: number) {
-  if (p >= 90) return "¡Excelente! Listo para el examen";
-  if (p >= 80) return "Muy bien, casi listo";
-  if (p >= 60) return "Vas bien, sigue practicando";
-  if (p >= 40) return "Necesitas reforzar varios temas";
-  return "A repasar con calma — tú puedes";
-}
-
-function formatDuration(sec: number): string {
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m}m ${String(s).padStart(2, "0")}s`;
 }

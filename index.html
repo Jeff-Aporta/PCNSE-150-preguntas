@@ -11,6 +11,15 @@
   <meta name="theme-color" content="#1e90ff" />
   <meta name="app-theme-ls-key" content="william-quest:theme" />
   <meta name="app-icon" content="mdi:shield-lock-outline" />
+  <script>
+    (function () {
+      var u = location.href.split("#")[0].split("?")[0];
+      if (!u.endsWith("/")) u = u.endsWith(".html") ? u.slice(0, u.lastIndexOf("/") + 1) : u + "/";
+      var b = document.createElement("base");
+      b.href = u;
+      document.head.appendChild(b);
+    })();
+  </script>
   <meta property="og:title" content="William Quest — Simulador PCNSE" />
   <meta property="og:description" content="Simulador gratuito de opción múltiple para el examen PCNSE con 150 preguntas, tips, audios y explicaciones detalladas." />
   <meta property="og:type" content="website" />
@@ -20,13 +29,18 @@
   <script>
     (function () {
       var k = "william-quest:theme";
+      var lk = "william-quest:locale";
       var m = "dark";
+      var lang = "es";
       try {
         var v = localStorage.getItem(k);
         if (v === "light" || v === "dark") m = v;
+        var l = localStorage.getItem(lk);
+        if (l === "en" || l === "es") lang = l;
       } catch (e) {}
       document.documentElement.setAttribute("data-mui-color-scheme", m);
       document.documentElement.style.colorScheme = m;
+      document.documentElement.lang = lang === "en" ? "en" : "es";
       var bg = m === "light" ? "#f0f6ff" : "#060d18";
       document.documentElement.style.background = bg;
     })();
