@@ -1,7 +1,7 @@
 {
-  "name": "william-quest",
-  "version": "2.0.0",
-  "description": "Simulador gratuito de opción múltiple para el examen PCNSE (Palo Alto Networks Certified Security Engineer). 150 preguntas con audio TTS en español, tips y explicaciones.",
+  "name": "pcnse-150-preguntas",
+  "version": "2.1.0",
+  "description": "PCNSE 150 preguntas — Simulador gratuito con audio TTS en voz del autor (ES/EN). 150 preguntas con tips y explicaciones para el examen PCNSE de Palo Alto Networks. Voz clonada MiniMax (Jeff-Aporta).",
   "private": true,
   "type": "module",
   "scripts": {
@@ -19,12 +19,15 @@
   "keywords": [
     "PCNSE",
     "Palo Alto Networks",
+    "PCNSE-150-preguntas",
     "simulador",
     "firewall",
     "neon-glass",
     "typescript",
     "react",
-    "mui"
+    "mui",
+    "minimax",
+    "tts-voice-clone"
   ],
   "author": "Jeff-Aporta",
   "license": "MIT"

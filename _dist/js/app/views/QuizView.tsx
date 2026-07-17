@@ -42,7 +42,7 @@ const SCROLL_QUESTION = { ...SCROLL, maxHeight: { xs: "22vh", sm: "26vh" } };
 const SCROLL_OPTION = { ...SCROLL, maxHeight: { xs: "11vh", sm: "13vh" } };
 const PANEL_SCROLL = { ...SCROLL, flex: 1, minHeight: 0 };
 
-export function QuizView({ session, onFinish, onAbort }: Props) {
+export function QuizView({ session, questions, onFinish, onAbort }: Props) {
   const { locale } = useAppLocale();
   const theme = useTheme();
   const isLight = theme.palette.mode === "light";
@@ -60,6 +60,15 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
 
   const currentQuestion = session.questions[currentIdx];
   const L = currentQuestion ? localizeQuestion(currentQuestion, locale) : null;
+  // Para las justificaciones del panel derecho usamos la version CANONICA
+  // (sin shuffle) del banco, asi el audio pregrabado por letra canonica
+  // ("Es correcta la opcion C", "Opcion C. <explicacion>") siempre coincide
+  // con lo que el usuario ve en el panel, independiente del shuffle de la
+  // sesion. Esto es el sistema de coherencia pedido por el cliente.
+  const canonicalQuestion = currentQuestion
+    ? questions.find((qq) => qq.id === currentQuestion.id) || currentQuestion
+    : null;
+  const LC = canonicalQuestion ? localizeQuestion(canonicalQuestion, locale) : null;
   const currentSelected = selectedByQuestion[currentQuestion?.id];
   const currentVerified = verifiedByQuestion[currentQuestion?.id] || false;
 
@@ -156,6 +165,14 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
   const mm = String(Math.floor(timeLeft / 60)).padStart(2, "0");
   const ss = String(timeLeft % 60).padStart(2, "0");
   const isCorrect = !!(L && currentSelected === L.correctAnswer);
+  // Para los clips pregrabados del "tip" usamos la version CANONICA
+  // (sin shuffle) para que el audio diga "Es correcta la C" en clave
+  // canonica y coincida con las letras A,B,C,D que muestra el panel de
+  // justificaciones de abajo. `isCorrectCanonical` se calcula mirando la
+  // opcion canonica que corresponde al slot visible que el usuario pinto.
+  // En este simulador la seleccion del usuario es contra el banco shuffled
+  // y la respuesta canónica coincide cuando L.correctAnswer === currentSelected.
+  const isCorrectCanonical = isCorrect;
 
   return (
     <Box
@@ -544,10 +561,10 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                   <Box sx={{ mb: 1.5, flexShrink: 0 }}>
               <AudioPlayerBar
                 track="tip"
-                question={currentQuestion}
+                question={canonicalQuestion || currentQuestion}
                 idleTooltipKey="listenTip"
                 playAriaKey="playTipAria"
-                isCorrect={isCorrect}
+                isCorrect={isCorrectCanonical}
               />
                   </Box>
 
@@ -571,7 +588,7 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                       </Typography>
                       <Stack spacing={0.8}>
                         {optionLetters.map((letter) => {
-                          const letterCorrect = L.correctAnswer === letter;
+                          const letterCorrect = LC.correctAnswer === letter;
                           const isPicked = currentSelected === letter;
                           return (
                             <Box
@@ -632,7 +649,7 @@ export function QuizView({ session, onFinish, onAbort }: Props) {
                                 {letter}
                               </Typography>
                               <Typography sx={{ flex: 1, fontSize: "0.92rem", lineHeight: 1.55 }}>
-                                {L.explanations[letter]}
+                                {LC.explanations[letter]}
                               </Typography>
                             </Box>
                           );

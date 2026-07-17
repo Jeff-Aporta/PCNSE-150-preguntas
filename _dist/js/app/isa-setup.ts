@@ -9,10 +9,10 @@
 import { bootstrapAppMeta } from "./app-meta.js";
 
 bootstrapAppMeta({
-  shortName: "Palo Alto Quest",
-  title: "Palo Alto Quest — Simulador PCNSE",
+  shortName: "PCNSE 150 preguntas",
+  title: "PCNSE 150 preguntas — Simulador con voz del autor",
   icon: "mdi:shield-lock-outline",
-  theme: { lsKey: "william-quest:theme" },
+  theme: { lsKey: "pcnse-150:theme" },
 });
 
-console.log("[PaloAltoQuest] isa-setup done");
+console.log("[PCNSE150] isa-setup done");

@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 87.730908,
+  "clips": [
+    {
+      "key": "stmt",
+      "file": "audio/es/q143-stmt.mp3",
+      "durSec": 8.173469
+    },
+    {
+      "key": "A",
+      "file": "audio/es/q143-A.mp3",
+      "durSec": 4.260875
+    },
+    {
+      "key": "C",
+      "file": "audio/es/q143-C.mp3",
+      "durSec": 3.947406
+    },
+    {
+      "key": "ttip",
+      "file": "audio/es/q143-ttip.mp3",
+      "durSec": 31.968
+    },
+    {
+      "key": "correct",
+      "file": "audio/es/q143-correct.mp3",
+      "durSec": 1.787938
+    },
+    {
+      "key": "wrong",
+      "file": "audio/es/q143-wrong.mp3",
+      "durSec": 3.181156
+    },
+    {
+      "key": "ED",
+      "file": "audio/es/q143-ED.mp3",
+      "durSec": 4.121563
+    },
+    {
+      "key": "B",
+      "file": "audio/es/q143-B.mp3",
+      "durSec": 15.000094
+    },
+    {
+      "key": "D",
+      "file": "audio/es/q143-D.mp3",
+      "durSec": 3.448188
+    },
+    {
+      "key": "EA",
+      "file": "audio/es/q143-EA.mp3",
+      "durSec": 4.400188
+    },
+    {
+      "key": "EC",
+      "file": "audio/es/q143-EC.mp3",
+      "durSec": 3.761656
+    },
+    {
+      "key": "EB",
+      "file": "audio/es/q143-EB.mp3",
+      "durSec": 3.680375
+    }
+  ]
+}

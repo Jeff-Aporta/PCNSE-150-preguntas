@@ -1,10 +1,18 @@
 /**
  * MiniMax T2A — compartido entre generate-audio.mjs y dev-server (via subprocess).
- * Env: MINIMAX_API_KEY (requerido), MINIMAX_GROUP_ID (opcional).
+ * Env: MINIMAX_API_KEY (requerido), MINIMAX_GROUP_ID (opcional),
+ *      WILLIAM_VOICE_ID (opcional, default = voz clonada del autor).
+ *
+ * Voz clonada del autor — moss_audio_6121c2b3-7957-11f1-b432-da8cea034f66
+ * (Jeff-Aporta, español + inglés). Si la voz expira (>168h sin uso) o
+ * necesitas regenerarla, corre primero el script de Voice Clone y reemplaza
+ * la constante a continuación, o exporta WILLIAM_VOICE_ID al regenerar.
  */
+const WILLIAM_VOICE_ID = "moss_audio_6121c2b3-7957-11f1-b432-da8cea034f66";
+
 const DEFAULTS = {
   model: "speech-02-turbo",
-  voice_id: "English_Trustworth_Man",
+  voice_id: process.env.WILLIAM_VOICE_ID || WILLIAM_VOICE_ID,
   speed: 0.95,
   emotion: "neutral",
 };

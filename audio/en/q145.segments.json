@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 96.57547000000001,
+  "clips": [
+    {
+      "key": "A",
+      "file": "audio/en/q145-A.mp3",
+      "durSec": 3.947406
+    },
+    {
+      "key": "D",
+      "file": "audio/en/q145-D.mp3",
+      "durSec": 3.494625
+    },
+    {
+      "key": "correct",
+      "file": "audio/en/q145-correct.mp3",
+      "durSec": 2.867688
+    },
+    {
+      "key": "wrong",
+      "file": "audio/en/q145-wrong.mp3",
+      "durSec": 3.808094
+    },
+    {
+      "key": "EA",
+      "file": "audio/en/q145-EA.mp3",
+      "durSec": 3.993844
+    },
+    {
+      "key": "EB",
+      "file": "audio/en/q145-EB.mp3",
+      "durSec": 5.154844
+    },
+    {
+      "key": "ED",
+      "file": "audio/en/q145-ED.mp3",
+      "durSec": 3.854531
+    },
+    {
+      "key": "stmt",
+      "file": "audio/en/q145-stmt.mp3",
+      "durSec": 9.47375
+    },
+    {
+      "key": "B",
+      "file": "audio/en/q145-B.mp3",
+      "durSec": 22.068
+    },
+    {
+      "key": "C",
+      "file": "audio/en/q145-C.mp3",
+      "durSec": 3.993844
+    },
+    {
+      "key": "ttip",
+      "file": "audio/en/q145-ttip.mp3",
+      "durSec": 28.764
+    },
+    {
+      "key": "EC",
+      "file": "audio/en/q145-EC.mp3",
+      "durSec": 5.154844
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 94.54703299999998,
+  "clips": [
+    {
+      "key": "stmt",
+      "file": "audio/es/q040-stmt.mp3",
+      "durSec": 7.849469
+    },
+    {
+      "key": "A",
+      "file": "audio/es/q040-A.mp3",
+      "durSec": 7.174969
+    },
+    {
+      "key": "B",
+      "file": "audio/es/q040-B.mp3",
+      "durSec": 17.914219
+    },
+    {
+      "key": "C",
+      "file": "audio/es/q040-C.mp3",
+      "durSec": 4.93425
+    },
+    {
+      "key": "D",
+      "file": "audio/es/q040-D.mp3",
+      "durSec": 7.534906
+    },
+    {
+      "key": "ttip",
+      "file": "audio/es/q040-ttip.mp3",
+      "durSec": 22.68
+    },
+    {
+      "key": "correct",
+      "file": "audio/es/q040-correct.mp3",
+      "durSec": 2.101406
+    },
+    {
+      "key": "EB",
+      "file": "audio/es/q040-EB.mp3",
+      "durSec": 3.181156
+    },
+    {
+      "key": "EC",
+      "file": "audio/es/q040-EC.mp3",
+      "durSec": 6.060438
+    },
+    {
+      "key": "ED",
+      "file": "audio/es/q040-ED.mp3",
+      "durSec": 5.468313
+    },
+    {
+      "key": "wrong",
+      "file": "audio/es/q040-wrong.mp3",
+      "durSec": 3.993844
+    },
+    {
+      "key": "EA",
+      "file": "audio/es/q040-EA.mp3",
+      "durSec": 5.654063
+    }
+  ]
+}

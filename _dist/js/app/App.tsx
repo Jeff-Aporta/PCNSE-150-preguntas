@@ -7,7 +7,7 @@ import { HomeView } from "./views/HomeView.tsx";
 import { QuizView } from "./views/QuizView.tsx";
 import { ResultsView } from "./views/ResultsView.tsx";
 import { LocaleToolbar, useAppLocale } from "./components/LocaleToolbar.tsx";
-import { loadQuestions, shuffleArray, shuffleQuestionOptions, type Question, type QuizSession, type QuizResult } from "./core/quiz.ts";
+import { loadQuestions, shuffleArray, type Question, type QuizSession, type QuizResult } from "./core/quiz.ts";
 import { loadStats as _loadStats } from "./core/stats.ts";
 import { t } from "./core/ui-i18n.ts";
 
@@ -74,13 +74,13 @@ export function App() {
     if (!state.session) return;
     setState((s) => {
       const prev = s.session!;
-      const shuffled = shuffleArray(
-        prev.questions.map((q) => shuffleQuestionOptions(q))
-      );
+      // Solo reordenamos las PREGUNTAS (no las opciones, que quedan fijas
+      // para que el audio pregrabado por letra canonica sea coherente).
+      const reshuffled = shuffleArray(prev.questions.slice());
       return {
         ...s,
         route: "quiz",
-        session: { ...prev, questions: shuffled, startedAt: Date.now() },
+        session: { ...prev, questions: reshuffled, startedAt: Date.now() },
         result: null,
       };
     });
@@ -145,8 +145,18 @@ export function App() {
     <AppShell
       ns={NS}
       navRows={navRows}
-      brand={{ title: "Palo Alto Quest", icon: "mdi:shield-lock-outline" }}
+      brand={{ title: "PCNSE 150 preguntas", icon: "mdi:shield-lock-outline" }}
       toolbarExtra={<LocaleToolbar />}
+      toolbarLinks={[
+        {
+          id: "github",
+          href: "https://github.com/Jeff-Aporta/PCNSE-150-preguntas",
+          icon: "mdi:github",
+          label: t("repoLink", locale),
+          ariaLabel: t("repoLinkAria", locale),
+          title: t("repoLinkTitle", locale),
+        },
+      ]}
     >
       <Box
         sx={{

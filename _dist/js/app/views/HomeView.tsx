@@ -122,6 +122,25 @@ export function HomeView({ questions, stats, onStart }: Props) {
 
             <Stack direction="row" spacing={1.2} sx={{ mt: 2.5, flexWrap: "wrap", gap: 1.2 }}>
               <Chip
+                component="a"
+                href="https://youtu.be/GveWyFrTQNg"
+                target="_blank"
+                rel="noopener noreferrer"
+                clickable
+                icon={<iconify-icon icon="mdi:youtube" width="1.1em" height="1.1em" />}
+                label={t("chipVideo", locale)}
+                size="small"
+                sx={{
+                  ...CHIP_PAD,
+                  border: `1px solid rgba(239,68,68,0.45)`,
+                  backgroundColor: "rgba(239,68,68,0.10)",
+                  color: isLight ? "#b91c1c" : "#fca5a5",
+                  fontWeight: 600,
+                  textDecoration: "none",
+                  "&:hover": { backgroundColor: "rgba(239,68,68,0.18)" },
+                }}
+              />
+              <Chip
                 icon={<iconify-icon icon="mdi:headphones" width="1.1em" height="1.1em" />}
                 label={t("chipAudio", locale)}
                 size="small"

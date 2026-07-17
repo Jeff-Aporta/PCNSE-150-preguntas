@@ -1,12 +1,18 @@
-"""CLI: stdin text arg -> stdout MP3 bytes (MiniMax T2A). Usado por dev-server /api/tts."""
+"""CLI: stdin text arg -> stdout MP3 bytes (MiniMax T2A). Usado por dev-server /api/tts.
+
+Voz por defecto = la voz clonada del autor Jeff-Aporta (moss_audio_6121c2b3-...).
+Se puede sobreescribir exportando WILLIAM_VOICE_ID antes de invocar.
+"""
 import json
 import os
 import sys
 import urllib.request
 
+DEFAULT_VOICE_ID = "moss_audio_6121c2b3-7957-11f1-b432-da8cea034f66"
+
 DEFAULTS = {
     "model": "speech-02-turbo",
-    "voice_id": "English_Trustworth_Man",
+    "voice_id": os.environ.get("WILLIAM_VOICE_ID", DEFAULT_VOICE_ID),
     "speed": 0.95,
     "emotion": "neutral",
 }

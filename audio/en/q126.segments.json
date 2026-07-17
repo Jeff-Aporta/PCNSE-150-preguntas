@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 93.050251,
+  "clips": [
+    {
+      "key": "C",
+      "file": "audio/en/q126-C.mp3",
+      "durSec": 3.726813
+    },
+    {
+      "key": "D",
+      "file": "audio/en/q126-D.mp3",
+      "durSec": 2.867688
+    },
+    {
+      "key": "correct",
+      "file": "audio/en/q126-correct.mp3",
+      "durSec": 3.227594
+    },
+    {
+      "key": "wrong",
+      "file": "audio/en/q126-wrong.mp3",
+      "durSec": 3.854531
+    },
+    {
+      "key": "EA",
+      "file": "audio/en/q126-EA.mp3",
+      "durSec": 4.435031
+    },
+    {
+      "key": "EB",
+      "file": "audio/en/q126-EB.mp3",
+      "durSec": 5.340594
+    },
+    {
+      "key": "EC",
+      "file": "audio/en/q126-EC.mp3",
+      "durSec": 5.921094
+    },
+    {
+      "key": "ED",
+      "file": "audio/en/q126-ED.mp3",
+      "durSec": 8.127
+    },
+    {
+      "key": "stmt",
+      "file": "audio/en/q126-stmt.mp3",
+      "durSec": 9.555031
+    },
+    {
+      "key": "A",
+      "file": "audio/en/q126-A.mp3",
+      "durSec": 2.333625
+    },
+    {
+      "key": "B",
+      "file": "audio/en/q126-B.mp3",
+      "durSec": 18.28125
+    },
+    {
+      "key": "ttip",
+      "file": "audio/en/q126-ttip.mp3",
+      "durSec": 25.38
+    }
+  ]
+}

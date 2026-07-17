@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 88.106626,
+  "clips": [
+    {
+      "key": "B",
+      "file": "audio/en/q114-B.mp3",
+      "durSec": 13.966813
+    },
+    {
+      "key": "C",
+      "file": "audio/en/q114-C.mp3",
+      "durSec": 2.647094
+    },
+    {
+      "key": "D",
+      "file": "audio/en/q114-D.mp3",
+      "durSec": 3.366906
+    },
+    {
+      "key": "correct",
+      "file": "audio/en/q114-correct.mp3",
+      "durSec": 3.181156
+    },
+    {
+      "key": "wrong",
+      "file": "audio/en/q114-wrong.mp3",
+      "durSec": 3.854531
+    },
+    {
+      "key": "EB",
+      "file": "audio/en/q114-EB.mp3",
+      "durSec": 4.435031
+    },
+    {
+      "key": "ED",
+      "file": "audio/en/q114-ED.mp3",
+      "durSec": 4.307313
+    },
+    {
+      "key": "stmt",
+      "file": "audio/en/q114-stmt.mp3",
+      "durSec": 7.453625
+    },
+    {
+      "key": "A",
+      "file": "audio/en/q114-A.mp3",
+      "durSec": 5.073563
+    },
+    {
+      "key": "ttip",
+      "file": "audio/en/q114-ttip.mp3",
+      "durSec": 30.312
+    },
+    {
+      "key": "EA",
+      "file": "audio/en/q114-EA.mp3",
+      "durSec": 4.93425
+    },
+    {
+      "key": "EC",
+      "file": "audio/en/q114-EC.mp3",
+      "durSec": 4.574344
+    }
+  ]
+}

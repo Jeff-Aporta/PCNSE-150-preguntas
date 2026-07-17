@@ -22,8 +22,8 @@ A free **PCNSE simulator** (Palo Alto Networks Certified Security Engineer) depl
 - **No login, no backend.** All data is JSON in the repo. Stats are stored in `localStorage`.
 - **neon-glass UI** styled like the rest of the InSoft / Jeff-Aporta / Personal Apps ecosystem.
 
-Live URL: `https://jeff-aporta.github.io/william-quest/`
-Source repo: `https://github.com/Jeff-Aporta/william-quest` (was `jagudeloe/william-quest` in early drafts — that username never had a GitHub account).
+Live URL: `https://jeff-aporta.github.io/PCNSE-150-preguntas/`
+Source repo: `https://github.com/Jeff-Aporta/PCNSE-150-preguntas` (formerly `Jeff-Aporta/william-quest` — renamed 2026-07-16 to make the PCNSE focus obvious in the URL).
 
 ---
 
@@ -575,7 +575,7 @@ $env:GH_TOKEN = (gh auth token); gh run watch <run-id> --exit-status
 Then smoke test:
 
 ```bash
-python -c "import urllib.request; r=urllib.request.urlopen('https://jeff-aporta.github.io/william-quest/'); print(r.status)"
+python -c "import urllib.request; r=urllib.request.urlopen('https://jeff-aporta.github.io/PCNSE-150-preguntas/'); print(r.status)"
 ```
 
 ### Re-trigger deploy after Pages enabled

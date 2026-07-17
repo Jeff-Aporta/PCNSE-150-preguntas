@@ -85,8 +85,42 @@ describe('i18n — questions.en.json', () => {
       }
       assert.match(es.ttip, /^Justificacion pregunta/);
       assert.match(en.ttip, /^Explanation for question/);
-      assert.equal(es.correct, isCorrect ? "Correcto." : "Incorrecto.");
-      assert.equal(en.correct, isCorrect ? "Correct." : "Incorrect.");
+      // Coherencia: el clip "correct" / "wrong" anuncia explicitamente
+      // la letra de la respuesta correcta (canónica), p.ej.
+      //   ES: "Es correcta la opcion B."
+      //   EN: "Yes, you are right. The correct answer is option B."
+      const correctLetter = q.correctAnswer;
+      assert.match(
+        es.correct,
+        new RegExp(`^Es correcta la opcion ${correctLetter}\\.$`),
+        `ES correct should mention "${correctLetter}"`
+      );
+      assert.match(
+        es.wrong,
+        new RegExp(`^Es incorrecta\\. La respuesta correcta es la opcion ${correctLetter}\\.$`),
+        `ES wrong should mention "${correctLetter}"`
+      );
+      assert.match(
+        en.correct,
+        new RegExp(`^Yes, you are right\\. The correct answer is option ${correctLetter}\\.$`),
+        `EN correct should mention "${correctLetter}"`
+      );
+      assert.match(
+        en.wrong,
+        new RegExp(`^It is incorrect\\. The correct answer is option ${correctLetter}\\.$`),
+        `EN wrong should mention "${correctLetter}"`
+      );
+      // EA = explicacion de la correcta (primera en narrarse).
+      assert.match(
+        es.EA,
+        new RegExp(`^Opcion ${correctLetter}\\.`),
+        `ES EA should narrate correct option ${correctLetter} first`
+      );
+      assert.match(
+        en.EA,
+        new RegExp(`^Option ${correctLetter}\\.`),
+        `EN EA should narrate correct option ${correctLetter} first`
+      );
     }
   });
 });

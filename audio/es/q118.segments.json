@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 77.21962699999999,
+  "clips": [
+    {
+      "key": "stmt",
+      "file": "audio/es/q118-stmt.mp3",
+      "durSec": 7.140156
+    },
+    {
+      "key": "A",
+      "file": "audio/es/q118-A.mp3",
+      "durSec": 3.808094
+    },
+    {
+      "key": "C",
+      "file": "audio/es/q118-C.mp3",
+      "durSec": 2.774813
+    },
+    {
+      "key": "D",
+      "file": "audio/es/q118-D.mp3",
+      "durSec": 3.680375
+    },
+    {
+      "key": "ttip",
+      "file": "audio/es/q118-ttip.mp3",
+      "durSec": 24.336
+    },
+    {
+      "key": "correct",
+      "file": "audio/es/q118-correct.mp3",
+      "durSec": 1.706688
+    },
+    {
+      "key": "wrong",
+      "file": "audio/es/q118-wrong.mp3",
+      "durSec": 3.900969
+    },
+    {
+      "key": "EA",
+      "file": "audio/es/q118-EA.mp3",
+      "durSec": 5.874656
+    },
+    {
+      "key": "ED",
+      "file": "audio/es/q118-ED.mp3",
+      "durSec": 4.121563
+    },
+    {
+      "key": "B",
+      "file": "audio/es/q118-B.mp3",
+      "durSec": 11.133969
+    },
+    {
+      "key": "EB",
+      "file": "audio/es/q118-EB.mp3",
+      "durSec": 4.307313
+    },
+    {
+      "key": "EC",
+      "file": "audio/es/q118-EC.mp3",
+      "durSec": 4.435031
+    }
+  ]
+}

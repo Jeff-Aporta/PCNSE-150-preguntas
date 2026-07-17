@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 94.90019099999998,
+  "clips": [
+    {
+      "key": "A",
+      "file": "audio/es/q125-A.mp3",
+      "durSec": 3.227594
+    },
+    {
+      "key": "B",
+      "file": "audio/es/q125-B.mp3",
+      "durSec": 13.873938
+    },
+    {
+      "key": "D",
+      "file": "audio/es/q125-D.mp3",
+      "durSec": 3.320469
+    },
+    {
+      "key": "EB",
+      "file": "audio/es/q125-EB.mp3",
+      "durSec": 4.400188
+    },
+    {
+      "key": "stmt",
+      "file": "audio/es/q125-stmt.mp3",
+      "durSec": 7.987688
+    },
+    {
+      "key": "C",
+      "file": "audio/es/q125-C.mp3",
+      "durSec": 3.854531
+    },
+    {
+      "key": "ttip",
+      "file": "audio/es/q125-ttip.mp3",
+      "durSec": 37.152
+    },
+    {
+      "key": "correct",
+      "file": "audio/es/q125-correct.mp3",
+      "durSec": 1.787938
+    },
+    {
+      "key": "wrong",
+      "file": "audio/es/q125-wrong.mp3",
+      "durSec": 3.726813
+    },
+    {
+      "key": "EA",
+      "file": "audio/es/q125-EA.mp3",
+      "durSec": 5.793406
+    },
+    {
+      "key": "EC",
+      "file": "audio/es/q125-EC.mp3",
+      "durSec": 4.307313
+    },
+    {
+      "key": "ED",
+      "file": "audio/es/q125-ED.mp3",
+      "durSec": 5.468313
+    }
+  ]
+}

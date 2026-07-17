@@ -2,7 +2,7 @@
  * core/stats.ts — persistencia de stats locales.
  */
 
-const STATS_KEY = "william-quest:stats";
+const STATS_KEY = "pcnse-150:stats";
 
 export type Stats = {
   lastScore?: number;
@@ -11,7 +11,16 @@ export type Stats = {
 
 export function loadStats(): Stats {
   try {
-    const raw = localStorage.getItem(STATS_KEY);
+    // Migracion desde william-quest:stats → pcnse-150:stats (1 sola vez).
+    let raw = localStorage.getItem(STATS_KEY);
+    if (!raw) {
+      const legacy = localStorage.getItem("william-quest:stats");
+      if (legacy) {
+        localStorage.setItem(STATS_KEY, legacy);
+        localStorage.removeItem("william-quest:stats");
+        raw = legacy;
+      }
+    }
     if (!raw) return { totalAttempts: 0 };
     const parsed = JSON.parse(raw);
     return {

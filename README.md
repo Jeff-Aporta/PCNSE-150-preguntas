@@ -1,10 +1,12 @@
-# Palo Alto Quest — Simulador PCNSE
+# PCNSE 150 preguntas — Simulador con voz del autor
 
 Simulador gratuito de opción múltiple para la certificación **PCNSE** (Palo Alto Networks Certified Security Engineer).
 
 - **150 preguntas** reales estilo examen, distribuidas en los 11 temas del manual oficial: App-ID, User-ID, Content-ID, Security Policies, NAT, VPN, Panorama, HA, Decryption, WildFire y Troubleshooting.
-- **Audio en español** generado con IA para cada pregunta (TTS MiniMax Multi-Language).
+- **Audio en ES/EN** narrado por **voz clonada del autor** (Jeff-Aporta) vía MiniMax T2A voice clone (`moss_audio_6121c2b3-7957-11f1-b432-da8cea034f66`).
+- **Sistema de coherencia**: cada clip narra por letra canónica A/B/C/D y dice explícitamente "Es correcta la opción X" / "Es incorrecta. La respuesta correcta es la opción X", con la explicación de la correcta primero y luego las incorrectas en orden alfabético.
 - **Tip del porqué** la respuesta correcta es correcta, y explicación detallada de por qué cada opción incorrecta es incorrecta.
+- **Video explicativo** enlazado en Home para feedback más claro del examen.
 - **Calificación final** con score, desempeño por tema y revisión pregunta por pregunta.
 - **UI neon-glass** idéntica a las demás apps Jeff-Aporta / Personal Apps (sin login, sin backend).
 - **Desplegado en GitHub Pages** desde la raíz del repo.
@@ -14,7 +16,8 @@ Simulador gratuito de opción múltiple para la certificación **PCNSE** (Palo A
 - **Frontend:** TypeScript + React 18 + MUI 9 + Emotion (vía importmap ESM, sin transpilación runtime).
 - **Build:** esbuild compila los `.ts/.tsx` a bundles IIFE que consumen `window.*` global (no runtime de Babel en producción).
 - **Datos:** JSON estático en `data/questions.json` (servido desde la raíz).
-- **Audio:** 150 MP3 en `audio/q001.mp3 ... q150.mp3`.
+- **Audio:** 12 clips × 150 preguntas × 2 idiomas (ES/EN) = 3.600 MP3 en `audio/es/qNNN-{key}.mp3` y `audio/en/qNNN-{key}.mp3` + manifest `qNNN.segments.json` por pregunta y locale.
+- **Voz:** Clonada (`moss_audio_6121c2b3-7957-11f1-b432-da8cea034f66`). Para regenerar: `npm run generate:audio`. Configurable vía env `WILLIAM_VOICE_ID`.
 - **Vendor:** `vendor/william-shared/` (tema, UI, layout) + `vendor/front-shared/` (neon-glass.min.css, base.css, feedback.css, stack.mjs).
 - **Publicación:** GitHub Pages desde `main` (raíz del repo).
 
@@ -67,7 +70,7 @@ Genera tres bundles IIFE en `_dist/js/` que se cargan en orden desde `loader.mjs
 
 ## Publicar en GitHub Pages
 
-1. Crea el repo en GitHub: `Jeff-Aporta/william-quest` (o tu fork personal).
+1. Crea el repo en GitHub: `Jeff-Aporta/PCNSE-150-preguntas` (o tu fork personal).
 2. Push a `main` — el workflow `.github/workflows/deploy-ghpages.yml` ejecuta `node scripts/build.mjs` y publica el artefacto en `gh-pages` automáticamente.
 3. Configura GitHub Pages: **Settings → Pages → Source: `gh-pages` branch / root**.
 

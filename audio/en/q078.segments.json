@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 94.709502,
+  "clips": [
+    {
+      "key": "stmt",
+      "file": "audio/en/q078-stmt.mp3",
+      "durSec": 9.241563
+    },
+    {
+      "key": "A",
+      "file": "audio/en/q078-A.mp3",
+      "durSec": 2.647094
+    },
+    {
+      "key": "B",
+      "file": "audio/en/q078-B.mp3",
+      "durSec": 20.592
+    },
+    {
+      "key": "C",
+      "file": "audio/en/q078-C.mp3",
+      "durSec": 3.633938
+    },
+    {
+      "key": "ttip",
+      "file": "audio/en/q078-ttip.mp3",
+      "durSec": 29.268
+    },
+    {
+      "key": "correct",
+      "file": "audio/en/q078-correct.mp3",
+      "durSec": 3.5875
+    },
+    {
+      "key": "wrong",
+      "file": "audio/en/q078-wrong.mp3",
+      "durSec": 3.633938
+    },
+    {
+      "key": "ED",
+      "file": "audio/en/q078-ED.mp3",
+      "durSec": 4.481469
+    },
+    {
+      "key": "D",
+      "file": "audio/en/q078-D.mp3",
+      "durSec": 4.35375
+    },
+    {
+      "key": "EA",
+      "file": "audio/en/q078-EA.mp3",
+      "durSec": 5.201281
+    },
+    {
+      "key": "EC",
+      "file": "audio/en/q078-EC.mp3",
+      "durSec": 3.494625
+    },
+    {
+      "key": "EB",
+      "file": "audio/en/q078-EB.mp3",
+      "durSec": 4.574344
+    }
+  ]
+}

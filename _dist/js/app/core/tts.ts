@@ -2,8 +2,13 @@ import type { AnswerId, Question } from "./quiz.ts";
 import type { AppLocale } from "./locale.ts";
 import { localizeQuestion, questionAudioPath } from "./question-i18n.ts";
 
-export const TTS_VOICE_ES = "English_Trustworth_Man";
-export const TTS_VOICE_EN = "English_Trustworth_Man";
+// Voz clonada del autor (Jeff-Aporta). Funciona tanto en español como en
+// inglés porque la API de MiniMax detecta el idioma del texto y aplica el
+// mismo timbre. Si expira (>168h sin uso) se regenera con Voice Clone API.
+export const WILLIAM_VOICE_ID = "moss_audio_6121c2b3-7957-11f1-b432-da8cea034f66";
+
+export const TTS_VOICE_ES = WILLIAM_VOICE_ID;
+export const TTS_VOICE_EN = WILLIAM_VOICE_ID;
 export const TTS_SPEED = 0.95;
 export const TTS_MODEL = "speech-02-turbo";
 
@@ -56,25 +61,47 @@ export function buildClipPrompts(q: Question, locale: AppLocale = "es"): Record<
   return out;
 }
 
-/** Prompts por fragmento — tip track. */
+/** Prompts por fragmento — tip track.
+ *
+ * Sistema de coherencia (PCNSE-150-preguntas, voz Jeff-Aporta):
+ * - "correct" / "wrong" anuncian explicitamente la letra correcta (canonica)
+ *   para que el usuario la busque en el panel A,B,C,D (siempre canonico).
+ * - EA = explicacion de la correcta (se narra PRIMERO).
+ * - EB / EC / ED = explicaciones de las incorrectas en orden alfabetico.
+ *
+ * Coherencia con el shuffle de la sesion:
+ *   En `QuizView` las opciones se barajan (A<->D), pero `q.correctAnswer`
+ *   se remapea via `shuffleQuestionOptions` para que apunte al slot visible
+ *   de la respuesta correcta. Aqui usamos `q.correctAnswer` (que ya esta
+ *   remapeado) para anunciar la letra del SLOT visible. Asi el audio y la
+ *   pantalla coinciden.
+ */
 export function buildTipClipPrompts(q: Question, locale: AppLocale = "es", isCorrect = false): Record<string, string> {
   const L = localizeQuestion(q, locale);
   const num = q.id.replace(/^q/i, "");
-  const letters: AnswerId[] = ["A", "B", "C", "D"];
-  const ttip = locale === "en" ? `Explanation for question ${num}. Tip. ${L.tip}` : `Justificacion pregunta ${num}. Tip. ${L.tip}`;
-  const fb = isCorrect
-    ? (locale === "en" ? "Correct." : "Correcto.")
-    : (locale === "en" ? "Incorrect." : "Incorrecto.");
-  const out: Record<string, string> = {
+  const correct = q.correctAnswer; // ya remapeada al slot visible por shuffleQuestionOptions
+  const others: AnswerId[] = (["A", "B", "C", "D"] as AnswerId[]).filter((l) => l !== correct);
+  const ttip = locale === "en"
+    ? `Explanation for question ${num}. Tip. ${L.tip}`
+    : `Justificacion pregunta ${num}. Tip. ${L.tip}`;
+  const correctFb = locale === "en"
+    ? `Yes, you are right. The correct answer is option ${correct}.`
+    : `Es correcta la opcion ${correct}.`;
+  const wrongFb = locale === "en"
+    ? `It is incorrect. The correct answer is option ${correct}.`
+    : `Es incorrecta. La respuesta correcta es la opcion ${correct}.`;
+  const expLine = (letter: AnswerId) => locale === "en"
+    ? `Option ${letter}. ${L.explanations[letter]}`
+    : `Opcion ${letter}. ${L.explanations[letter]}`;
+  return {
     ttip,
-    correct: fb,
-    wrong: fb,
+    correct: correctFb,
+    wrong: wrongFb,
+    EA: expLine(correct),
+    EB: expLine(others[0]),
+    EC: expLine(others[1]),
+    ED: expLine(others[2]),
   };
-  for (const id of letters) {
-    out[id === "A" ? "EA" : id === "B" ? "EB" : id === "C" ? "EC" : "ED"] =
-      locale === "en" ? `Option ${id}. ${L.explanations[id]}` : `Opcion ${id}. ${L.explanations[id]}`;
-  }
-  return out;
 }
 
 /** Paths de clip por key (canónica). */

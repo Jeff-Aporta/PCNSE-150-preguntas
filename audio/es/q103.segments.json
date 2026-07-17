@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 97.44419,
+  "clips": [
+    {
+      "key": "stmt",
+      "file": "audio/es/q103-stmt.mp3",
+      "durSec": 8.846813
+    },
+    {
+      "key": "ttip",
+      "file": "audio/es/q103-ttip.mp3",
+      "durSec": 28.98
+    },
+    {
+      "key": "correct",
+      "file": "audio/es/q103-correct.mp3",
+      "durSec": 1.973719
+    },
+    {
+      "key": "wrong",
+      "file": "audio/es/q103-wrong.mp3",
+      "durSec": 4.435031
+    },
+    {
+      "key": "EA",
+      "file": "audio/es/q103-EA.mp3",
+      "durSec": 7.221406
+    },
+    {
+      "key": "EB",
+      "file": "audio/es/q103-EB.mp3",
+      "durSec": 4.121563
+    },
+    {
+      "key": "EC",
+      "file": "audio/es/q103-EC.mp3",
+      "durSec": 6.141688
+    },
+    {
+      "key": "ED",
+      "file": "audio/es/q103-ED.mp3",
+      "durSec": 7.047281
+    },
+    {
+      "key": "B",
+      "file": "audio/es/q103-B.mp3",
+      "durSec": 15.127813
+    },
+    {
+      "key": "C",
+      "file": "audio/es/q103-C.mp3",
+      "durSec": 5.468313
+    },
+    {
+      "key": "D",
+      "file": "audio/es/q103-D.mp3",
+      "durSec": 3.680375
+    },
+    {
+      "key": "A",
+      "file": "audio/es/q103-A.mp3",
+      "durSec": 4.400188
+    }
+  ]
+}

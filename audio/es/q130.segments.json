@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 86.703251,
+  "clips": [
+    {
+      "key": "ttip",
+      "file": "audio/es/q130-ttip.mp3",
+      "durSec": 22.14
+    },
+    {
+      "key": "correct",
+      "file": "audio/es/q130-correct.mp3",
+      "durSec": 2.647094
+    },
+    {
+      "key": "wrong",
+      "file": "audio/es/q130-wrong.mp3",
+      "durSec": 4.35375
+    },
+    {
+      "key": "EB",
+      "file": "audio/es/q130-EB.mp3",
+      "durSec": 6.594469
+    },
+    {
+      "key": "EC",
+      "file": "audio/es/q130-EC.mp3",
+      "durSec": 6.907938
+    },
+    {
+      "key": "ED",
+      "file": "audio/es/q130-ED.mp3",
+      "durSec": 5.294156
+    },
+    {
+      "key": "stmt",
+      "file": "audio/es/q130-stmt.mp3",
+      "durSec": 8.173469
+    },
+    {
+      "key": "B",
+      "file": "audio/es/q130-B.mp3",
+      "durSec": 14.408
+    },
+    {
+      "key": "C",
+      "file": "audio/es/q130-C.mp3",
+      "durSec": 3.854531
+    },
+    {
+      "key": "D",
+      "file": "audio/es/q130-D.mp3",
+      "durSec": 4.121563
+    },
+    {
+      "key": "EA",
+      "file": "audio/es/q130-EA.mp3",
+      "durSec": 5.294156
+    },
+    {
+      "key": "A",
+      "file": "audio/es/q130-A.mp3",
+      "durSec": 2.914125
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 97.875408,
+  "clips": [
+    {
+      "key": "A",
+      "file": "audio/en/q146-A.mp3",
+      "durSec": 3.227594
+    },
+    {
+      "key": "B",
+      "file": "audio/en/q146-B.mp3",
+      "durSec": 20.967625
+    },
+    {
+      "key": "D",
+      "file": "audio/en/q146-D.mp3",
+      "durSec": 2.287188
+    },
+    {
+      "key": "correct",
+      "file": "audio/en/q146-correct.mp3",
+      "durSec": 3.088281
+    },
+    {
+      "key": "wrong",
+      "file": "audio/en/q146-wrong.mp3",
+      "durSec": 4.667219
+    },
+    {
+      "key": "EB",
+      "file": "audio/en/q146-EB.mp3",
+      "durSec": 5.154844
+    },
+    {
+      "key": "EC",
+      "file": "audio/en/q146-EC.mp3",
+      "durSec": 6.188125
+    },
+    {
+      "key": "ED",
+      "file": "audio/en/q146-ED.mp3",
+      "durSec": 4.260875
+    },
+    {
+      "key": "stmt",
+      "file": "audio/en/q146-stmt.mp3",
+      "durSec": 9.914938
+    },
+    {
+      "key": "C",
+      "file": "audio/en/q146-C.mp3",
+      "durSec": 2.507781
+    },
+    {
+      "key": "ttip",
+      "file": "audio/en/q146-ttip.mp3",
+      "durSec": 30.816
+    },
+    {
+      "key": "EA",
+      "file": "audio/en/q146-EA.mp3",
+      "durSec": 4.794938
+    }
+  ]
+}

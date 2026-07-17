@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 83.500345,
+  "clips": [
+    {
+      "key": "A",
+      "file": "audio/en/q122-A.mp3",
+      "durSec": 2.914125
+    },
+    {
+      "key": "C",
+      "file": "audio/en/q122-C.mp3",
+      "durSec": 3.448188
+    },
+    {
+      "key": "correct",
+      "file": "audio/en/q122-correct.mp3",
+      "durSec": 3.366906
+    },
+    {
+      "key": "EA",
+      "file": "audio/en/q122-EA.mp3",
+      "durSec": 6.594469
+    },
+    {
+      "key": "EB",
+      "file": "audio/en/q122-EB.mp3",
+      "durSec": 4.435031
+    },
+    {
+      "key": "EC",
+      "file": "audio/en/q122-EC.mp3",
+      "durSec": 7.221406
+    },
+    {
+      "key": "stmt",
+      "file": "audio/en/q122-stmt.mp3",
+      "durSec": 8.173469
+    },
+    {
+      "key": "B",
+      "file": "audio/en/q122-B.mp3",
+      "durSec": 11.447438
+    },
+    {
+      "key": "D",
+      "file": "audio/en/q122-D.mp3",
+      "durSec": 3.854531
+    },
+    {
+      "key": "ttip",
+      "file": "audio/en/q122-ttip.mp3",
+      "durSec": 23.256
+    },
+    {
+      "key": "wrong",
+      "file": "audio/en/q122-wrong.mp3",
+      "durSec": 3.134719
+    },
+    {
+      "key": "ED",
+      "file": "audio/en/q122-ED.mp3",
+      "durSec": 5.654063
+    }
+  ]
+}

@@ -4,12 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Palo Alto Quest — Simulador PCNSE</title>
-  <meta name="description" content="Simulador gratuito de opción múltiple para el examen PCNSE (Palo Alto Networks Certified Security Engineer). 150 preguntas reales con tips, audio TTS en español y explicaciones detalladas." />
-  <meta name="keywords" content="PCNSE, Palo Alto Networks, simulador, examen, certificación, firewall, App-ID, User-ID, Content-ID, NAT, VPN, Panorama, HA, Decryption, WildFire" />
-  <meta name="application-name" content="Palo Alto Quest" />
+  <title>PCNSE 150 preguntas — Simulador con voz del autor</title>
+  <meta name="description" content="PCNSE 150 preguntas — Simulador gratuito con audio TTS en voz del autor (ES/EN). 150 preguntas con tips y explicaciones para el examen PCNSE de Palo Alto Networks." />
+  <meta name="keywords" content="PCNSE, Palo Alto Networks, simulador, examen, certificación, firewall, App-ID, User-ID, Content-ID, NAT, VPN, Panorama, HA, Decryption, WildFire, PCNSE-150-preguntas, minimax, voice-clone" />
+  <meta name="application-name" content="PCNSE 150 preguntas" />
   <meta name="theme-color" content="#1e90ff" />
-  <meta name="app-theme-ls-key" content="william-quest:theme" />
+  <meta name="app-theme-ls-key" content="pcnse-150:theme" />
   <meta name="app-icon" content="mdi:shield-lock-outline" />
   <script>
     (function () {
@@ -20,19 +20,30 @@
       document.head.appendChild(b);
     })();
   </script>
-  <meta property="og:title" content="Palo Alto Quest — Simulador PCNSE" />
-  <meta property="og:description" content="Simulador gratuito de opción múltiple para el examen PCNSE con 150 preguntas, tips, audios y explicaciones detalladas." />
+  <meta property="og:title" content="PCNSE 150 preguntas — Simulador con voz del autor" />
+  <meta property="og:description" content="PCNSE 150 preguntas — Simulador gratuito con audio TTS en voz del autor (ES/EN). 150 preguntas con tips y explicaciones para el examen PCNSE de Palo Alto Networks." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="https://api.iconify.design/mdi/shield-lock-outline.svg?color=%231e90ff&width=512&height=512" />
   <link rel="icon" href="https://api.iconify.design/mdi/shield-lock-outline.svg?color=%231e90ff&width=32&height=32" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="https://api.iconify.design/mdi/shield-lock-outline.svg?color=%231e90ff&width=180&height=180" />
   <script>
     (function () {
-      var k = "william-quest:theme";
-      var lk = "william-quest:locale";
+      var k = "pcnse-150:theme";
+      var lk = "pcnse-150:locale";
       var m = "dark";
       var lang = "es";
       try {
+        // Migracion desde la version vieja (william-quest) sin perder preferencias.
+        var legacy = localStorage.getItem("william-quest:theme");
+        if (legacy === "light" || legacy === "dark") {
+          localStorage.setItem(k, legacy);
+          localStorage.removeItem("william-quest:theme");
+        }
+        var legacyLoc = localStorage.getItem("william-quest:locale");
+        if (legacyLoc === "en" || legacyLoc === "es") {
+          localStorage.setItem(lk, legacyLoc);
+          localStorage.removeItem("william-quest:locale");
+        }
         var v = localStorage.getItem(k);
         if (v === "light" || v === "dark") m = v;
         var l = localStorage.getItem(lk);
@@ -146,7 +157,7 @@
         <div class="isa-app-boot__icon-wrap">
           <iconify-icon icon="mdi:shield-lock-outline" width="1.85em" height="1.85em"></iconify-icon>
         </div>
-        <p class="isa-app-boot__title">Palo Alto Quest</p>
+        <p class="isa-app-boot__title">PCNSE 150 preguntas</p>
         <p class="isa-app-boot__label">Cargando simulador PCNSE…</p>
         <div class="isa-app-boot__bar" aria-hidden="true"><span class="isa-app-boot__bar-fill"></span></div>
       </div>

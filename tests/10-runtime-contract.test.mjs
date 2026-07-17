@@ -49,7 +49,7 @@ describe('runtime contract — i18n UI', () => {
     const src = await readSrc(p.root, 'vendor/william-shared/william-front.js');
     assert.match(src, /bag\.Locale\s*=/);
     assert.match(src, /LangSwitch/);
-    assert.match(src, /william-quest:locale|ns\.toLowerCase\(\)\s*\+\s*":locale"/);
+    assert.match(src, /william-quest:locale|pcnse-150:locale|ns\.toLowerCase\(\)\s*\+\s*":locale"/);
   });
 
   it('quiz.ts merges questions.en.json and sets audio/es path', async () => {

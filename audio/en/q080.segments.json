@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 96.28425200000001,
+  "clips": [
+    {
+      "key": "stmt",
+      "file": "audio/en/q080-stmt.mp3",
+      "durSec": 13.293438
+    },
+    {
+      "key": "C",
+      "file": "audio/en/q080-C.mp3",
+      "durSec": 4.121563
+    },
+    {
+      "key": "ttip",
+      "file": "audio/en/q080-ttip.mp3",
+      "durSec": 28.656
+    },
+    {
+      "key": "correct",
+      "file": "audio/en/q080-correct.mp3",
+      "durSec": 4.168
+    },
+    {
+      "key": "wrong",
+      "file": "audio/en/q080-wrong.mp3",
+      "durSec": 3.541063
+    },
+    {
+      "key": "EC",
+      "file": "audio/en/q080-EC.mp3",
+      "durSec": 6.013969
+    },
+    {
+      "key": "ED",
+      "file": "audio/en/q080-ED.mp3",
+      "durSec": 6.013969
+    },
+    {
+      "key": "A",
+      "file": "audio/en/q080-A.mp3",
+      "durSec": 3.680375
+    },
+    {
+      "key": "B",
+      "file": "audio/en/q080-B.mp3",
+      "durSec": 12.887094
+    },
+    {
+      "key": "D",
+      "file": "audio/en/q080-D.mp3",
+      "durSec": 3.366906
+    },
+    {
+      "key": "EA",
+      "file": "audio/en/q080-EA.mp3",
+      "durSec": 5.874656
+    },
+    {
+      "key": "EB",
+      "file": "audio/en/q080-EB.mp3",
+      "durSec": 4.667219
+    }
+  ]
+}

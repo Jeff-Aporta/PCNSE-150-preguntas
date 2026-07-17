@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 94.515627,
+  "clips": [
+    {
+      "key": "stmt",
+      "file": "audio/es/q059-stmt.mp3",
+      "durSec": 7.267875
+    },
+    {
+      "key": "A",
+      "file": "audio/es/q059-A.mp3",
+      "durSec": 5.073563
+    },
+    {
+      "key": "B",
+      "file": "audio/es/q059-B.mp3",
+      "durSec": 14.280281
+    },
+    {
+      "key": "D",
+      "file": "audio/es/q059-D.mp3",
+      "durSec": 4.620781
+    },
+    {
+      "key": "ttip",
+      "file": "audio/es/q059-ttip.mp3",
+      "durSec": 26.748
+    },
+    {
+      "key": "correct",
+      "file": "audio/es/q059-correct.mp3",
+      "durSec": 1.567375
+    },
+    {
+      "key": "EC",
+      "file": "audio/es/q059-EC.mp3",
+      "durSec": 4.574344
+    },
+    {
+      "key": "ED",
+      "file": "audio/es/q059-ED.mp3",
+      "durSec": 11.807375
+    },
+    {
+      "key": "C",
+      "file": "audio/es/q059-C.mp3",
+      "durSec": 5.746969
+    },
+    {
+      "key": "wrong",
+      "file": "audio/es/q059-wrong.mp3",
+      "durSec": 4.307313
+    },
+    {
+      "key": "EA",
+      "file": "audio/es/q059-EA.mp3",
+      "durSec": 4.794938
+    },
+    {
+      "key": "EB",
+      "file": "audio/es/q059-EB.mp3",
+      "durSec": 3.726813
+    }
+  ]
+}

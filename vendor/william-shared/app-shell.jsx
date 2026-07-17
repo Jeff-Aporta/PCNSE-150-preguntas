@@ -227,6 +227,46 @@
             sx: { flexShrink: 0 },
           },
           props.toolbarExtra || null,
+          props.toolbarLinks && props.toolbarLinks.length
+            ? React.createElement(
+                MUI.Stack,
+                {
+                  direction: "row",
+                  spacing: 0.25,
+                  alignItems: "center",
+                  sx: { flexShrink: 0, mr: { xs: 0.25, sm: 0.5 } },
+                },
+                props.toolbarLinks.map(function (link, idx) {
+                  return React.createElement(
+                    UI.Tooltip,
+                    { key: link.id || idx, title: link.title || link.label || "" },
+                    React.createElement(
+                      "a",
+                      {
+                        href: link.href,
+                        target: link.target || "_blank",
+                        rel: "noopener noreferrer",
+                        style: {
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          width: 32,
+                          height: 32,
+                          borderRadius: "50%",
+                          border: "1px solid rgba(99,102,241,0.40)",
+                          backgroundColor: "rgba(99,102,241,0.10)",
+                          color: "inherit",
+                          textDecoration: "none",
+                          marginLeft: idx > 0 ? 4 : 0,
+                        },
+                        "aria-label": link.ariaLabel || link.label || link.id || "link",
+                      },
+                      React.createElement(UI.Icon, { icon: link.icon, size: 18 })
+                    )
+                  );
+                })
+              )
+            : null,
           showTheme ? React.createElement(UI.ThemeSwitch, { mode: tm.mode, onToggle: tm.toggle }) : null
         )
       )

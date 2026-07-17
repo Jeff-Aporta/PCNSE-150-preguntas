@@ -106,6 +106,17 @@ export function shuffleArray<T>(arr: T[], rng: () => number = Math.random): T[] 
 /** Mapeo estable letra → índice. */
 const ANSWER_INDEX: Record<AnswerId, number> = { A: 0, B: 1, C: 2, D: 3 };
 
+/**
+ * shuffleQuestionOptions — DEPRECATED en esta version.
+ *
+ * El shuffle por sesion genera inconsistencia entre el audio pregrabado
+ * (que narra "Opcion A. <texto A canonico>") y la pantalla (que mostraria
+ * el texto barajado en el slot A). Para mantener coherencia con el sistema
+ * de audios pregrabados, actualmente NO barajamos las opciones por sesion.
+ * Si en el futuro se regeneran los clips por slot visible (16 archivos por
+ * pregunta en vez de 4), reactiva esta funcion; el codigo y los tests
+ * permanecen para que sea un revert de un solo cambio.
+ */
 export function shuffleQuestionOptions(
   q: Question,
   rng: () => number = Math.random
@@ -122,11 +133,9 @@ export function shuffleQuestionOptions(
   const newOptions = pairs.map((p, idx) => ({ id: letters[idx], text: p.text }));
   const newCorrect = letters[pairs.findIndex((p) => p.original === q.correctAnswer)];
   const newExplanations = letters.reduce<Record<AnswerId, string>>((acc, letter, idx) => {
-    // `idx` apunta al `pairs` original; mantenemos la explicación según la letra NUEVA.
     acc[letter] = q.explanations[letters[idx]] ?? "";
     return acc;
   }, { A: "", B: "", C: "", D: "" });
-  // `pairs[idx].original` es la letra vieja que ahora cae en `letters[idx]`.
   for (const [newLetter, idx] of letters.map((l, i) => [l, i] as const)) {
     const oldLetter = pairs[idx].original;
     newExplanations[newLetter] = q.explanations[oldLetter];
@@ -146,9 +155,12 @@ export function buildSession(mode: QuizMode, topic?: string, allQuestions: Quest
   } else {
     selected = allQuestions.slice();
   }
-  // Orden determinista por id (q001..q150) y opciones A–D mezcladas por sesión.
+  // Orden determinista por id (q001..q150). Las opciones A–D NO se barajan
+  // en esta version porque los audios pregrabados (stmt + A/B/C/D) narran
+  // por letra canonica coherente con el panel UI de justificaciones.
+  // El shuffle de opciones se reintroducira cuando los clips se regeneren
+  // por slot visible (ver AGENTS.md §6.14-historical).
   selected.sort((a, b) => a.id.localeCompare(b.id));
-  selected = selected.map((q) => shuffleQuestionOptions(q));
   return {
     mode,
     topic,

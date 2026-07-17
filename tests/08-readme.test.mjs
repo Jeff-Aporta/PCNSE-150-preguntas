@@ -44,19 +44,19 @@ describe('docs consistency', () => {
     assert.ok(/150\s+preguntas/.test(text), 'README should mention "150 preguntas"');
   });
 
-  it('README references the correct GitHub repo URL (Jeff-Aporta, not jagudeloe)', async () => {
+  it('README references the correct GitHub repo URL (Jeff-Aporta/PCNSE-150-preguntas)', async () => {
     const p = await paths();
     const text = readFileSync(p.readme, 'utf8');
     assert.ok(
-      /Jeff-Aporta\/william-quest/.test(text),
-      'README should reference Jeff-Aporta/william-quest as the canonical repo'
+      /Jeff-Aporta\/PCNSE-150-preguntas/.test(text),
+      'README should reference Jeff-Aporta/PCNSE-150-preguntas as the canonical repo'
     );
   });
 
   it('package.json has name, version 2.x, description mentioning 150', async () => {
     const p = await paths();
     const pkg = await readJson(join(p.root, 'package.json'));
-    assert.equal(pkg.name, 'william-quest');
+    assert.equal(pkg.name, 'pcnse-150-preguntas');
     assert.match(pkg.version, /^2\./, `version should be 2.x, got ${pkg.version}`);
     assert.ok(/150/.test(pkg.description), `package.json description should mention 150, got: ${pkg.description}`);
   });

@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 75.778785,
+  "clips": [
+    {
+      "key": "A",
+      "file": "audio/en/q042-A.mp3",
+      "durSec": 3.007
+    },
+    {
+      "key": "D",
+      "file": "audio/en/q042-D.mp3",
+      "durSec": 3.633938
+    },
+    {
+      "key": "ttip",
+      "file": "audio/en/q042-ttip.mp3",
+      "durSec": 19.656
+    },
+    {
+      "key": "wrong",
+      "file": "audio/en/q042-wrong.mp3",
+      "durSec": 2.914125
+    },
+    {
+      "key": "stmt",
+      "file": "audio/en/q042-stmt.mp3",
+      "durSec": 10.193563
+    },
+    {
+      "key": "B",
+      "file": "audio/en/q042-B.mp3",
+      "durSec": 9.961375
+    },
+    {
+      "key": "C",
+      "file": "audio/en/q042-C.mp3",
+      "durSec": 3.726813
+    },
+    {
+      "key": "correct",
+      "file": "audio/en/q042-correct.mp3",
+      "durSec": 3.541063
+    },
+    {
+      "key": "EB",
+      "file": "audio/en/q042-EB.mp3",
+      "durSec": 5.468313
+    },
+    {
+      "key": "EC",
+      "file": "audio/en/q042-EC.mp3",
+      "durSec": 2.867688
+    },
+    {
+      "key": "EA",
+      "file": "audio/en/q042-EA.mp3",
+      "durSec": 4.794938
+    },
+    {
+      "key": "ED",
+      "file": "audio/en/q042-ED.mp3",
+      "durSec": 6.013969
+    }
+  ]
+}

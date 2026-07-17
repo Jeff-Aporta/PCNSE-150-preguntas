@@ -42,13 +42,21 @@ describe("session shuffle", () => {
     assert.ok(different >= 35, `expected most shuffles to differ from sorted input, got ${different}/40`);
   });
 
-  it("quiz.ts buildSession reorders sessions by id and shuffles per-question options", async () => {
+  it("quiz.ts buildSession orders by id (opciones fijas en A-D canónico para coherencia de audio)", async () => {
     const p = await paths();
     const src = await readFile(join(p.root, "_dist/js/app/core/quiz.ts"), "utf8");
     assert.match(src, /function shuffleArray/);
     assert.match(src, /selected\.sort\(\s*\(a,\s*b\)\s*=>\s*a\.id\.localeCompare/);
+    // shuffleQuestionOptions se mantiene como codigo disponible (deprecated)
+    // pero NO se aplica en buildSession para preservar coherencia con los
+    // clips pregrabados por letra canónica (ver AGENTS.md §6.14-historical).
     assert.match(src, /function shuffleQuestionOptions/);
-    assert.match(src, /selected\.map\(\s*\(q\)\s*=>\s*shuffleQuestionOptions\(q\)/);
+    assert.match(src, /shuffleQuestionOptions\s*—\s*DEPRECATED/i);
+    assert.doesNotMatch(
+      src,
+      /selected\.map\(\s*\(q\)\s*=>\s*shuffleQuestionOptions\(q\)/,
+      "buildSession no debe llamar shuffleQuestionOptions (coherencia audio)"
+    );
   });
 
   it("HomeView starts via buildSession (no local id sort)", async () => {

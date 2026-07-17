@@ -50,27 +50,54 @@ export function buildClipPrompts(q, locale, enRow) {
   return out;
 }
 
-/** Prompts por fragmento — tip track. */
+/** Prompts por fragmento — tip track.
+ *
+ * Sistema de coherencia (PCNSE-150-preguntas, voz Jeff-Aporta):
+ * - ttip = "Justificacion pregunta N. Tip. <tip>"
+ * - correct = "Es correcta la opcion <X>"  (X = letra CANONICA, p.ej. "C")
+ * - wrong   = "Es incorrecta. La respuesta correcta es la opcion <X>"
+ *   Donde <X> es la letra canonica del banco (q.correctAnswer), no el slot
+ *   barajado, porque el panel UI de justificaciones SIEMPRE muestra las
+ *   opciones A,B,C,D en orden canonico (independiente del shuffle). El
+ *   usuario mira en el panel la opcion cuya letra coincide con X.
+ * - Explicaciones en orden: correcta (EA) -> incorrecta X baja (EB)
+ *   -> otra incorrecta (EC) -> ultima incorrecta (ED).
+ *   Es decir: PRIMERO la correcta, luego las incorrectas. Esto cumple con
+ *   "primero se lee la correcta y luego se deben leer cuales son
+ *   incorrectas".
+ *
+ * El playlist virtual (`core/audio-playlist.ts:buildTipOrder`) reproduce los
+ * clips en orden: ttip -> correct/wrong -> Ecorrect -> EW1 -> EW2 -> EW3.
+ */
 export function buildTipClipPrompts(q, locale, enRow, isCorrect = false) {
   const num = q.id.replace(/^q/i, "");
   const tip = locale === "en" && enRow ? enRow.tip : q.tip;
   const explanations = locale === "en" && enRow ? enRow.explanations : q.explanations;
+  const correct = q.correctAnswer; // "A" | "B" | "C" | "D" canonico
+  const others = ["A", "B", "C", "D"].filter((l) => l !== correct);
   const ttip = locale === "en"
     ? `Explanation for question ${num}. Tip. ${tip}`
     : `Justificacion pregunta ${num}. Tip. ${tip}`;
-  const fb = isCorrect
-    ? (locale === "en" ? "Correct." : "Correcto.")
-    : (locale === "en" ? "Incorrect." : "Incorrecto.");
-  const out = {
+  const correctFb = locale === "en"
+    ? `Yes, you are right. The correct answer is option ${correct}.`
+    : `Es correcta la opcion ${correct}.`;
+  const wrongFb = locale === "en"
+    ? `It is incorrect. The correct answer is option ${correct}.`
+    : `Es incorrecta. La respuesta correcta es la opcion ${correct}.`;
+  const expLine = (letter) => locale === "en"
+    ? `Option ${letter}. ${explanations[letter]}`
+    : `Opcion ${letter}. ${explanations[letter]}`;
+  return {
     ttip,
-    correct: fb,
-    wrong: fb,
-    EA: locale === "en" ? `Option A. ${explanations.A}` : `Opcion A. ${explanations.A}`,
-    EB: locale === "en" ? `Option B. ${explanations.B}` : `Opcion B. ${explanations.B}`,
-    EC: locale === "en" ? `Option C. ${explanations.C}` : `Opcion C. ${explanations.C}`,
-    ED: locale === "en" ? `Option D. ${explanations.D}` : `Opcion D. ${explanations.D}`,
+    correct: correctFb,
+    wrong: wrongFb,
+    // 4 entradas fijas. EA contiene la explicacion de la correcta; EB..ED
+    // contienen las 3 incorrectas en orden alfabetico ascendente.
+    EA: expLine(correct),
+    EB: expLine(others[0]),
+    EC: expLine(others[1]),
+    ED: expLine(others[2]),
   };
-  return out;
 }
 
 export const QUESTION_CLIP_KEYS = ["stmt", "A", "B", "C", "D"];

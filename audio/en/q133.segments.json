@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 96.88472,
+  "clips": [
+    {
+      "key": "stmt",
+      "file": "audio/en/q133-stmt.mp3",
+      "durSec": 7.36075
+    },
+    {
+      "key": "A",
+      "file": "audio/en/q133-A.mp3",
+      "durSec": 3.993844
+    },
+    {
+      "key": "C",
+      "file": "audio/en/q133-C.mp3",
+      "durSec": 4.400188
+    },
+    {
+      "key": "D",
+      "file": "audio/en/q133-D.mp3",
+      "durSec": 4.121563
+    },
+    {
+      "key": "correct",
+      "file": "audio/en/q133-correct.mp3",
+      "durSec": 3.320469
+    },
+    {
+      "key": "EC",
+      "file": "audio/en/q133-EC.mp3",
+      "durSec": 4.620781
+    },
+    {
+      "key": "ED",
+      "file": "audio/en/q133-ED.mp3",
+      "durSec": 6.420344
+    },
+    {
+      "key": "B",
+      "file": "audio/en/q133-B.mp3",
+      "durSec": 24.336
+    },
+    {
+      "key": "ttip",
+      "file": "audio/en/q133-ttip.mp3",
+      "durSec": 23.508
+    },
+    {
+      "key": "wrong",
+      "file": "audio/en/q133-wrong.mp3",
+      "durSec": 3.761656
+    },
+    {
+      "key": "EA",
+      "file": "audio/en/q133-EA.mp3",
+      "durSec": 6.373906
+    },
+    {
+      "key": "EB",
+      "file": "audio/en/q133-EB.mp3",
+      "durSec": 4.667219
+    }
+  ]
+}

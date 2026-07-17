@@ -35,7 +35,8 @@ const batchSize = 10; // matrix_batch_text_to_audio cap.
 
 const LOCALES = localeArg ? [localeArg] : ["es", "en"];
 
-const VOICE = "English_Trustworth_Man";
+// Voz clonada del autor (Jeff-Aporta). Una sola voz sirve para ambos idiomas.
+const VOICE = process.env.WILLIAM_VOICE_ID || "moss_audio_6121c2b3-7957-11f1-b432-da8cea034f66";
 const SPEED = 0.95;
 
 function getL10nQuestion(q, loc, enMap) {

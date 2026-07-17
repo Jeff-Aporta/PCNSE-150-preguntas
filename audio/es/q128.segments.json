@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 83.680876,
+  "clips": [
+    {
+      "key": "stmt",
+      "file": "audio/es/q128-stmt.mp3",
+      "durSec": 8.440469
+    },
+    {
+      "key": "A",
+      "file": "audio/es/q128-A.mp3",
+      "durSec": 3.088281
+    },
+    {
+      "key": "B",
+      "file": "audio/es/q128-B.mp3",
+      "durSec": 13.514031
+    },
+    {
+      "key": "ttip",
+      "file": "audio/es/q128-ttip.mp3",
+      "durSec": 25.596
+    },
+    {
+      "key": "EA",
+      "file": "audio/es/q128-EA.mp3",
+      "durSec": 4.667219
+    },
+    {
+      "key": "EB",
+      "file": "audio/es/q128-EB.mp3",
+      "durSec": 4.260875
+    },
+    {
+      "key": "EC",
+      "file": "audio/es/q128-EC.mp3",
+      "durSec": 5.921094
+    },
+    {
+      "key": "ED",
+      "file": "audio/es/q128-ED.mp3",
+      "durSec": 6.013969
+    },
+    {
+      "key": "C",
+      "file": "audio/es/q128-C.mp3",
+      "durSec": 3.134719
+    },
+    {
+      "key": "D",
+      "file": "audio/es/q128-D.mp3",
+      "durSec": 3.761656
+    },
+    {
+      "key": "wrong",
+      "file": "audio/es/q128-wrong.mp3",
+      "durSec": 3.227594
+    },
+    {
+      "key": "correct",
+      "file": "audio/es/q128-correct.mp3",
+      "durSec": 2.054969
+    }
+  ]
+}

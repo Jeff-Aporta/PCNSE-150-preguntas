@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 104.24575299999998,
+  "clips": [
+    {
+      "key": "C",
+      "file": "audio/en/q129-C.mp3",
+      "durSec": 4.400188
+    },
+    {
+      "key": "D",
+      "file": "audio/en/q129-D.mp3",
+      "durSec": 4.086719
+    },
+    {
+      "key": "EB",
+      "file": "audio/en/q129-EB.mp3",
+      "durSec": 4.35375
+    },
+    {
+      "key": "EC",
+      "file": "audio/en/q129-EC.mp3",
+      "durSec": 5.746969
+    },
+    {
+      "key": "ED",
+      "file": "audio/en/q129-ED.mp3",
+      "durSec": 5.340594
+    },
+    {
+      "key": "stmt",
+      "file": "audio/en/q129-stmt.mp3",
+      "durSec": 10.460594
+    },
+    {
+      "key": "A",
+      "file": "audio/en/q129-A.mp3",
+      "durSec": 4.574344
+    },
+    {
+      "key": "B",
+      "file": "audio/en/q129-B.mp3",
+      "durSec": 16.973813
+    },
+    {
+      "key": "ttip",
+      "file": "audio/en/q129-ttip.mp3",
+      "durSec": 35.352
+    },
+    {
+      "key": "correct",
+      "file": "audio/en/q129-correct.mp3",
+      "durSec": 4.121563
+    },
+    {
+      "key": "EA",
+      "file": "audio/en/q129-EA.mp3",
+      "durSec": 5.654063
+    },
+    {
+      "key": "wrong",
+      "file": "audio/en/q129-wrong.mp3",
+      "durSec": 3.181156
+    }
+  ]
+}

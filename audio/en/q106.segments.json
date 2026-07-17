@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "totalDur": 93.80928399999999,
+  "clips": [
+    {
+      "key": "stmt",
+      "file": "audio/en/q106-stmt.mp3",
+      "durSec": 11.133969
+    },
+    {
+      "key": "D",
+      "file": "audio/en/q106-D.mp3",
+      "durSec": 3.726813
+    },
+    {
+      "key": "correct",
+      "file": "audio/en/q106-correct.mp3",
+      "durSec": 3.726813
+    },
+    {
+      "key": "wrong",
+      "file": "audio/en/q106-wrong.mp3",
+      "durSec": 3.494625
+    },
+    {
+      "key": "EA",
+      "file": "audio/en/q106-EA.mp3",
+      "durSec": 4.841375
+    },
+    {
+      "key": "EB",
+      "file": "audio/en/q106-EB.mp3",
+      "durSec": 5.201281
+    },
+    {
+      "key": "EC",
+      "file": "audio/en/q106-EC.mp3",
+      "durSec": 7.407188
+    },
+    {
+      "key": "A",
+      "file": "audio/en/q106-A.mp3",
+      "durSec": 3.541063
+    },
+    {
+      "key": "B",
+      "file": "audio/en/q106-B.mp3",
+      "durSec": 12.701344
+    },
+    {
+      "key": "C",
+      "file": "audio/en/q106-C.mp3",
+      "durSec": 5.247719
+    },
+    {
+      "key": "ttip",
+      "file": "audio/en/q106-ttip.mp3",
+      "durSec": 25.02
+    },
+    {
+      "key": "ED",
+      "file": "audio/en/q106-ED.mp3",
+      "durSec": 7.767094
+    }
+  ]
+}
