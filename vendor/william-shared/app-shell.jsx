@@ -238,7 +238,7 @@
                 },
                 props.toolbarLinks.map(function (link, idx) {
                   return React.createElement(
-                    UI.Tooltip,
+                    MUI.Tooltip,
                     { key: link.id || idx, title: link.title || link.label || "" },
                     React.createElement(
                       "a",
